@@ -1,0 +1,25 @@
+#Objective of this exercise is to build logic to capture information of family generation
+#Few assumptions were made regarding marriage age. Such assumptions or input values can be entered in the application
+#Install DateTime module and import as shown below.
+#This calculator can be generalized more depending on feedback of the user. 
+
+import DateTime
+class Family:
+    members = 4
+
+    def get_total_members(self):
+        birthyear = int(input('enter your birthyear \n'))
+        curryear = DateTime.DateTime().year()
+        age = curryear - birthyear
+        print('Your age \n' , age)
+        if age >= 41:
+            feedback = str(input('sounds like you have 1 kid by now \n'))
+            if feedback is 'Y':
+                self.members += 1
+
+    def count_members(self):
+            print('member number', self.members)
+
+familyobject1 = Family()
+familyobject1.get_total_members()
+familyobject1.count_members()
