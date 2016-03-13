@@ -49,5 +49,5 @@ def clean_mylist(mylist):
                     print(final_word)
                     final_list.append(final_word)
             except TypeError:
-                pass
+                continue
 my_wordcount('http://www.youwebsitelinkhere.com/')
