@@ -1,1 +1,4 @@
-swagger 
+##20 - Swagger standard template -- https://gist.github.com/arno-di-loreto/5a3df2250721fb154060
+##explanation - https://apihandyman.io/writing-openapi-swagger-specification-tutorial-part-6-defining-security/
+
+swagger: "2.0"
