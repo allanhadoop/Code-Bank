@@ -1,4 +1,5 @@
 on REDHAT - /// Docker engine is same as Docker-compose?? ///https://docs.docker.com/compose/overview/
+//donot login as root, use sudo instead.
 yum update 
 
 @sudo tee /etc/yum.repos.d/docker.repo <<-'EOF'
@@ -17,8 +18,8 @@ sudo systemctl enable docker.service  /// Start at booter
 sudo systemctl start docker
  
 --install docker-compose either by curl or pip (if on virtualenv) / boot2docker is for Mac/windows 
-curl -L "https://github.com/docker/compose/releases/download/1.8.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo curl -L "https://github.com/docker/compose/releases/download/1.8.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
  
-chmod +x /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
 
-docker-compose --version 
+sudo docker-compose --version 
