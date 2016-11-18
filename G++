@@ -1,0 +1,2 @@
+// install c++ on redhat 
+yum install gcc-c++
