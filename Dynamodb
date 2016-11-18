@@ -1,0 +1,144 @@
+///java to encrypt dynamodb client-side encryption
+package customDynamo;
+
+import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Set; 
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+
+import com.amazonaws.AmazonClientException;
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.profile.ProfileCredentialsProvider;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
+import com.amazonaws.services.dynamodbv2.datamodeling.AttributeEncryptor;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig.SaveBehavior;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
+import com.amazonaws.services.dynamodbv2.datamodeling.encryption.DoNotEncrypt;
+import com.amazonaws.services.dynamodbv2.datamodeling.encryption.DoNotTouch;
+import com.amazonaws.services.dynamodbv2.datamodeling.encryption.providers.EncryptionMaterialsProvider;
+import com.amazonaws.services.dynamodbv2.datamodeling.encryption.providers.SymmetricStaticProvider;
+
+public class encryptDynamo {
+
+	@DynamoDBTable(tableName = "MyStore")
+	public static class Book {
+		private Integer id;
+		private String title;
+		private String ISBN;
+		private Set<String> bookAuthors;
+		private String someProp;
+
+		// Not encrypted because it is a hash key
+		@DynamoDBHashKey(attributeName = "Id")
+		public Integer getId() {
+			return id;
+		}
+
+		public void setId(Integer id) {
+			this.id = id;
+		}
+
+		// Encrypted by default
+		@DynamoDBAttribute(attributeName = "Title")
+		public String getTitle() {
+			return title;
+		}
+
+		public void setTitle(String title) {
+			this.title = title;
+		}
+
+		// Specifically not encrypted
+		@DoNotEncrypt
+		@DynamoDBAttribute(attributeName = "ISBN")
+		public String getISBN() {
+			return ISBN;
+		}
+
+		public void setISBN(String ISBN) {
+			this.ISBN = ISBN;
+		}
+
+		// Encrypted by default
+		@DynamoDBAttribute(attributeName = "Authors")
+		public Set<String> getBookAuthors() {
+			return bookAuthors;
+		}
+
+		public void setBookAuthors(Set<String> bookAuthors) {
+			this.bookAuthors = bookAuthors;
+		}
+
+		// Not encrypted nor signed
+		@DoNotTouch
+		public String getSomeProp() {
+			return someProp;
+		}
+
+		public void setSomeProp(String someProp) {
+			this.someProp = someProp;
+		}
+	}
+
+	public static void main(String[] args) {
+
+		AWSCredentials credentials = null;
+		try {
+			credentials = new ProfileCredentialsProvider("aws kit profile name").getCredentials();
+		} catch (Exception e) {
+			throw new AmazonClientException("Cannot load the credentials from the credential profiles file. "
+					+ "Please make sure that your credentials file is at the correct "
+					+ "location (/Users/allan.gon/.aws/credentials), and is in valid format.", e);
+		}
+
+		AmazonDynamoDBClient client = new AmazonDynamoDBClient(credentials);
+		Region usWest2 = Region.getRegion(Regions.US_WEST_2);
+		client.setRegion(usWest2);
+		
+		SecretKey cek = null;
+		try {
+			cek = KeyGenerator.getInstance("AES").generateKey();
+		} catch (NoSuchAlgorithmException e) { 
+			e.printStackTrace();
+		}
+
+		// message authentication code
+		String keyString = "aws-dynamodb";
+		SecretKeySpec macKey = null;
+		try {
+			macKey = new SecretKeySpec((keyString).getBytes("UTF-8"), "HmacMD5");
+		} catch (UnsupportedEncodingException e) { 
+			e.printStackTrace();
+		}
+
+		DynamoDBMapper mapper = new DynamoDBMapper(client);
+		EncryptionMaterialsProvider provider = new SymmetricStaticProvider(cek, macKey);
+
+		mapper = new DynamoDBMapper(client, DynamoDBMapperConfig.DEFAULT, new AttributeEncryptor(provider));
+
+		Book book = new Book();
+		book.setId(123);
+		book.setTitle("my title");
+
+		// Saves the book both encrypted and signed to DynamoDB
+		mapper.save(book);
+
+		// Loads the book both with signature verified and decrypted from
+		// DynamoDB
+		/*
+		 * Book bookTo = new Book(); bookTo.setId(123); Book bookTo =
+		 * mapper.load(bookTo);
+		 */
+
+	}
+
+}
