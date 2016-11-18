@@ -1,4 +1,5 @@
 ///java to encrypt dynamodb client-side encryption
+//http://source.coveo.com/2015/07/06/dynamodb-encryption/
 package customDynamo;
 
 import java.io.UnsupportedEncodingException;
@@ -97,7 +98,7 @@ public class encryptDynamo {
 		} catch (Exception e) {
 			throw new AmazonClientException("Cannot load the credentials from the credential profiles file. "
 					+ "Please make sure that your credentials file is at the correct "
-					+ "location (/Users/allan.gon/.aws/credentials), and is in valid format.", e);
+					+ "location (/Users/allan/.aws/credentials), and is in valid format.", e);
 		}
 
 		AmazonDynamoDBClient client = new AmazonDynamoDBClient(credentials);
