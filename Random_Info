@@ -16,7 +16,7 @@ Check md5sum <filename-path>
 Check if key matches with https://repo.continuum.io/archive/
 sudo yum install bzip2 
 now run sh <filename.sh>
-
+-This installation will set path automatically 
 conda --version
 python --version
 
