@@ -14,7 +14,8 @@ python3.5 -V
 Download anaconda from https://www.continuum.io/downloads , transfer it to EC2
 Check md5sum <filename-path>
 Check if key matches with https://repo.continuum.io/archive/
-Run sh <filename.sh>
+sudo yum install bzip2 
+now run sh <filename.sh>
 
 For python3.5 use - bash Anaconda3-4.2.0-Linux-x86_64.sh
 For python2.7 use - bash Anaconda2-4.2.0-Linux-x86_64.sh 
