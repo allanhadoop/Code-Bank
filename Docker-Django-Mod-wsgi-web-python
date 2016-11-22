@@ -1,0 +1,50 @@
+//To launch python from Django using apache-mode-wsgi module and deploy all in Docker-compose 
+//Install Docker on Redhat and python using pip - https://docs.docker.com/engine/installation/linux/rhel/
+sudo yum update
+curl -fsSL https://get.docker.com/ | sh
+sudo systemctl enable docker.service
+sudo systemctl start docker
+pip install docker-compose (https://docs.docker.com/compose/install/)
+
+//docker-compose - https://docs.docker.com/compose/django/
+docker-compose ps 
+
+docker-compose run web django-admin.py startproject myprojectname .
+//https://github.com/docker/compose/issues/1214
+
+
+ls -l
+sudo chown -R $USER:$USER .
+ls -l
+
+docker-compose -f docker-compose.yml build
+docker-compose -f docker-compose.yml run web python -u manage.py migrate
+//At this point , Django is running.. we need MOD_WSGI module of Apache to run python code .. This is on public ip of the instance with 8000 port (e.g. http://xx.xx.xx.xxxx:8000) 
+//get meta data info from curl http://xxx.xxx.xxx.xxx/latest/meta-data/public-ipv4
+//This will show main page of Django. now configure Apache, Mod_wsgi and deploy python on site_packages.
+
+//First install mod-wsgi which is already enabled at /etc/httpd/conf.modules.d LoadModule wsgi_module modules/mod_wsgi.so
+//https://docs.djangoproject.com/en/1.10/howto/deployment/wsgi/modwsgi/
+
+cd <to-main-project-directory>
+docker-compose run web django-admin.py startapp testapp
+//now go to testapp folder and change views.py 
+//now go back to project.settings.py , add test app and then go to url.py and import test app package
+
+now run 
+docker-compose run web python manage.py runserver
+
+//https://www.sitepoint.com/deploying-a-django-app-with-mod_wsgi-on-ubuntu-14-04/
+//and https://www.webforefront.com/django/setupapachewebserverwsgi.html
+//https://docs.djangoproject.com/ja/1.9/releases/1.8/#s-django-conf-urls-patterns
+
+docker-compose run web python manage.py runserver
+now follow  - https://www.sitepoint.com/deploying-a-django-app-with-mod_wsgi-on-ubuntu-14-04/
+
+//So our python  code needs to generate dynamic HTML which is possible if we fit python code into Django templates - 
+//At page 29 on this great tutorial - Django video at https://www.youtube.com/watch?v=zTNA0MtZwso
+
+//Template guide - https://docs.djangoproject.com/ja/1.9/ref/templates/api/
+
+
+
