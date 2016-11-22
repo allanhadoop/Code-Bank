@@ -1,0 +1,11 @@
+//git 
+
+ls -l
+//remove .git if any exists
+git init
+git add --all .
+git commit -m "My first commit"
+git remote add origin https://github.com/<your-github-username>/my-first-blog.git
+
+git checkout branch <name of brach>
+git push -u origin master
