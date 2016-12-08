@@ -10,7 +10,8 @@ sudo ./configure
 sudo make altinstall
 python3.5 -V
 
-//Anaconda - 
+//Anaconda - Anaconda is an easy-to-install free package manager, environment manager, Python distribution, and collection of over 720 open source packages
+//https://docs.continuum.io/anaconda/
 Download anaconda from https://www.continuum.io/downloads , transfer it to EC2
 Check md5sum <filename-path>
 Check if key matches with https://repo.continuum.io/archive/
