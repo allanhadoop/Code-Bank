@@ -1,7 +1,15 @@
-https://s3.amazonaws.com/quickstart-reference/mongodb/latest/doc/MongoDB_on_the_AWS_Cloud.pdf
+//https://s3.amazonaws.com/quickstart-reference/mongodb/latest/doc/MongoDB_on_the_AWS_Cloud.pdf
 
-https://docs.mongodb.com/ecosystem/platforms/amazon-ec2/
+//https://docs.mongodb.com/ecosystem/platforms/amazon-ec2/
 
+//Steps = 
+//Install Amazon Linux
+//MongoDB installed via yum
+//Individual PIOPS EBS volumes for data (1000 IOPS), journal (250 IOPS), and log (100 IOPS)
+//Updated read-ahead values for each block device
+//Update ulimit settings
+
+//download repo and then update yum repo repository 
 echo "[mongodb-org-3.2]
 name=MongoDB Repository
 baseurl=https://repo.mongodb.org/yum/amazon/2013.03/mongodb-org/3.2/x86_64/
@@ -9,3 +17,9 @@ gpgcheck=1
 enabled=1
 gpgkey=https://www.mongodb.org/static/pgp/server-3.2.asc" |
   sudo tee -a /etc/yum.repos.d/mongodb-org-3.2.repo
+
+//now install mongo
+sudo yum -y update && sudo yum install -y mongodb-org-server \
+    mongodb-org-shell mongodb-org-tools
+    
+//
