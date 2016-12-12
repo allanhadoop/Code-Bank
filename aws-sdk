@@ -1,3 +1,5 @@
+//http://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/introduction.html
+
 mvn archetype:generate \
   -DarchetypeGroupId=org.apache.maven.archetypes \
   -DarchetypeArtifactId=maven-archetype-webapp \
