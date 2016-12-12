@@ -1,5 +1,6 @@
+
 //http://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/introduction.html
-//http://source.coveo.com/2015/07/06/dynamodb-encryption/
+//DynamoDB encryption using Java - read DynamoDB cookbook - //http://source.coveo.com/2015/07/06/dynamodb-encryption/
 
 mvn archetype:generate \
   -DarchetypeGroupId=org.apache.maven.archetypes \
