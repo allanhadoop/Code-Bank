@@ -20,4 +20,5 @@ gpgkey=https://www.mongodb.org/static/pgp/server-3.4.asc
 //now install mongo
 sudo yum install -y mongodb-org
     
-//
+//Start mongod 
+sudo service mongod start
