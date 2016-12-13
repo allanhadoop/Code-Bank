@@ -28,3 +28,17 @@ sudo chkconfig mongod on
 
 //The mongo shell is an interactive JavaScript interface to MongoDB. Config file is at /etc/mongo.conf in redhat 
 mongo  //This will start Mongo shell command line 
+
+//MongoDB is a cross-platform, document oriented database 
+
+--RDBMS	            --MongoDB
+Database	        Database
+Table	            Collection
+Tuple/Row	        Document
+column	            Field
+Table Join	        Embedded Documents
+Primary Key	        Primary Key (Default key _id provided by mongodb itself)
+
+--Database Server and Client
+Mysqld/Oracle	    mongod
+mysql/sqlplus	    mongo
