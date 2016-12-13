@@ -26,4 +26,5 @@ sudo service mongod start
 //auto start mongod on starting of the instance
 sudo chkconfig mongod on
 
-//The mongo shell is an interactive JavaScript interface to MongoDB
+//The mongo shell is an interactive JavaScript interface to MongoDB. Config file is at /etc/mongo.conf in redhat 
+mongo  //This will start Mongo shell command line 
