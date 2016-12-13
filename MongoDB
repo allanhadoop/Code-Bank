@@ -26,3 +26,4 @@ sudo service mongod start
 //auto start mongod on starting of the instance
 sudo chkconfig mongod on
 
+//The mongo shell is an interactive JavaScript interface to MongoDB
