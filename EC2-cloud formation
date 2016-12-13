@@ -1,6 +1,6 @@
 ////Simply update this template to launch EC2 and then attach it to cloud-formation stack and run stack 
 ////more templates at https://github.com/awslabs/aws-cloudformation-templates/tree/master/aws/services
-
+////More turotial - https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/parameters-section-structure.html
 
 Metadata:
   License: This is metadata
