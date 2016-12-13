@@ -9,17 +9,15 @@
 //Updated read-ahead values for each block device
 //Update ulimit settings
 
-//download repo and then update yum repo repository 
-echo "[mongodb-org-3.2]
+//create etc/yum.repos.d/mongodb-org-3.4.repo
+[mongodb-org-3.4]
 name=MongoDB Repository
-baseurl=https://repo.mongodb.org/yum/amazon/2013.03/mongodb-org/3.2/x86_64/
+baseurl=https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/3.4/x86_64/
 gpgcheck=1
 enabled=1
-gpgkey=https://www.mongodb.org/static/pgp/server-3.2.asc" |
-  sudo tee -a /etc/yum.repos.d/mongodb-org-3.2.repo
+gpgkey=https://www.mongodb.org/static/pgp/server-3.4.asc
 
 //now install mongo
-sudo yum -y update && sudo yum install -y mongodb-org-server \
-    mongodb-org-shell mongodb-org-tools
+sudo yum install -y mongodb-org
     
 //
