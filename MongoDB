@@ -33,9 +33,9 @@ mongo  //This will start Mongo shell command line
 
 --RDBMS	            --MongoDB
 Database	            Database
-Table	                Collection
+Table	                    Collection
 Tuple/Row	            Document
-column	                Field
+column	                    Field
 Table Join	            Embedded Documents
 Primary Key	            Primary Key (Default key _id provided by mongodb itself)
 
