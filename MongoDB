@@ -22,3 +22,7 @@ sudo yum install -y mongodb-org
     
 //Start mongod 
 sudo service mongod start
+
+//auto start mongod on starting of the instance
+sudo chkconfig mongod on
+
