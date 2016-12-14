@@ -1,3 +1,3 @@
 chmod u/g/o(others) +r/w/x filename 
 
-chown $USER:$USERGRP  filename/foldername
+chown $USER:$USERGRP -R(recursive for folder files) filename/foldername
