@@ -98,9 +98,9 @@ db.users.insertOne(
    {
       name: "Allan",
       age: 41,
-      status: "F"
+      status: "M"
    }
 )
 
 db.users.find()
-{ "_id" : ObjectId("58531ce5e07f8bad03bd5ae6"), "name" : "Allan", "age" : 41, "status" : "F" }
+{ "_id" : ObjectId("58531ce5e07f8bad03bd5ae6"), "name" : "Allan", "age" : 41, "status" : "M" }
