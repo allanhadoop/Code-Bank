@@ -44,12 +44,6 @@ Mysqld/Oracle	    mongod
 mysql/sqlplus	    mongo
 
 
-
-
-
-
-
-
 ----- Some Java integration 
          // To connect to mongodb server
          MongoClient mongoClient = new MongoClient( "localhost" , 27017 );
@@ -59,3 +53,14 @@ mysql/sqlplus	    mongo
          System.out.println("Connect to database successfully");
          boolean auth = db.authenticate(myUserName, myPassword);
          System.out.println("Authentication: "+auth);
+
+----------------------------Mongo Shell Commmands ------------------------------
+show dbs
+db.help()
+use <name of database>
+show collections  // tables 
+
+
+
+
+
