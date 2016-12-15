@@ -93,4 +93,14 @@ db.collection.update( { _id:1 } , { $inc : { calc:5}})
 db.collection.findOne( { _id:1} )       -->{ "_id" : 1, "calc" : 105 }
 
 
+---------------------------CRUD Operations------------------------------
+db.users.insertOne(
+   {
+      name: "Allan",
+      age: 41,
+      status: "F"
+   }
+)
 
+db.users.find()
+{ "_id" : ObjectId("58531ce5e07f8bad03bd5ae6"), "name" : "Allan", "age" : 41, "status" : "F" }
