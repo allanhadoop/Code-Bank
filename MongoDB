@@ -81,4 +81,16 @@ while ( cursor.hasNext() ) {
 var MyDatestring = Date() 
 MyDatestring  //This will print current date
 
+//To generate new Objectid 
+new ObjectId       // This will generate -- ObjectId("5853180ce07f8bad03bd5ae5")
+
+
+#The mongo shell treats all numbers as floating-point values by default. 
+# Here is example to create and update DB record
+db.collection.insert( { _id:1, calc: NumberLong("100") } ) 
+db.collection.findOne( { _id:1} )       -->{ "_id" : 1, "calc" : NumberLong(100) }
+db.collection.update( { _id:1 } , { $inc : { calc:5}})  
+db.collection.findOne( { _id:1} )       -->{ "_id" : 1, "calc" : 105 }
+
+
 
