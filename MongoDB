@@ -77,5 +77,8 @@ while ( cursor.hasNext() ) {
    printjson( cursor.next() );
 }
 
+//
+var MyDatestring = Date() 
+MyDatestring  //This will print current date
 
 
