@@ -54,14 +54,14 @@ mysql/sqlplus	    mongo
          boolean auth = db.authenticate(myUserName, myPassword);
          System.out.println("Authentication: "+auth);
 
-----------------------------Mongo Shell Commmands ------------------------------
+----------------------------Mongo Shell vs Javascript Command comparisions ----------- 
 Shell Helpers				JavaScript Equivalents
 show dbs, show databases		db.adminCommand('listDatabases')
 use <db>				db = db.getSiblingDB('<db>')
 show collections			db.getCollectionNames()
 show users				db.getUsers()
 
---------------------------------------------------------------------------------
+---------------------------Mongo Shell Commmands------------------------------
 show dbs
 db.help()
 use <name of database>
