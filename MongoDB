@@ -55,12 +55,27 @@ mysql/sqlplus	    mongo
          System.out.println("Authentication: "+auth);
 
 ----------------------------Mongo Shell Commmands ------------------------------
+Shell Helpers				JavaScript Equivalents
+show dbs, show databases		db.adminCommand('listDatabases')
+use <db>				db = db.getSiblingDB('<db>')
+show collections			db.getCollectionNames()
+show users				db.getUsers()
+
+--------------------------------------------------------------------------------
 show dbs
 db.help()
 use <name of database>
 show collections  // tables 
 
+Create new Mongo instance and set DB variable 
+conn = new Mongo();
+db = conn.getDB("myDatabase");
 
+//return all collections from db
+cursor = db.collection.find();
+while ( cursor.hasNext() ) {
+   printjson( cursor.next() );
+}
 
 
 
