@@ -1,3 +1,40 @@
-chmod u/g/o(others) +r/w/x filename 
+chmod               - all related to permission u/g/o(others) +r/w/x filename - 7 = 4+2+1 (read/write/execute)
+cmp                 - This utility compares two files of any type and writes the results to the standard output .e.g. cmp file1.txt file2.txt
+chown               - file ownership $USER:$USERGRP -R(recursive for folder files) filename/foldername
+comm                - It compares common lines of file1 and file2 . E.g. comm -12 a.txt b.txt
+df                  - Show the amount of disk space used on each mounted filesystem.
+less                - Similar to the more command, but the user can page up and down through the file
+ln                  - Creates a symbolic link to a file.
+locate              - A fast database driven file locator.
+rm -- "-filename"   - to delete file that starts with - symbol. 
+more                - Allows file contents or piped output to be sent to the screen one page at a time.
+whereis             - Show where the binary, source and manual page files are for a command
+vmstat              - it reports information about processes, memory, paging, block IO, traps, and cpu activity.
+grep                - This searches the named input FILEs (or standard input if no files are named, or the file name - is given) for lines containing a match to the given PATTERN. 
+awk                 - This is linux program mostly used for pattern scanning and processing. It searches one or more files to see if they contain lines that matches with the specified patterns and then perform associated actions.
+              awk '/search pattern1/ {Actions}
+                   /search pattern2/ {Actions}' file
 
-chown $USER:$USERGRP -R(recursive for folder files) filename/foldername
+              - example
+                    $ awk 'BEGIN {print "Name\tDesignation\tDepartment\tSalary";}
+                      > {print $2,"\t",$3,"\t",$4,"\t",$NF;}                                 # here $2 , $3 etc are column number
+                      > END{print "Report Generated\n--------------";
+                      > }' employee.txt
+                      Name	Designation	Department	Salary
+                      Thomas 	 Manager 	 Sales 	         $5,000
+                      Jason 	 Developer 	 Technology 	 $5,500
+                      Sanjay 	 Sysadmin 	 Technology 	 $7,000
+                      Nisha 	 Manager 	 Marketing 	 $9,500
+                      Randy 	 DBA 	 	 Technology 	 $6,000
+                      Report Generated
+Gawk                - This is the GNU Project's version of the AWK programming language.
+bzip2               - A portable, fast, open source program used to compress and decompress files at a high rate
+
+
+
+
+
+
+
+
+
