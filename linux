@@ -1,8 +1,16 @@
+# Source -- http://tldp.org/LDP/abs/html/part4.html
+
+------------------------
+
 chmod               - all related to permission u/g/o(others) +r/w/x filename - 7 = 4+2+1 (read/write/execute)
 cmp                 - This utility compares two files of any type and writes the results to the standard output .e.g. cmp file1.txt file2.txt
 chown               - file ownership $USER:$USERGRP -R(recursive for folder files) filename/foldername
 comm                - It compares common lines of file1 and file2 . E.g. comm -12 a.txt b.txt
+cpio                - It copies files into or out of a cpio or tar archive. A tar archive is a file that contains other files, plus information about them, such as their file name, owner, timestamps and access permissions
+cron                - It is a Linux system process that will execute a program at a preset time.
 df                  - Show the amount of disk space used on each mounted filesystem.
+date                - Date sets a system's date and time
+declare             - It declares variables, gives them attributes or modifies properties of variables
 less                - Similar to the more command, but the user can page up and down through the file
 ln                  - Creates a symbolic link to a file.
 locate              - A fast database driven file locator.
@@ -11,6 +19,8 @@ more                - Allows file contents or piped output to be sent to the scr
 whereis             - Show where the binary, source and manual page files are for a command
 vmstat              - it reports information about processes, memory, paging, block IO, traps, and cpu activity.
 grep                - This searches the named input FILEs (or standard input if no files are named, or the file name - is given) for lines containing a match to the given PATTERN. 
+agrep               - approximate grep) extends the capabilities of grep to approximate matching. The search string may differ by a specified number of characters from the resulting matches
+zgrep, zegrep, or zfgrep --- To search compressed files
 awk                 - This is linux program mostly used for pattern scanning and processing. It searches one or more files to see if they contain lines that matches with the specified patterns and then perform associated actions.
               awk '/search pattern1/ {Actions}
                    /search pattern2/ {Actions}' file
@@ -29,8 +39,23 @@ awk                 - This is linux program mostly used for pattern scanning and
                       Report Generated
 Gawk                - This is the GNU Project's version of the AWK programming language.
 bzip2               - A portable, fast, open source program used to compress and decompress files at a high rate
-
-
+echo                - it allows a user to repeat
+enable              - will stop or start printers or classes. E.g. enable printer-name
+env                 - It runs a program in a modified environment or displays the current environment and its variables. e.g.To set environment variable.  env LOGPATH=/var/log
+eval                - Combines the arguments in an expression or list of expressions and evaluates them. Any variables within the expression are expanded. The net result is to convert a string into a command.
+                        a='$b'
+                        b='$c'
+                        c=d
+                        echo $a             # $b
+                        eval echo $a        # $c
+                        eval eval echo $a   # d
+at                  - The at job control command executes a given set of commands at a specified time. Superficially, it resembles cron, however, at is chiefly useful for one-time execution of a command set.
+fg, bg              - The fg command switches a job running in the background into the foreground. The bg command restarts a suspended job, and runs it in the background. If no job number is specified, then the fg or bg command acts upon the currently running job
+cal                 - Prints a neatly formatted monthly calendar to stdout
+caller              - Putting a caller command inside a function echoes to stdout information about the caller of that function.
+chattr              - Change file attributes.E.g. chattr +i filename marks the file as immutable. The file cannot be modified, linked to, or deleted, not even by root. 
+chgrp               - changes the group ownership of a file or files.
+chkconfig           - Check network and system configuration. This command lists and manages the network and system services started at bootup in the /etc/rc?.d directory.
 
 
 
