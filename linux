@@ -218,6 +218,20 @@ pgrep, pkill        - Combining the ps command with grep or kill.
                        2216 mingetty
 pidof               - Identifies process ID (PID) of a running job
 ping                - Broadcast an ICMP ECHO_REQUEST packet to another machine, either on a local or remote network
+pushd, popd, dirs   - pushd dir-name pushes the path dir-name onto the directory stack (to the top of the stack) and simultaneously changes the current working directory to dir-name
+                    - popd removes (pops) the top directory path name off the directory stack and simultaneously changes the current working directory to the directory now at the top of the stack.
+                    - dirs lists the contents of the directory stack
+procinfo            - Extract and list information and statistics from the /proc pseudo-filesystem.
+ps                  - Process Statistics: lists currently executing processes by owner and PID (process ID). This is usually invoked with ax or aux options, and may be piped to grep or sed to search for a specific process
+                      bash$  ps ax | grep sendmail
+                      295 ?	   S	  0:00 sendmail: accepting connections on port 25
+pwd                 - Print Working Directory
+quota               - Display user or group disk quotas.
+rcp                 - Remote copy, copies files between two different networked machines.
+read                - "Reads" the value of a variable from stdin, that is, interactively fetches input from the keyboard
+
+
+
 
 
 
