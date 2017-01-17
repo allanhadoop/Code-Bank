@@ -64,12 +64,12 @@ comm                - Versatile file comparison utility. The files must be sorte
 command             - The command directive disables aliases and functions for the command immediately following it.
 compgen             - This builtin expands a list of arguments to generate completion matches.
 complete            - The Bash complete and compgen builtins make it possible for tab completion to recognize partial parameters and options to commands. In a very simple case, we can use complete from the command-line to specify a short list of acceptable parameters.
-
-
-
-
-
-
+gzip                - compression utility 
+coproc              - builtin enables two parallel processes to communicate and interact
+openssl             - This is an Open Source implementation of Secure Sockets Layer encryption
+split, csplit       - These are utilities for splitting a file into smaller chunks. Their usual use is for splitting up large files in order to back them up on floppies or preparatory to e-mailing or uploading them.
+cut                 - A tool for extracting fields from files. It is similar to the print $N command set in awk, but more limited.
+declare             - The declare or typeset builtins, which are exact synonyms, permit modifying the properties of variables
 
 
 
