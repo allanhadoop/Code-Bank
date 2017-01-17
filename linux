@@ -105,8 +105,8 @@ factor              - Decompose an integer into prime factors.
                     bash$ factor 27417
                     27417: 3 13 19 37
 false               - A command that returns an unsuccessful exit status, but does nothing else.
-
-
+fdisk               - Create or change a partition table on a storage device, usually a hard drive. This command must be invoked as root.
+file                - A utility for identifying file types. The command file file-name will return a file specification for file-name, such as ascii text or data. 
 
 
 
