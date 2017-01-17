@@ -8,7 +8,12 @@ chown               - file ownership $USER:$USERGRP -R(recursive for folder file
 comm                - It compares common lines of file1 and file2 . E.g. comm -12 a.txt b.txt
 cpio                - It copies files into or out of a cpio or tar archive. A tar archive is a file that contains other files, plus information about them, such as their file name, owner, timestamps and access permissions
 cron                - It is a Linux system process that will execute a program at a preset time.
-df                  - Show the amount of disk space used on each mounted filesystem.
+df                  - Shows filesystem usage in tabular form.
+                      bash$ df
+                      Filesystem           1k-blocks      Used Available Use% Mounted on
+                       /dev/hda5               273262     92607    166547  36% /
+                       /dev/hda8               222525    123951     87085  59% /home
+                       /dev/hda7              1408796   1075744    261488  80% /usr
 date                - Date sets a system's date and time
 declare             - It declares variables, gives them attributes or modifies properties of variables
 less                - Similar to the more command, but the user can page up and down through the file
@@ -69,7 +74,41 @@ coproc              - builtin enables two parallel processes to communicate and 
 openssl             - This is an Open Source implementation of Secure Sockets Layer encryption
 split, csplit       - These are utilities for splitting a file into smaller chunks. Their usual use is for splitting up large files in order to back them up on floppies or preparatory to e-mailing or uploading them.
 cut                 - A tool for extracting fields from files. It is similar to the print $N command set in awk, but more limited.
-declare             - The declare or typeset builtins, which are exact synonyms, permit modifying the properties of variables
+declare or typeset  - This builtins, which are exact synonyms, permit modifying the properties of variables
+                    n=6/3
+                    echo "n = $n"       # n = 6/3
+
+                    declare -i n
+                    n=6/3
+                    echo "n = $n"       # n = 2
+  
+dialog              - It offers a method of calling "dialog" widgets from a shell script.   
+diff                - It compares the target files line-by-line sequentially  
+diff3               - An extended version of diff that compares three files at a time. e.g. bash$ diff3 file-1 file-2 file-3  
+dig                 - It  does an Internet name server lookup on a host similar to nslookup 
+dirname             - Strips the basename from a filename, printing only the path information.  
+disown              - Remove job(s) from the shell's table of active jobs.  
+dmesg               - Lists all system bootup messages to stdout  
+du                  - Show (disk) file usage, recursively. Defaults to current working directory, unless otherwise specified.
+dump, restore       - The dump command is an elaborate filesystem backup utility, generally used on larger installations and networks. [6] It reads raw disk partitions and writes a backup file in a binary format. Files to be backed up may be saved to a variety of storage media, including disks and tape drives. The restore command restores backups made with dump        
+fsck, e2fsck, debugfs --Filesystem check, repair, and debug command set.  
+egrep               - extended grep -- is the same as grep -E. This uses a somewhat different, extended set of Regular Expressions, which can make the search a bit more flexible. It also allows the boolean | (or) operator.  
+                      e.g.>> $ egrep 'matches|Matches' file.txt
+enable              - This either enables or disables a shell builtin command. As an example, enable -n kill disables the shell builtin kill, so that when Bash subsequently encounters kill, it invokes the external command /bin/kill.  
+enscript            - Utility for converting plain text file to PostScript  
+exec                -   This shell builtin replaces the current process with a specified command. Normally, when the shell encounters a command, it forks off a child process to actually execute the command. Using the exec builtin, the shell does not fork, and the command exec'ed replaces the shell. When used in a script, therefore, it forces an exit from the script when the exec'ed command terminates.
+exit                - Unconditionally terminates a script. The exit command may optionally take an integer argument, which is returned to the shell as the exit status of the script. example exit 0 or exit $?  
+export              - The export [4] command makes available variables to all child processes of the running script or shell. One important use of the export command is in startup files, to initialize and make accessible environmental variables to subsequent user processes.  
+expr                - All-purpose expression evaluator: Concatenates and evaluates the arguments according to the operation given (arguments must be separated by spaces). Operations may be arithmetic, comparison, string, or logical.  
+                      e.g expr 3 + 5              # 8
+factor              - Decompose an integer into prime factors. 
+                    bash$ factor 27417
+                    27417: 3 13 19 37
+false               - A command that returns an unsuccessful exit status, but does nothing else.
+
+
+
+
 
 
 
