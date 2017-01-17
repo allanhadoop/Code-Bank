@@ -107,7 +107,28 @@ factor              - Decompose an integer into prime factors.
                     27417: 3 13 19 37
 false               - A command that returns an unsuccessful exit status, but does nothing else.
 fdisk               - Create or change a partition table on a storage device, usually a hard drive. This command must be invoked as root.
-file                - A utility for identifying file types. The command file file-name will return a file specification for file-name, such as ascii text or data. 
+file                - A utility for identifying file types. The command file file-name will return a file specification for file-name, such as ascii text or data. e.g. ASCII text
+find                - Carries out COMMAND on each file that find matches. 
+                    eg. find ~/Desktop/ -name '*.jpg'  
+                    eg. find ~/ -name 'core*' -exec rm {} \;      # Removes all core dump files from user's home directory.
+finger              - Retrieve information about users on a network
+flock , lockfile    - It sets an "advisory" lock on a file and then executes a command while the lock is on. This is to prevent any other process from setting a lock on that file until completion of the specified command
+free                - Shows memory and cache usage in tabular form
+procinfo            - Shows all the information that free does, and much more
+ftp                 - Utility and protocol for uploading / downloading files to or from a remote host.
+fuser               - Identifies the processes (by PID) that are accessing a given file, set of files, or directory
+getfacl, setfacl    - These commands retrieve or set the file access control list -- the owner, group, and file permissions.
+getopts             - This powerful tool parses command-line arguments passed to the script. 
+getty, agetty       - The initialization process for a terminal uses getty or agetty to set it up for login by a user.
+grep                - A multi-purpose file search tool that uses Regular Expressions
+groupmod            - Modify a given group.
+
+
+
+
+
+
+
 
 
 
