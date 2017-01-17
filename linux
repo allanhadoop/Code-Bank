@@ -122,6 +122,88 @@ getopts             - This powerful tool parses command-line arguments passed to
 getty, agetty       - The initialization process for a terminal uses getty or agetty to set it up for login by a user.
 grep                - A multi-purpose file search tool that uses Regular Expressions
 groupmod            - Modify a given group.
+gzip (compression utility) and gunzip (uncompress)
+halt, shutdown, reboot - Command set to shut the system down, usually just prior to a power down.
+hdparm              - List or change hard disk parameters. This command must be invoked as root, and it may be dangerous if misused.
+head                - lists the beginning of a file to stdout. The default is 10 lines, but a different number can be specified.
+hexdump             - Performs a hexadecimal, octal, decimal, or ASCII dump of a binary file
+host                - Searches for information about an Internet host by name or IP address, using DNS.
+                      bash$ host surfacemail.com
+                      surfacemail.com. has address 202.92.42.236
+hostid              - Echo a 32-bit hexadecimal numerical identifier for the host machine.
+hostname            - Lists the system's host name.It is equivalent to uname -n, and a counterpart to the $HOSTNAME internal variable
+iconv               - A utility for converting file(s) to a different encoding (character set).
+id                  - The id command lists the real and effective user IDs and the group IDs of the user associated with the current process.
+ifconfig            - Network interface configuration and tuning utility.
+init                - The init command is the parent of all processes. Called in the final step of a bootup, init determines the runlevel of the system from /etc/inittab. Invoked by its alias telinit, and by root only.
+insmod              - Force installation of a kernel module (use modprobe instead, when possible). Must be invoked as root.
+ip                  - General purpose utility for setting up, changing, and analyzing IP (Internet Protocol) networks and attached devices.
+ipcalc              - Displays IP information for a host. With the -h option, ipcalc does a reverse DNS lookup, finding the name of the host (server) from the IP address.
+                      bash$ ipcalc -h 202.92.42.236
+                      HOSTNAME=surfacemail.com
+iptables            - The iptables command set is a packet filtering tool used mainly for such security purposes as setting up network firewalls. This is a complex tool  
+iwconfig            - This is the command set for configuring a wireless network. It is the wireless equivalent of ifconfig
+jobs                - Lists the jobs running in the background, giving the job number
+join                - This powerful utility allows merging two files in a meaningful fashion, which essentially creates a simple version of a relational database.
+                       eg. join file1.txt file2.txt
+
+jot, seq            - These utilities emit a sequence of integers, with a user-selectable increment.
+                      bash$ seq 5
+                       1
+                       2
+                       3
+                       4
+                       5
+kill                - Forcibly terminate a process by sending it an appropriate terminate signal
+killall             - The killall command kills a running process by name, rather than by process ID.
+last                - List last logged in users, as read from /var/log/wtmp. This command can also show remote logins.
+lastcomm            - Gives information about previous commands, as stored in the /var/account/pacct file
+lastlog             - List the last login time of all system users. This references the /var/log/lastlog file.
+less                - It display a text file or stream to stdout, one screenful at a time. 
+let                 - The let command carries out arithmetic operations on variables. eg. let a=a+5 
+lid                 - The lid (list ID) command shows the group(s) that a given user belongs to
+                    root# lid allan
+                    allan(gid=500)
+ln                  - Creates links to pre-existings files. A "link" is a reference to a file, an alternate name for it.
+locate, slocate     - The locate command searches for files using a database stored for just that purpose. The slocate command is the secure version of locate
+lockfile            - It creates a lock file, a semaphore that controls access to a file, device, or resource
+logger              - Appends a user-generated message to the system log (/var/log/messages)
+logname, whoami     - Show current user's login name
+logout              - Exit a login shell, optionally specifying an exit status
+look                - The command look works like grep, but does a lookup on a "dictionary," a sorted word list. look searches for a match in /usr/dict/words
+lsdev               - List devices, that is, show installed hardware
+lsof                - List open files. This command outputs a detailed table of all currently open files and gives information about their owner, size, the processes associated with them
+mail                - Send or read e-mail messages.
+mailstats           - Show mail statistics.
+make                - Utility for building and compiling binary packages. The make command checks a Makefile, a list of file dependencies and operations to be carried out.
+MAKEDEV             - Utility for creating device files. It must be run as root, and in the /dev directory. It is a sort of advanced version of mknod.
+mapfile             - This builtin makes it possible to load an array with the contents of a text file without using a loop or command substitution.
+mcookie             - This command generates a "magic cookie," a 128-bit (32-character) pseudorandom hexadecimal number, normally used as an authorization "signature" by the X server. This also available for use in a script as a "quick 'n dirty" random number.
+sum, cksum, md5sum, sha1sum - These are utilities for generating checksums. A checksum is a number [3] mathematically calculated from the contents of a file, for the purpose of checking its integrity. A script might refer to a list of checksums for security purposes, such as ensuring that the contents of key system files have not been altered or corrupted. For security applications, use the md5sum (message digest 5 checksum) command, or better yet, the newer sha1sum (Secure Hash Algorithm)
+                              bash$ cksum /boot/vmlinuz
+                              1670054224 804083 /boot/vmlinuz
+merge               - Its syntax is merge Mergefile file1 file2. The result is to output to Mergefile the changes that lead from file1 to file2.
+mkdir               - Make directory, creates a new directory. For example, mkdir -p project/programs/December creates the named directory. The -p option automatically creates any necessary parent directories.
+mkdosfs             - Create a DOS FAT filesystem
+mktemp              - Create a temporary file [6] with a "unique" filename. When invoked from the command-line without additional arguments, it creates a zero-length file in the /tmp directory.
+mount               - Mount a filesystem, usually on an external device, such as a floppy or CDROM
+mv                  - It may be used to move multiple files to a directory, or even to rename a directory
+nc                  - The nc (netcat) utility is a complete toolkit for connecting to and listening to TCP and UDP ports. It is useful as a diagnostic and testing tool and as a component in simple script-based HTTP clients and servers
+netconfig           - A command-line utility for configuring a network adapter (using DHCP
+netstat             - Show current network statistics and information, such as routing tables and active connections
+newgrp              - Change user's group ID without logging out. This permits access to the new group's files
+nice                - Run a background job with an altered priority. Priorities run from 19 (lowest) to -20 (highest). Only root may set the negative (higher) priorities. Related commands are renice and snice, which change the priority of a running process or processes, and skill, which sends a kill signal to a process or processes
+nmap                - Network mapper and port scanner. This command scans a server to locate open ports and the services associated with those ports. It can also report information about packet filters and firewalls. This is an important security tool for locking down a network against hacking attempts.
+nohup               - Keeps a command running even after user logs off. The command will run as a foreground process unless followed by &.
+nslookup            - Do an Internet "name server lookup" on a host by IP address. This is essentially equivalent to ipcalc -h or dig -x 
+openssl             - This is an Open Source implementation of Secure Sockets Layer encryption , also useful to obtain signed certificates for Web sites
+passwd              - Sets, changes, or manages a user's password.
+paste               - Tool for merging together different files into a single, multi-column file
+pathchk             - This command checks the validity of a filename. If the filename exceeds the maximum allowable length (255 characters) or one or more of the directories in its path is not searchable, then an error message results.
+
+
+
+
 
 
 
