@@ -2,6 +2,7 @@
 
 ------------------------
 lsb_release -c      - To get operating system details for Ubuntu
+uname -a            - To get operating system details
 chmod               - all related to permission u/g/o(others) +r/w/x filename - 7 = 4+2+1 (read/write/execute)
 cmp                 - This utility compares two files of any type and writes the results to the standard output .e.g. cmp file1.txt file2.txt
 chown               - file ownership $USER:$USERGRP -R(recursive for folder files) filename/foldername
