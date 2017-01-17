@@ -200,6 +200,31 @@ openssl             - This is an Open Source implementation of Secure Sockets La
 passwd              - Sets, changes, or manages a user's password.
 paste               - Tool for merging together different files into a single, multi-column file
 pathchk             - This command checks the validity of a filename. If the filename exceeds the maximum allowable length (255 characters) or one or more of the directories in its path is not searchable, then an error message results.
+pax                 - The pax portable archive exchange toolkit facilitates periodic file backups and is designed to be cross-compatible between various flavors of UNIX
+pgrep, pkill        - Combining the ps command with grep or kill.
+                      bash$ ps a | grep mingetty
+                       2212 tty2     Ss+    0:00 /sbin/mingetty tty2
+                       2213 tty3     Ss+    0:00 /sbin/mingetty tty3
+                       2214 tty4     Ss+    0:00 /sbin/mingetty tty4
+                       2215 tty5     Ss+    0:00 /sbin/mingetty tty5
+                       2216 tty6     Ss+    0:00 /sbin/mingetty tty6
+                       4849 pts/2    S+     0:00 grep mingetty
+
+                      bash$ pgrep mingetty
+                       2212 mingetty
+                       2213 mingetty
+                       2214 mingetty
+                       2215 mingetty
+                       2216 mingetty
+pidof               - Identifies process ID (PID) of a running job
+ping                - Broadcast an ICMP ECHO_REQUEST packet to another machine, either on a local or remote network
+
+
+
+
+
+
+
 
 
 
