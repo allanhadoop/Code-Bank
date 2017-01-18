@@ -265,7 +265,25 @@ suspend             - This has a similar effect to Control-Z, but it suspends th
 tac                 - This is the inverse of cat command, listing a file backwards from its end.
 tail                - lists the (tail) end of a file to stdout. The default is 10 lines
 tar                 - The standard UNIX archiving utility
+tcpdump             - Network packet "sniffer." This is a tool for analyzing and troubleshooting traffic on a network by dumping packet headers that match specified criteria.            
+                      bash$ tcpdump ip host bozoville  where bozoville is host
+tee                 - Like the plumber's tee, it permits "siphoning off" to a file the output of a command or commands within a pipe, but without affecting the result. 
+                      This is useful for printing an ongoing process to a file or paper, perhaps to keep track of it for debugging purposes.
 
+                      cat listfile* | sort | tee check.file | uniq > result.file
+                      #                      ^^^^^^^^^^^^^^   ^^^^    
+
+                      #  The file "check.file" contains the concatenated sorted "listfiles,"
+                      #+ before the duplicate lines are removed by 'uniq.'
+
+telinit             - Symlinked to init, this is a means of changing the system runlevel, usually done for system maintenance or emergency filesystem repairs.
+telnet              - Utility and protocol for connecting to a remote host.
+time                - Outputs verbose timing statistics for executing a command.
+times               - Gives statistics on the system time elapsed when executing commands
+tmpwatch            - Automatically deletes files which have not been accessed within a specified period of time. Usually invoked by cron to remove stale log files.
+top                 - Continuously updated display of most cpu-intensive processes. The -b option displays in text mode, so that the output may be parsed or accessed from a script.
+touch               - Utility for updating access/modification times of a file to current system time or other specified time, but also useful for creating a new file. 
+                      The command touch zzz will create a new file of zero length, named zzz, assuming that zzz did not previously exist
 
 
 
