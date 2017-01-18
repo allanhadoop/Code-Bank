@@ -284,14 +284,23 @@ tmpwatch            - Automatically deletes files which have not been accessed w
 top                 - Continuously updated display of most cpu-intensive processes. The -b option displays in text mode, so that the output may be parsed or accessed from a script.
 touch               - Utility for updating access/modification times of a file to current system time or other specified time, but also useful for creating a new file. 
                       The command touch zzz will create a new file of zero length, named zzz, assuming that zzz did not previously exist
+tput                - Initialize terminal and/or fetch information about it from terminfo data. Various options permit certain terminal operations: 
+                      tput clear is the equivalent of clear; tput reset is the equivalent of reset.
 
 
 
 
 
-
-
-
-
+xargs               - 
+xz, unxz, xzcat     - A new high-efficiency compression tool
+yes                 - In its default behavior the yes command feeds a continuous string of the character y followed by a line feed to stdout.
+                            bash$ yes $BASH_VERSION
+                             3.1.17(1)-release
+                             3.1.17(1)-release
+                             3.1.17(1)-release
+                             3.1.17(1)-release
+zdump               - Time zone dump: echoes the time in a specified time zone
+zgrep, zegrep, or zfgrep  - To search compressed files
+zip, unzip          - Cross-platform file archiving and compression utility 
 
 
