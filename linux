@@ -1,5 +1,8 @@
 # Source -- http://tldp.org/LDP/abs/html/part4.html
 
+127.0.0.1 is the loopback Internet protocol (IP) address also referred to as the “localhost.” The address is used to establish an IP 
+connection to the same machine or computer being used by the end-user. The same convention is defined for computer's that support 
+IPv6 addressing using the connotation of ::1.
 ------------------------
 lsb_release -c      - To get operating system details for Ubuntu
 uname -a            - To get operating system details
