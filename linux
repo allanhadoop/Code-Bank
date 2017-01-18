@@ -3,6 +3,8 @@
 127.0.0.1 is the loopback Internet protocol (IP) address also referred to as the “localhost.” The address is used to establish an IP 
 connection to the same machine or computer being used by the end-user. The same convention is defined for computer's that support 
 IPv6 addressing using the connotation of ::1.
+----
+# Positional parameters in a shell script are nothing but the command line arguments passed to a shell script.
 ------------------------
 lsb_release -c      - To get operating system details for Ubuntu
 uname -a            - To get operating system details
@@ -289,9 +291,50 @@ touch               - Utility for updating access/modification times of a file t
                       The command touch zzz will create a new file of zero length, named zzz, assuming that zzz did not previously exist
 tput                - Initialize terminal and/or fetch information about it from terminfo data. Various options permit certain terminal operations: 
                       tput clear is the equivalent of clear; tput reset is the equivalent of reset.
-
-
-
+traceroute          - Trace the route taken by packets sent to a remote host. This command works within a LAN, WAN, or over the Internet. 
+                      The remote host may be specified by an IP address.
+true                - A command that returns a successful (zero) exit status, but does nothing else. This is same as 0 output of echo $?
+tty                 - Echoes the name (filename) of the current user's terminal.
+                      e.g. 
+                      bash$ tty
+                      /dev/pts/1
+type [cmd]          - Similar to the which external command, type cmd identifies "cmd."
+                      bash$ type '['
+                      [ is a shell builtin
+                      bash$ type -a '['
+                      [ is a shell builtin
+                       [ is /usr/bin/[
+ulimit              - Sets an upper limit on use of system resources. Usually invoked with the -f option, which sets a limit on file size (ulimit -f 1000 limits files to 1 meg maximum)
+umask               - User file creation permissions mask. Limit the default file attributes for a particular user. All files created by that user take on the attributes specified by umask. The (octal) value passed to umask defines the file permissions disabled. For example, umask 022 ensures that new files will have at most 755 permissions (777 NAND 022). [8] Of course, the user may later change the attributes of particular files with chmod
+umount              - Unmount a currently mounted filesystem
+uname               - this is not a username..This output system specifications (OS, kernel version, etc.) to stdout
+expand, unexpand    - The expand filter converts tabs to spaces. It is often used in a pipe.The unexpand filter converts spaces to tabs. This reverses the effect of expand.
+uniq                - This filter removes duplicate lines from a sorted file. It is often seen in a pipe coupled with sort
+units               - This utility converts between different units of measure. While normally invoked in interactive mode, units may find use in a script.
+unset               - The unset command deletes a shell variable, effectively setting it to null
+uptime              - Shows how long the system has been running, along with associated statistics.
+adduser, useradd, userdel    - The useradd administrative command adds a user account to the system and creates a home directory for that particular user, if so specified. 
+                               The corresponding userdel command removes a user account from the system [2] and deletes associated files.
+usermod             - Modify a user account. Changes may be made to the password, group membership, expiration date, and other attributes of a given user's account. 
+                      With this command, a user's password may be locked
+users               - Show all logged on users. This is the approximate equivalent of who -q.
+uuencode            - This utility encodes binary files (images, sound files, compressed files, etc.) into ASCII characters, making them suitable for transmission in the body of an e-mail message or in a newsgroup posting
+vacation            - This utility automatically replies to e-mails that the intended recipient is on vacation and temporarily unavailable. It runs on a network, in conjunction with sendmail
+vdir                - Show a detailed directory listing. The effect is similar to ls -lb.
+vmstat              - Display virtual memory statistics.
+w                   - Show all logged on users and the processes belonging to them. This is an extended version of who. The output of w may be piped to grep to find a specific user and/or process.
+                      bash$ w | grep startx
+                      bozo  tty1     -                 4:22pm  6:41   4.47s  0.45s  startx  
+wait                - Suspend script execution until all jobs running in background have terminated, or until the job number or process ID specified as an option terminates. Returns the exit status of waited-for command.
+wall                - This is an acronym for "write all," i.e., sending a message to all users at every terminal logged into the network. It is primarily a system administrator's tool, useful, for example, when warning everyone that the system will shortly go down due to a problem
+watch               - Run a command repeatedly, at specified time intervals.
+                        watch -n 5 tail /var/log/messages
+                        # Shows tail end of system log, /var/log/messages, every five seconds.  
+wc                  - wc gives a "word count" on a file or I/O stream:
+                      bash $ wc /usr/share/doc/sed-4.1.2/README
+                      13  70  447 README
+                      [13 lines  70 words  447 characters]
+wget                - The wget utility noninteractively retrieves or downloads files from a Web or ftp site. It works well in a script.
 
 
 xargs               - 
