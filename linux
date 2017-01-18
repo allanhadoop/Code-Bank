@@ -335,9 +335,18 @@ wc                  - wc gives a "word count" on a file or I/O stream:
                       13  70  447 README
                       [13 lines  70 words  447 characters]
 wget                - The wget utility noninteractively retrieves or downloads files from a Web or ftp site. It works well in a script.
-
-
-xargs               - 
+whatis              - whatis command looks up "command" in the whatis database. This is useful for identifying system commands and important configuration files. Consider it a simplified man command.
+whereis             - Similar to which, above, whereis command gives the full path to "command,"
+                      $bash whereis rm
+                      rm: /bin/rm /usr/share/man/man1/rm.1.bz2  
+which               - which command gives the full path to "command." This is useful for finding out whether a particular command or utility is installed on the system
+                      $bash which rm
+                      /usr/bin/rm
+who                 - Show all users logged on to the system.
+whoami              - lists the user name.
+whois               - Perform a DNS (Domain Name System) lookup
+write               - This is a utility for terminal-to-terminal communication. It allows sending lines from your terminal (console or xterm) to that of another user. The mesg command may, of course, be used to disable write access to a terminal.Since write is interactive, it would not normally find use in a script
+xargs               - A filter for feeding arguments to a command, and also a tool for assembling the commands themselves. It breaks a data stream into small enough chunks for filters and commands to process. Consider it as a powerful replacement for backquotes. In situations where command substitution fails with a too many arguments error, substituting xargs often works. [1] Normally, xargs reads from stdin or from a pipe, but it can also be given the output of a file.
 xz, unxz, xzcat     - A new high-efficiency compression tool
 yes                 - In its default behavior the yes command feeds a continuous string of the character y followed by a line feed to stdout.
                             bash$ yes $BASH_VERSION
