@@ -6,7 +6,7 @@ IPv6 addressing using the connotation of ::1.
 ----
 # Positional parameters in a shell script are nothing but the command line arguments passed to a shell script.
 # Spaces, and indeed every character except / and NUL, are allowed in filenames
-# spaces in file names are reprsented by %20
+# spaces in file names are reprsented by %20 or we can use file name in single quotes 'employee copy.txt' 
 ------------------------
 lsb_release -c      - To get operating system details for Ubuntu
 uname -a            - To get operating system details
