@@ -5,6 +5,8 @@ connection to the same machine or computer being used by the end-user. The same 
 IPv6 addressing using the connotation of ::1.
 ----
 # Positional parameters in a shell script are nothing but the command line arguments passed to a shell script.
+# Spaces, and indeed every character except / and NUL, are allowed in filenames
+# spaces in file names are reprsented by %20
 ------------------------
 lsb_release -c      - To get operating system details for Ubuntu
 uname -a            - To get operating system details
