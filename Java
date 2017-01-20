@@ -3,7 +3,15 @@ Collections -
                                                          <-    <-
 # Map Interface - HashMap, TreeMap, LinkedHashMap
 # Set Interface - HashSet ; TreeSet and LinkedHashSet 
--------
+-------------Maven -------
+mvn archetype:generate -DgroupId=com.mycompany.app -DartifactId=my-app -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false
+# Validate , Complie , Test, package , verify  , install and deploy 
+# setting file m2.
+--------------------------
+# A hash function is any function that can be used to map data of arbitrary size to data of fixed size
+# passing block of a code to a method is called Lambda expression .
+e.g. runner.run(() -> System.out.println("Hello there"));
+# The build path is the classpath that is used for building a Java project.A classpath is simply an array of classpath entries (ClasspathEntry) that describe the types that are available.
 
 
 
