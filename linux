@@ -8,6 +8,11 @@ IPv6 addressing using the connotation of ::1.
 # Spaces, and indeed every character except / and NUL, are allowed in filenames
 # spaces in file names are reprsented by %20 or we can use file name in single quotes 'employee copy.txt' 
 ------------------------
+#0 - Standard input
+#1 - Standard output
+#2 - Standard error
+
+------------------------
 lsb_release -c      - To get operating system details for Ubuntu
 uname -a            - To get operating system details
 chmod               - all related to permission u/g/o(others) +r/w/x filename - 7 = 4+2+1 (read/write/execute)
