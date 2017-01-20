@@ -13,6 +13,10 @@ IPv6 addressing using the connotation of ::1.
 #2 - Standard error
 echo $$ - will return process id 
 echo $? is exit status - 0 is success, 1 is failed 
+Firewall commands - sudo ufw allow 22/tcp 
+                    sudo ufw show added
+sudo visudo ALL=(ALL:ALL) ALL  # To grant root level permission to normal user
+A systemd component called journald collects and manages journal entries from all parts of the system. 
 ------------------------
 lsb_release -c      - To get operating system details for Ubuntu
 uname -a            - To get operating system details
