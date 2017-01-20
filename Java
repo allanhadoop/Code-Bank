@@ -1,0 +1,10 @@
+Collections -
+# List interface - Arraylist ( [0] [1] [2] [3] [4] ...) , LinkedList [0] -> [1] -> [2] .....
+                                                         <-    <-
+# Map Interface - HashMap, TreeMap, LinkedHashMap
+# Set Interface - HashSet ; TreeSet and LinkedHashSet 
+-------
+
+
+
+
