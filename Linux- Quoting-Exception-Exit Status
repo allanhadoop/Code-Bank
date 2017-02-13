@@ -46,16 +46,30 @@ bar'     # Escape character \ taken literally because of strong quoting.
 #bar
 
 # Exit and Exit Status ---------------------------------------------
+# The exit command terminates a script, just as in a C program. It can also return a value, which is available to the script's parent process.
+Every command returns an exit status. $? reads the exit status of the last command executed.
+by convention, 0 on success or an integer in the range 1 - 255 on error
 
 
+echo "hi" 
+echo $?  # 0 because command echo "hi" was a successful command 
+
+sdsdsdlsd
+echo $?  # 127 since there is no command like sdsdsdlsd
+
+true    # The "true" builtin.
+echo "exit status of \"true\" = $?"     # 0
+
+! true
+echo "exit status of \"! true\" = $?"   # 1
 
 
+ls | bogus_command     # bash: bogus_command: command not found
+echo $?                # 127
 
-
-
-
-
-
+! ls | bogus_command   # bash: bogus_command: command not found
+echo $?                # 0
+# Note that the ! does not change the execution of the pipe. Only the exit status changes.
 
 
 
