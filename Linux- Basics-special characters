@@ -1,6 +1,9 @@
 # Source http://tldp.org/LDP/abs/html/part2.html
 # Special characters 
 
+#!/bin/bash
+
+
 # Comment 
 echo The # here begins a comment.
 echo ${PATH#*:}       # Parameter substitution, not a comment.
@@ -107,6 +110,52 @@ The file descriptors for stdin, stdout, and stderr are 0, 1, and 2
 bash$ grep '\<the\>' textfile    here we are searching the word in file testfile
 ----------------------------------------------------------------
 | Passes the output (stdout) of a previous command to the input (stdin) of the next one, or to the shell. This is a method of chaining commands together.
+cat test.txt | sort | uniq  # sorts test.txt file and delete duplicate lines
+bash$ ls -l | ./uppercase.sh      # pipe the output of ls -l to this script.
+
+>|  This will force redirection (even if the noclobber option is set). This will forcibly overwrite an existing file.
+||  or operation 
+&  Run job in background. A command followed by an & will run in the background. bash$ sleep 10 &
+#!/bin/bash 
+for i in {1..10}
+do 
+  echo -n “$i “
+done &                                       # this will run script in background
+----------------------------------------------------------------
+&& AND logical operator
+-- The double-dash -- prefixes long (verbatim) options to commands.
+sort --ignore-leading-blanks
+bash$ rm -- -filename        # removing files whose names begin with a dash.
+- option, prefix   . Example ls -l 
+- redirection from/to stdin or stdout [dash].
+
+bash$ echo "whatever" | cat -
+whatever               # Where a filename is expected, - redirects output to stdout
+---
+bash$ file -                        # This causes the shell to await user input.
+abc
+standard input:              ASCII text
+---
+(cd /source/directory && tar cf - . ) | (cd /dest/directory && tar xpvf -)
+here in above command 
+cd /source/directory - source directory 
+&& if cd command is successful then execute tar cf - . command
+The 'c' option 'tar' archiving command creates a new archive,
+the 'f' (file) option, followed by '-' designates the target file as stdout, and do it in current directory tree ('.')
+Pipe above archive file to cd /dest/directory and if succssfully found then 
+tar xpvf -
+Unarchive ('x'), preserve ownership and file permissions ('p'), and send verbose messages to stdout ('v'), reading data from stdin ('f' followed by '-').
+'x' is a command, and 'p', 'v', 'f' are options.
+So basically first - before pipe is to redirect to stdout and last - is to read from stdinput
+
+----------------------------------------------------------------
+- previous working directory. cd - command changes to the previous working directory.
+~+ current working directory. This corresponds to the $PWD internal variable.
+~- previous working directory. This corresponds to the $OLDPWD internal variable.
+=~ regular expression match.
+^ beginning-of-line. In a regular expression, a "^" addresses the beginning of a line of text.
+^, ^^ Uppercase conversion in parameter substitution
+
 
 
 
