@@ -60,16 +60,44 @@ then
 fi 
 exit 0
 
+variable1_=$1_  # Rather than variable1=$1      # This will prevent an error, even if positional parameter is absent.
+if [ -z $1 ] -- This means if length of first position parameter is zero.
 
+basename $0   - This is name of the script. 
 
+---- Domain name lookup 
+#!/bin/bash
+# Does a 'whois domain-name' lookup on any of 3 alternate servers:
+#                    ripe.net, cw.net, radb.net
+# Requires symbolic links:
+# ln -s /usr/local/bin/wh /usr/local/bin/wh-ripe
+# ln -s /usr/local/bin/wh /usr/local/bin/wh-apnic
+# ln -s /usr/local/bin/wh /usr/local/bin/wh-tucows
+E_NOARGS=75
 
+if [ -z "$1" ]
+then
+  echo "Usage: `basename $0` [domain-name]"
+  exit $E_NOARGS
+fi
 
+# Check script name and call proper server.
+case `basename $0` in     
+    "wh"       ) whois $1@whois.tucows.com;;
+    "wh-ripe"  ) whois $1@whois.ripe.net;;
+    "wh-apnic" ) whois $1@whois.apnic.net;;
+    "wh-cw"    ) whois $1@whois.cw.net;;
+    *          ) echo "Usage: `basename $0` [domain-name]";;
+esac 
+exit $?
 
-
-
-
-
-
+# The shift command reassigns the positional parameters, in effect shifting them to the left one notch.
+$1 <--- $2, $2 <--- $3, $3 <--- $4, etc.
+until [ -z "$1" ]  # Until all parameters used up . . .
+do
+  echo -n "$1 "
+  shift
+done
 
 
 
