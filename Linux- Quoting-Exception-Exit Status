@@ -1,4 +1,70 @@
 Source - http://tldp.org/LDP/abs/html/part2.html
+# Quoting means just that, bracketing a string in quotes. This has the effect of protecting special characters in the string from 
+# reinterpretation or expansion by the shell or shell script. (A character is "special" if it has an interpretation other than its 
+# literal meaning.
+
+bash$ echo $(ls -l)
+total 8 -rw-rw-r-- 1 bo bo 13 Aug 21 12:57 t.sh -rw-rw-r-- 1 bo bo 78 Aug 21 12:57 u.sh
+
+bash$ echo "$(ls -l)"       # This will print output on new line
+total 8
+ -rw-rw-r--  1 bo bo  13 Aug 21 12:57 t.sh
+ -rw-rw-r--  1 bo bo  78 Aug 21 12:57 u.sh
+
+# Escaping is a method of quoting single characters. The escape (\) preceding a character tells the shell to interpret that character 
+literally.
+\n      means newline   so echo $'\n' is same as echo -e "\n" 
+\r      means return
+\t      tab
+\v      vertical tab   #  -e option with 'echo' to print escaped characters. example echo -e "\v\v\v" - 3 vertical tabs
+\b      backspace      # example echo -e "\t\t" "now"         output =      now
+\a      alert  (beep or flash)
+\0xx    translates to the octal ASCII equivalent of 0nn, where nn is a string of digits
+
+XYZ=$'\101\102\103\010'           # 101, 102, 103 are octal A, B, C.
+echo $XYZ                         # ABC
+
+
+\"  gives the quote its literal meaning
+echo "\"this is in quotes\"..yes" 
+"this is in quotes"..yes
+
+\$  gives the dollar sign its literal meaning (variable name following \$ will not be referenced)
+\\  gives the backslash its literal meaning
+
+cat <<EOF              
+\z                      
+EOF                   # \z
+
+---
+echo "foo\
+bar"     # Same here, as \ still interpreted as escape within weak quotes.
+#foobar
+echo 'foo\
+bar'     # Escape character \ taken literally because of strong quoting.
+#foo\
+#bar
+
+# Exit and Exit Status ---------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
