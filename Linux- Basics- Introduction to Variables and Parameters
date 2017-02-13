@@ -1,0 +1,101 @@
+# source http://tldp.org/LDP/abs/html/variables.html
+
+Quoting a variable preserves whitespace
+hello="A B  C   D"
+echo $hello   # A B C D
+echo "$hello" # A B  C   D       # here whitespace between C and D is preserved
+echo '$hello'  # $hello        # Variable referencing disabled (escaped) by single quotes,which causes the "$" to be interpreted literally.
+unset hello
+echo "$hello" #                # it will print nothing..
+
+# Variables in Bash are untyped 
+# Unlike many other programming languages, Bash does not segregate its variables by "type." Essentially, Bash variables are character 
+strings, but, depending on context, Bash permits arithmetic operations and comparisons on variables. The determining factor is whether 
+the value of a variable contains only digits
+
+a=2334                   # Integer.
+let "a += 1"
+echo "a = $a "           # a = 2335 
+
+b=${a/23/BB}             # Substitute "BB" for "23".This transforms $b into a string.
+echo "b = $b"            # b = BB35
+declare -i b             # Declaring it an integer doesn't help.
+echo "b = $b"            # b = BB35
+
+let "b += 1"             # BB35 + 1
+echo "b = $b"            # b = 1 
+
+Arithmetic operations allowed on a null variable and undeclared variables. 
+e=' '
+let "e += 1"
+echo $e   # 1 (output)
+
+let "g /= 0" 
+-bash: let: g /= 0: division by 0 (error token is "0")
+
+
+---------------------------------------------------------------------------------
+There are 3 types of variables - 
+1. Local variables (Variables visible only within a code block or function)
+2. Environment variables (Variables that affect the behavior of the shell and user interface)
+3. Positional parameters (Arguments passed to the script from the command line [1] : $0, $1, $2, $3 . . .)
+$0 is the name of the script itself, $1 is the first argument, $2 the second, $3 the third, and so forth.
+The special variables $* and $@ denote all the positional parameters.
+
+
+Environment variable - In a more general context, each process has an "environment", that is, a group of variables that the process may 
+reference. In this sense, the shell behaves like any other process.
+Every time a shell starts, it creates shell variables that correspond to its own environmental variables. Updating or adding new 
+environmental variables causes the shell to update its environment, and all the shell's child processes (the commands it executes) 
+inherit this environment
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
