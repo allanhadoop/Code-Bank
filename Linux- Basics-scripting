@@ -1,0 +1,85 @@
+# Source http://tldp.org/LDP/abs/html/part2.html
+# Special characters 
+
+# Comment 
+echo The # here begins a comment.
+echo ${PATH#*:}       # Parameter substitution, not a comment.
+echo $(( 2#101011 ))  # Base conversion, not a comment.
+
+;  Command separator
+echo hello; echo there
+
+;; Terminator in case statement 
+variable=xyz
+case "$variable" in
+  abc)  echo "\$variable = abc" ;;
+  xyz)  echo "\$variable = xyz" ;;      #output will be $variable = xyz
+esac
+
+. When working with filenames, a leading dot is the prefix of a "hidden" file,
+. a single dot represents the current working directory, and two dots denote the parent directory
+" partial quoting - "STRING" preserves (from interpretation) most of the special characters within STRING
+' full quoting .'STRING' preserves all special characters within STRING. This is a stronger form of quoting than "STRING"
+, The comma operator links together a series of arithmetic operations. All are evaluated, but only the last one is returned.
+
+for file in /{,usr/}bin/*calc
+#             ^    Find all executable files ending in "calc"
+#+                 in /bin and /usr/bin directories.
+do
+        if [ -x "$file" ]
+        then
+          echo $file
+        fi
+done
+----------------------------------------------------------------
+\ escape. A quoting mechanism for single characters.\X escapes the character X
+` The `command` construct makes available the output of command for assignment to a variable.
+: Multple use as follows - while use, placeholder use, truncate file length to zero  and non-empty functions
+
+while :
+do
+   operation-1
+   ...
+done
+
+: ${username=`whoami`}
+# ${username=`whoami`}   Gives an error without the leading :
+#                        unless "username" is a command or builtin...
+
+
+: > data.xxx   # File "data.xxx" now empty.	      
+# Same effect as   cat /dev/null >data.xxx
+# However, this does not fork a new process, since ":" is a builtin.
+
+not_empty ()
+{
+  :
+} # Contains a : (null command), and so is not empty.
+----------------------------------------------------------------
+* The * character serves as a "wild card" for filename expansion in globbing. The * also represents any number (or zero) characters in a regular expression.
+? test operator. Within certain expressions, the ? indicates a test for a condition. The ? character serves as a single-character "wild card" for filename expansion in globbing
+(( var0 = var1<98?9:21 ))
+#                ^ ^
+ 
+$ Variable substitution. It also means end-of-line. In a regular expression, a "$" addresses the end of a line of text.
+var1=5
+echo $var1
+
+${} Parameter substitution
+$' ... '   Quoted string expansion
+$*, $@ positional parameters
+$? Exit status
+$$ process id variable
+() command group.  (a=hello; echo $a)
+{xxx,yyy,zzz,...} Brace expansion
+
+
+
+
+
+
+
+
+
+
+
