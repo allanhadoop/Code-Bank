@@ -49,7 +49,16 @@ Every time a shell starts, it creates shell variables that correspond to its own
 environmental variables causes the shell to update its environment, and all the shell's child processes (the commands it executes) 
 inherit this environment
 
-
+# $0 is the name of the script itself, $1 is the first argument, $2 the second, $3 the third, and so forth.
+#!/bin/bash
+echo "The name of this script is \"$0\"." 
+echo "The name of this script is \"`basename $0`\"."
+if [ -n "$1" ]              # Tested variable is quoted.  [ -n "${10}" ]  # Parameters > $9 must be enclosed in {brackets}.
+then
+ echo "Parameter #1 is $1"  # Need quotes to escape #
+ echo "$#"                  # this will print number of argument passed to script 
+fi 
+exit 0
 
 
 
