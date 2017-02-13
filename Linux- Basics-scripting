@@ -81,6 +81,30 @@ cp file22.{txt,backup}   # Copies "file22.txt" to "file22.backup"
 a=888 ; { echo $a; } > "test.txt"       # here we are pushing value of a 888 into file.
 
 {} placeholder for text
+ls . | xargs -i -t cp ./{} $1           # -t means verbose, -i means replace string and xargs means argument . {} placeholder for output text
+#            ^^         ^^
+# From "ex42.sh" (copydir.sh) example.
+
+{} \;    pathname. Mostly used in find constructs
+[ ]  test and also used as array element and range of characters
+[[ ]]  test
+$[ ... ] integrer expansion  . a=3  b=7  echo $[$a+$b]   # 10
+(( )) integrer expansion 
+----------------------------------------------------------------
+> &> >& >> < <> Redirection 
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
