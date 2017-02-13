@@ -71,14 +71,16 @@ $*, $@ positional parameters
 $? Exit status
 $$ process id variable
 () command group.  (a=hello; echo $a)
+----------------------------------------------------------------
 {xxx,yyy,zzz,...} Brace expansion
+cat {file1,file2,file3} > combined_file  # Concatenates the files file1, file2, and file3 into combined_file.
+cp file22.{txt,backup}   # Copies "file22.txt" to "file22.backup"
+{a..z} Expanded brace expansion . echo {0..3} # 0 1 2 3
 
+{} Block of code 
+a=888 ; { echo $a; } > "test.txt"       # here we are pushing value of a 888 into file.
 
-
-
-
-
-
+{} placeholder for text
 
 
 
