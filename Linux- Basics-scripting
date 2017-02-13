@@ -92,14 +92,21 @@ $[ ... ] integrer expansion  . a=3  b=7  echo $[$a+$b]   # 10
 (( )) integrer expansion 
 ----------------------------------------------------------------
 > &> >& >> < <> Redirection 
+scriptname >filename redirects the output of scriptname to file filename. Overwrite filename if it already exists.
+command &>filename redirects both the stdout and the stderr of command to filename.
+a=3 ; b=5 ; echo $[$a+$b] &> "test.txt"
+command >&2 redirects stdout of command to stderr.
+scriptname >>filename appends the output of scriptname to file filename. If filename does not already exist, it is created.
+[i]<>filename opens file filename for reading and writing, and assigns file descriptor i to it. If filename does not exist, it is created.
+The file descriptors for stdin, stdout, and stderr are 0, 1, and 2
 
+<< redirection used in a here document.
+<<< redirection used in a here string.
 
-
-
-
-
-
-
+\<, \> word boundary in a regular expression. 
+bash$ grep '\<the\>' textfile    here we are searching the word in file testfile
+----------------------------------------------------------------
+| Passes the output (stdout) of a previous command to the input (stdin) of the next one, or to the shell. This is a method of chaining commands together.
 
 
 
