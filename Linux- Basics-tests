@@ -31,11 +31,21 @@ if echo "$word" | grep -q "$letter_sequence" ; then echo "inu found"; else  echo
 # The "-q" option to grep suppresses output.
 
 
+----------------------------What is truth -----------------------------------
+echo "Testing \"0\""
+if [ 0 ]      # zero
+then
+  echo "0 is true."
+else          # Or else ...
+  echo "0 is false."
+fi            # 0 is true. This is outcome.
 
 
-
-
-
+# All of following four statements are same 
+if test -z "$1"
+if /usr/bin/test -z "$1"  
+if [ -z "$1" ]  
+if /usr/bin/[ -z "$1" ] 
 
 
 
