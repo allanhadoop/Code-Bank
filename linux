@@ -8,6 +8,19 @@
 connection to the same machine or computer being used by the end-user. The same convention is defined for computer's that support 
 IPv6 addressing using the connotation of ::1.
 ----
+# Give write permissions to multiple users on a folder in Ubuntu
+# create new group - mynewgroup
+sudo groupadd mynewgroup
+# Now add the two users to it:
+sudo usermod -a -G mynewgroup user1
+sudo usermod -a -G mynewgroup user2
+# Now to set the permissions on the directory
+sudo chgrp -R mynewgroup /path/to/the/directory
+sudo chmod -R 770 /path/to/the/directory
+
+Above R means recursive to all subfolder within that directory.
+
+---
 # Positional parameters in a shell script are nothing but the command line arguments passed to a shell script.
 # Spaces, and indeed every character except / and NUL, are allowed in filenames
 # spaces in file names are reprsented by %20 or we can use file name in single quotes 'employee copy.txt' 
