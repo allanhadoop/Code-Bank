@@ -63,6 +63,9 @@ not_empty ()
 ? test operator. Within certain expressions, the ? indicates a test for a condition. The ? character serves as a single-character "wild card" for filename expansion in globbing
 (( var0 = var1<98?9:21 ))
 #                ^ ^
+
+Example let "(( var0 = var1<98?9:21 ))"
+        echo $var0
  
 $ Variable substitution. It also means end-of-line. In a regular expression, a "$" addresses the end of a line of text.
 var1=5
@@ -92,7 +95,8 @@ ls . | xargs -i -t cp ./{} $1           # -t means verbose, -i means replace str
 [ ]  test and also used as array element and range of characters
 [[ ]]  test
 $[ ... ] integrer expansion  . a=3  b=7  echo $[$a+$b]   # 10
-(( )) integrer expansion 
+(( )) integrer expansion  . Example (( a++ )) ; echo $a
+                                                                            
 ----------------------------------------------------------------
 > &> >& >> < <> Redirection 
 scriptname >filename redirects the output of scriptname to file filename. Overwrite filename if it already exists.
@@ -148,7 +152,7 @@ Unarchive ('x'), preserve ownership and file permissions ('p'), and send verbose
 'x' is a command, and 'p', 'v', 'f' are options.
 So basically first - before pipe is to redirect to stdout and last - is to read from stdinput
 
-----------------------------------------------------------------
+------------------------------------------Done----------------------
 
 
 
