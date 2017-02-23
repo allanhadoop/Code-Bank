@@ -8,4 +8,7 @@
 =~   regular expression match.
 ^    beginning-of-line. In a regular expression, a "^" addresses the beginning of a line of text.
 ^, ^^ Uppercase conversion in parameter substitution
+.    current directory tree
+
+
 
