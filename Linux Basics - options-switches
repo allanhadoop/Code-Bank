@@ -1,5 +1,11 @@
 -z   zero length of the positional parameter
 -n   number of positional parameters
 -e   Does file exists ? 
-
+-n   means print in same line , no line feed
+-    previous working directory. cd - command changes to the previous working directory.
+~+   current working directory. This corresponds to the $PWD internal variable.
+~-   previous working directory. This corresponds to the $OLDPWD internal variable.
+=~   regular expression match.
+^    beginning-of-line. In a regular expression, a "^" addresses the beginning of a line of text.
+^, ^^ Uppercase conversion in parameter substitution
 
