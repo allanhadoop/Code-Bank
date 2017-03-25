@@ -14,6 +14,10 @@ Source - https://maven.apache.org/guides/getting-started/
 e.g. runner.run(() -> System.out.println("Hello there"));
 # The build path is the classpath that is used for building a Java project.A classpath is simply an array of classpath entries (ClasspathEntry) that describe the types that are available.
 
+# uninstall java
+sudo dpkg --list | grep -i jdk 
+# now choose what you wish to uninstall
+sudo apt-get purge openjdk-8-jdk 
 
 
 
