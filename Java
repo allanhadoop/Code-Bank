@@ -17,7 +17,16 @@ e.g. runner.run(() -> System.out.println("Hello there"));
 # uninstall java
 sudo dpkg --list | grep -i jdk 
 # now choose what you wish to uninstall
-sudo apt-get purge openjdk-8-jdk 
+sudo apt-get purge openjdk-8-jdk
+
+sudo add-apt-repository ppa:webupd8team/java
+sudo apt-get update
+sudo apt-get install oracle-java8-installer
+sudo apt-get install oracle-set-default
+java -version 
+
+
+
 
 
 
