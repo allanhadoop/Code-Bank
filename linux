@@ -133,6 +133,21 @@ dirname             - Strips the basename from a filename, printing only the pat
 disown              - Remove job(s) from the shell's table of active jobs.  
 dmesg               - Lists all system bootup messages to stdout  
 du                  - Show (disk) file usage, recursively. Defaults to current working directory, unless otherwise specified.
+df                  - Shows filesystem usage in tabular form.
+                      bash$ df
+                      Filesystem           1k-blocks      Used Available Use% Mounted on
+                       /dev/hda5               273262     92607    166547  36% /
+                       /dev/hda8               222525    123951     87085  59% /home
+                       /dev/hda7              1408796   1075744    261488  80% /usr
+
+so du is about disk usage of specific file but df is about disk usage of file systems
+
+basename & dirname are exact opposite.
+basename is to strip off all directory name and show only file name whereas dirname shows only directory names, not file name
+
+basename /etc/pas/myfile  # output will be mufile 
+dirname /etc/password/nyc.txt   # output will be /etc/password  
+
 dump, restore       - The dump command is an elaborate filesystem backup utility, generally used on larger installations and networks. [6] It reads raw disk partitions and writes a backup file in a binary format. Files to be backed up may be saved to a variety of storage media, including disks and tape drives. The restore command restores backups made with dump        
 fsck, e2fsck, debugfs --Filesystem check, repair, and debug command set.  
 egrep               - extended grep -- is the same as grep -E. This uses a somewhat different, extended set of Regular Expressions, which can make the search a bit more flexible. It also allows the boolean | (or) operator.  
