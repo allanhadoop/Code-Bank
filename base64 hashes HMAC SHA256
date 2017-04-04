@@ -1,0 +1,23 @@
+
+# Source - https://www.jokecamp.com/blog/examples-of-creating-base64-hashes-using-hmac-sha256-in-different-languages/
+The API required signing every REST request with HMAC SHA256 signatures. Those signatures then needed to be converted to base64. 
+Amazon S3 uses base64 strings for their hashes. 
+
+import hashlib
+import hmac
+import base64
+
+message = bytes("Message").encode('utf-8')
+secret = bytes("secret").encode('utf-8')
+
+signature = base64.b64encode(hmac.new(secret, message, digestmod=hashlib.sha256).digest())
+print(signature)
+
+
+Outcome will be hash key as shown below - 
+qnR8UCqJggD55PohusaBNviGoOJ67HC6Btry4qXLVZc=
+
+
+
+
+
