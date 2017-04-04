@@ -2,6 +2,21 @@
 
 # Source -- http://tldp.org/LDP/abs/html/part4.html
 
+# to debug shell script 
+run script using below option 
+
+bash -x <name of the script>  
+or 
+put debug option in script itself like below
+
+set -x   # to turn on debug
+code line1
+code line2
+.....
+code line5
+set +x  # to turn off debug 
+
+
 #!/bin/bash
 
 127.0.0.1 is the loopback Internet protocol (IP) address also referred to as the “localhost.” The address is used to establish an IP 
@@ -409,5 +424,20 @@ yes                 - In its default behavior the yes command feeds a continuous
 zdump               - Time zone dump: echoes the time in a specified time zone
 zgrep, zegrep, or zfgrep  - To search compressed files
 zip, unzip          - Cross-platform file archiving and compression utility 
+
+--------------------
+dump and recover utility - 
+# source - http://www.uptimemadeeasy.com/disaster-planning/dump-and-restore-for-linux-backup/
+In this example - In this example, I have a local directory named “mydirectory” which is storing 99 individual files.
+
+
+
+
+
+
+
+
+
+
 
 
