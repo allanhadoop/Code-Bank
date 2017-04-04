@@ -101,6 +101,11 @@ chgrp               - changes the group ownership of a file or files.
 chkconfig           - Check network and system configuration. This command lists and manages the network and system services started at bootup in the /etc/rc?.d directory.
 chroot              - Change ROOT directory. Normally commands are fetched from $PATH, relative to /, the default root directory. 
 sum, cksum, md5sum, sha1sum -- These are utilities for generating checksums. A checksum is a number [3] mathematically calculated from the contents of a file, for the purpose of checking its integrity.
+                           e.g. for any file we can calculate cksum as follows
+                           >> cksum example.txt   # it will give some 234354545 23 example.txt   
+                           so cksum is used for data corruption in file and SHA256 is used for data protection from hackers.
+                           we can generate and verify SHA256 hash sum using tools like GNU rhash.
+
 cmp                 - The cmp command is a simpler version of diff, above. Whereas diff reports the differences between two files, cmp merely shows at what point they differ.
 column              - Column formatter. This filter transforms list-type text output into a "pretty-printed" table by inserting tabs at appropriate places.
 comm                - Versatile file comparison utility. The files must be sorted for this to be useful.
