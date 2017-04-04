@@ -94,6 +94,9 @@ fg, bg              - The fg command switches a job running in the background in
 cal                 - Prints a neatly formatted monthly calendar to stdout
 caller              - Putting a caller command inside a function echoes to stdout information about the caller of that function.
 chattr              - Change file attributes.E.g. chattr +i filename marks the file as immutable. The file cannot be modified, linked to, or deleted, not even by root. 
+                     e.g. >> sudo chattr +a exmaple.txt   # This means + for allowed , - for not allowed and = means only allowed. a for append, 
+                             # so here append to file example.txt is allowed
+                             lsattr example.txt           # i for immutable, etc -- see man page 
 chgrp               - changes the group ownership of a file or files.
 chkconfig           - Check network and system configuration. This command lists and manages the network and system services started at bootup in the /etc/rc?.d directory.
 chroot              - Change ROOT directory. Normally commands are fetched from $PATH, relative to /, the default root directory. 
