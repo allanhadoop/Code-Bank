@@ -1,0 +1,34 @@
+Source - http://www.thegeekstuff.com/2012/08/fsck-command-examples
+Source - http://www.computerhope.com/unix/fsck.htm
+
+Linux fsck utility is used to check and repair Linux filesystems (ext2, ext3, ext4, etc.).Depending on when was the last time a file 
+system was checked, the system runs the fsck during boot time to check whether the filesystem is in consistent state. System administrator 
+could also run it manually
+
+
+1. Filesystem Check on a Disk Partition
+# parted /dev/sda 'print'
+
+fsck /dev/sda1    --> Make sure to execute the fsck on an unmounted file systems to avoid any data corruption issues.
+Output - 
+fsck from util-linux 2.20.1
+e2fsck 1.42 (29-Nov-2011)
+/dev/sda6: clean, 95/2240224 files, 3793506/4476416 blocks
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
