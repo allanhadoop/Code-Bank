@@ -95,7 +95,12 @@ awk                 - This is linux program mostly used for pattern scanning and
 Gawk                - This is the GNU Project's version of the AWK programming language.
 bzip2               - A portable, fast, open source program used to compress and decompress files at a high rate
 echo                - it allows a user to repeat
-enable              - will stop or start printers or classes. E.g. enable printer-name
+enable              - will stop or start printers or classes. E.g. enable printer-name. So shell bulletin commands like 
+                       enable kill , enable wait, enable jobs, enable let 
+                       enable -n kil --> this will disable kill bulletin so no one can use this kill command
+                       enable -a  --> this will list all bulletin with status if those are enabled or disabled
+                       enable kill --> this will enable kill bulletin command
+                       
 env                 - It runs a program in a modified environment or displays the current environment and its variables. e.g.To set environment variable.  env LOGPATH=/var/log
 eval                - Combines the arguments in an expression or list of expressions and evaluates them. Any variables within the expression are expanded. The net result is to convert a string into a command.
                         a='$b'
