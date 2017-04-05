@@ -102,6 +102,9 @@ enable              - will stop or start printers or classes. E.g. enable printe
                        enable kill --> this will enable kill bulletin command
                        
 env                 - It runs a program in a modified environment or displays the current environment and its variables. e.g.To set environment variable.  env LOGPATH=/var/log
+                      exmample - below command runs date command by changing TZ environmental variable while runtime
+                      env TZ=MST7MDT date 
+                      Output will be -- Wed Apr 5 15:08:05 MDT 2017 
 eval                - Combines the arguments in an expression or list of expressions and evaluates them. Any variables within the expression are expanded. The net result is to convert a string into a command.
                         a='$b'
                         b='$c'
@@ -110,9 +113,26 @@ eval                - Combines the arguments in an expression or list of express
                         eval echo $a        # $c
                         eval eval echo $a   # d
 at                  - The at job control command executes a given set of commands at a specified time. Superficially, it resembles cron, however, at is chiefly useful for one-time execution of a command set.
+                      Example 
+                      at 9:30 PM Tue
+                      at> echo "This will display on screen at 9:30 pm"
+
+atq                   to view currently queded at jobs.
 fg, bg              - The fg command switches a job running in the background into the foreground. The bg command restarts a suspended job, and runs it in the background. If no job number is specified, then the fg or bg command acts upon the currently running job
 cal                 - Prints a neatly formatted monthly calendar to stdout
-caller              - Putting a caller command inside a function echoes to stdout information about the caller of that function.
+caller              - Putting a caller command inside a function echoes to stdout information about the caller of that function. caller can 
+                      be another script.
+                      example we have test.sh with following code
+                      #!/bin/bash
+                      function1 () 
+                      {
+                        caller 0
+                      } 
+                      
+                      function1             # here this is trigger as we run main script test.sh which calls function1 so caller is test.sh
+                      caller 0              # this has no effect because its not inside the function
+                      
+                      
 chattr              - Change file attributes.E.g. chattr +i filename marks the file as immutable. The file cannot be modified, linked to, or deleted, not even by root. 
                      e.g. >> sudo chattr +a exmaple.txt   # This means + for allowed , - for not allowed and = means only allowed. a for append, 
                              # so here append to file example.txt is allowed
