@@ -1,0 +1,43 @@
+Source - http://etutorials.org/Linux+systems/red+hat+linux+bible+fedora+enterprise+edition/Part+III+Administering+Red+Hat+Linux/Chapter+13+Backing+Up+and+Restoring+Files/Backing+Up+Files+with+dump/
+
+- dump - Creates backup archives of whole disk partitions or selected directories.
+- restore - Can be used to restore an entire archive or individual files from an archive to the hard drive.
+- rmt - A program used by the dump and restore commands to copy files across the network. You should never need to use this command directly.
+
+# dump options arguments filesystem
+# see options , arguments etc at link above
+
+Options- 
+0-9    - The dump level. Selecting a dump level of 0 backs up all files (a full dump). A higher number backs up only those files modified 
+since the last dump of an equal or lower number (in essence, an incremental dump). The default dump level is 9.
+
+-B records - The number of dump records per volume. Basically, the amount of data you can fit on a tape. This option takes a numeric 
+argument.
+
+-b kbperdump - The number of kilobytes per dump record. Useful in combination with the -B option.
+ 
+-h level - Files can be marked with a nodump attribute. This option specifies the dump level at or above which the nodump attribute is 
+honored. This option takes a numeric argument of 1-9.
+
+-f file  - The name of the file or device to write the dump to. This can even be a file or device on a remote machine.
+
+-d density - Sets the tape density. The default is 1600 bits per inch
+
+
+-t date - Specify a date and time on which to base incremental backups. Any files modified or added after that time will be backed up. 
+This option causes dump to ignore the /etc/dumpdates file. It takes a single argument, a date in the format specified by the ctime man 
+page.
+
+-W  - This option causes dump to list the file systems that need to be backed up. It does this by looking at the /etc/dumpdates file 
+and the /etc/fstab file.
+
+-w - This works like the W option but lists the individual files that should be backed up.
+
+-------------------------------------------------
+# dump 0uBf 500000 /dev/qft0 /dev/hda6
+
+This command results in dump performing a level zero (full) backup of the /dev/hda6 file system, storing the backup on the tape drive 
+/dev/qft0, and recording the results in /etc/dumpdates. The B option is used to increase the expected tape block count to 500000; 
+otherwise, dump would prompt for a new tape far earlier than required. The dump command prints status messages to the screen, letting you
+know how far along the backup has progressed and estimating how much time it will take to complete.
+
