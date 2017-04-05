@@ -13,11 +13,28 @@ Any applications that are run from within the chroot will be unable to see the r
 a non-root user who is confined to a chroot environment will not be able to move further up the directory hierarchy.
 
 It is similar concept like docker. we need 2 tools - dchroot and debootstrap
+1. Install dchroot 
+2. Install dbrootstrap
+3. create chroot Jail directory at /
+4. modify configuration file at /etc/schroot/schroot.conf
+        [mychrootworld]
+        description=My chroot world
+        location=/test
+        priority=3
+        users=demouser
+        groups=sbuild
+        root-groups=root
+5. Now use dbrootstrap command to pull mirror site closer to your location as shown below
+sudo dbrootstrap  --variant=buildd --arch i386 mychrootworld /test/ http://mirror.url.com/ubuntu/ 
 
+Now, we will see entire new root file system undr /test folder
+
+-----
 sudo apt-get install dchroot debootstrap. dchroot is wrapper built around schroot. 
 now, specify a directory that we want to use as our environment root.
 
 sudo mkdir /test
+
 sudo nano /etc/schroot/schroot.conf
 
 
