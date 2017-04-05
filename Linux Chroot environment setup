@@ -1,0 +1,23 @@
+# Source - https://www.digitalocean.com/community/tutorials/how-to-configure-chroot-environments-for-testing-on-an-ubuntu-12-04-vps
+
+
+There are many instances when you may wish to isolate certain applications, user, or environments within a Linux system. Different 
+operating systems have different methods of achieving isolation, and in Linux, a classic way is through a chroot environment.
+EXample - running 32-bit applications in a 64-bit environment.
+
+A chroot environment is an operating system call that will change the root location temporarily to a new folder. Typically, the 
+operating system's conception of the root directory is the actual root located at "/". However, with chroot, you can specify another 
+directory to serve as the top-level directory for the duration of a chroot.
+
+Any applications that are run from within the chroot will be unable to see the rest of the operating system in principle. Similarly, 
+a non-root user who is confined to a chroot environment will not be able to move further up the directory hierarchy.
+
+It is similar concept like docker. we need 2 tools - dchroot and debootstrap
+
+sudo apt-get install dchroot debootstrap. dchroot is wrapper built around schroot. 
+now, specify a directory that we want to use as our environment root.
+
+sudo mkdir /test
+sudo nano /etc/schroot/schroot.conf
+
+
