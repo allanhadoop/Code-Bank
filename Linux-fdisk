@@ -1,0 +1,21 @@
+source - www.tldp.org/guides.html
+Source - https://www.howtogeek.com/106873/how-to-use-fdisk-to-manage-partitions-on-linux/
+
+
+
+The fdisk command is a text-based utility for viewing and managing hard disk partitions on Linux.
+1. List partition
+2. Entering command mode
+3. Using command mode
+4. Viewing partition table
+5. Deleting partition table
+6. Creating a partition
+7. System ID 
+8. Writing changes
+9. Formating the partition
+
+------------------
+
+sudo fdisk -l /dev/sda1    # this will list partition details of /dev/sda1 disk device name
+
+
