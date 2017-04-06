@@ -38,5 +38,11 @@ now, specify a directory that we want to use as our environment root.
 sudo mkdir /test
 
 sudo nano /etc/schroot/schroot.conf
+sudo dbrootstrap  --variant=buildd --arch i386 mychrootworld /test/ http://mirror.url.com/ubuntu/ 
 
+ls /test
+
+-- Final Configuration and Changing into the New Environment
+
+https://www.digitalocean.com/community/tutorials/how-to-configure-chroot-environments-for-testing-on-an-ubuntu-12-04-vps
 
