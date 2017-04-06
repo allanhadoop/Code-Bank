@@ -27,6 +27,8 @@ It is similar concept like docker. we need 2 tools - dchroot and debootstrap
 5. Now use dbrootstrap command to pull mirror site closer to your location as shown below
 sudo dbrootstrap  --variant=buildd --arch i386 mychrootworld /test/ http://mirror.url.com/ubuntu/ 
 
+mirrors at - http://help.ubuntu.com/community/BasicChroot
+
 Now, we will see entire new root file system undr /test folder
 
 -----
