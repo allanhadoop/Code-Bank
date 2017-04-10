@@ -1,0 +1,81 @@
+# Source - http://www.tldp.org/LDP/abs/html/loops1.html#EX22
+
+*------Generating the [list] in a for loop with command substitution
+#!/bin/bash
+NUMBERS="9 7 3 8 37.53"
+for number in `echo $NUMBERS`  # for number in 9 7 3 8 37.53
+do
+  echo -n "$number "
+done
+echo 
+exit 0
+-------------------------Output - 9 7 3 8 37.53
+*-----A grep replacement for binary files
+#!/bin/bash
+E_BADARGS=65
+E_NOFILE=66
+if [ $# -ne 2 ]           # check if program  has 2 positional parameters 
+then
+  echo "Usage: `basename $0` search_string filename"
+  exit $E_BADARGS
+fi
+if [ ! -f "$2" ]          # -f means file name, ! means if not exists
+then
+  echo "File \"$2\" does not exist."
+  exit $E_NOFILE
+fi  
+for word in $( strings "$2" | grep "$1" )   #This is searching string $2 into file $1
+do
+  echo $word
+done
+-------------------------program feed sh test.sh very samplefile.txt  ---Output -- very
+*-----Listing all users on the system
+PASSWORD_FILE=/etc/passwd
+n=1           # User number
+
+for name in $(awk 'BEGIN{FS=":"}{print $1}' < "$PASSWORD_FILE" )
+# Field separator = :    ^^^^^^
+# Print first field              ^^^^^^^^
+# Get input from password file  /etc/passwd  ^^^^^^^^^^^^^^^^^
+do
+  echo "USER #$n = $name"
+  let "n += 1"
+done 
+-------------------------Output - This will list all users from /etc/passwd
+*-----Example of [list] / command substitution
+generate_list ()
+{
+  echo "one two three"
+}
+
+for word in $(generate_list)  # Let "word" grab output of function.
+do
+  echo "$word"
+done
+
+# one
+# two
+# three
+
+-------------------------Listing the symbolic links in a directory
+# lets create few symbolic link first for 1.txt
+ln -s 1.txt mysymlink
+
+#!/bin/bash/
+directory=${1-`pwd`}  # This is same as directory=`pwd`
+echo "symbolic links in directory \"$directory\""
+for file in "$( find $directory -type l )"   # -type l = symbolic links
+do
+  echo "$file"
+done | sort   
+
+
+
+
+
+
+
+
+
+
+
