@@ -47,21 +47,74 @@ if /usr/bin/test -z "$1"
 if [ -z "$1" ]  
 if /usr/bin/[ -z "$1" ] 
 
+----------------------------IFS - Interna; field separator -----------------------------------
+IFS default is space or whitespace. It can be changed as shown below
+var1="a+b+c"
+var2="d-e-f" 
 
+IFS=+
+# The plus sign will be interpreted as a separator.
+echo $var1     # a b c
+echo $var2     # d-e-f
+IFS=","
+echo $var3     # g h i
 
+-----------program 2---
+output_args_one_per_line()
+{
+  for arg
+  do
+    echo "[$arg]"
+  done #  ^    ^   Embed within brackets, for your viewing pleasure.
+}
+echo; echo "IFS=\" \""
+ 
+IFS=" "
+var=" a  b c   "
+#    ^ ^^   ^^^  output_args_one_per_line $var  # output_args_one_per_line `echo " a  b c   "`
+# [a]
+# [b]
+# [c]
+----------------------------Redirection -----------------------------------
+File descriptors  0 - Std. input , 1 - Std. outut and 2 - Std. error 
 
+ls -lR > samplefile.list    # Creates a file containing a listing of the directory tree.
+: > samplefilename          # The > truncates file "filename" to zero length
+1>filename                  # Redirect stdout to file "filename."
+1>>filename                 # Redirect and append stdout to file "filename."
+2>filename                  # Redirect stderr to file "filename."
+2>>filename                 # Redirect and append stderr to file "filename."
+&>filename                  # Redirect both stdout and stderr to file "filename."
 
+---Program1 --
+LOGFILE=script.log
+echo "This statement is sent to the log file, \"$LOGFILE\"." 1>$LOGFILE
 
+---Program2 --
+echo 1234567890 > myfile    # Write string to "File".
+exec 3<> myfile             # Open "File" and assign fd 3 to it. 3<> is important for fd (file descriptor)
+read -n 4 <&3               # Read only 4 characters.
+echo -n . >&3               # Write a decimal point there.
+exec 3>&-                   # Close fd 3.
+cat myfile                  # ==> 1234.67890
 
+---Program3 --
+command < input-file > output-file
+ls -yz >> file2.log 2>&1  # This will put error (yz unknown) into file2.log since we are saying 2 to &1 
+ls -yz 2>&1 >> file2.log  # however this will display error on output but will not write to the file2 
 
+----few standard conventions--
+n<&-        # Close input file descriptor n.
+0<&-, <&-   # Close stdin.
+n>&-        # Close output file descriptor n.
+1>&-, >&-   # Close stdout.
 
+---Program4 --how to close file descriptor fd
+# Redirecting only stderr to a pipe.
 
-
-
-
-
-
-
-
+exec 3>&1                              # Save current "value" of stdout.
+ls -l 2>&1 >&3 3>&- | grep bad 3>&-    # Close fd 3 for 'grep' (but not 'ls').
+               ^^^^   ^^^^
+exec 3>&-                              # Now close it for the remainder of the script.
 
 
