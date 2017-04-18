@@ -1,0 +1,27 @@
+Source - http://www.tldp.org/LDP/abs/html/internal.html
+# A builtin is a command contained within the Bash tool set, literally built in. This is either for performance reasons -- builtins 
+execute faster than external commands, which usually require forking off [1] a separate process
+
+When a command or the shell itself initiates (or spawns) a new subprocess to carry out a task, this is called forking. This new process 
+is the child, and the process that forked it off is the parent. While the child process is doing its work, the parent process is still 
+executing. Note that while a parent process gets the process ID of the child process, and can thus pass arguments to it, the reverse is not 
+true.
+---------program - A script that spawns multiple instances of itself----------
+#!/bin/bash
+# spawn.sh
+
+PIDS=$(pidof sh $0)  # Process IDs of the various instances of this script.
+P_array=( $PIDS )    # Put them in an array (why?).
+echo $PIDS           # Show process IDs of parent and child processes.
+let "instances = ${#P_array[*]} - 1"  # Count elements, less 1.
+                                      # Why subtract 1?
+echo "$instances instance(s) of this script running."
+echo "[Hit Ctl-C to exit.]"; echo
+sleep 1              # Wait.
+sh $0                # Play it again, Sam.
+
+Generally, a Bash builtin does not fork a subprocess when it executes within a script. An external system command or filter in a script 
+usually will fork a subprocess.A builtin may be a synonym to a system command of the same name, but Bash reimplements it internally. 
+For example, the Bash echo command is not the same as /bin/echo, although their behavior is almost identical.
+
+--
