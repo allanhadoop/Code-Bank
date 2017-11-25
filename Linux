@@ -362,6 +362,51 @@ set                 - The set command changes the value of internal script varia
                       export fruit
                       env | grep fruit  ---> fruit=apple --- this is now global variable
                       
+                      Shell Options - 
+                      set -o   --this will show all shell options as shown below, so if we turn allexport (first one below) as on then we 
+                      can automatically make local variable available globally since below parameter makes it global as soon as create it.
+                      set -o allexport  --this command will make allexport to ON.
+                      set +o allexport  --this will make allexport to OFF again
+                     
+allexport      	off
+braceexpand    	on
+emacs          	on
+errexit        	off
+errtrace       	off
+functrace      	off
+hashall        	on
+histexpand     	on
+history        	on
+ignoreeof      	off
+interactive-comments	on
+keyword        	off
+monitor        	on
+noclobber      	off
+noexec         	off
+noglob         	off
+nolog          	off
+notify         	off
+nounset        	off
+onecmd         	off
+physical       	off
+pipefail       	off
+posix          	off
+privileged     	off
+verbose        	off
+vi             	off
+xtrace         	off
+                      
+                      set -x --this enables debugging mode so every line is printed to screen.
+                      set -x
+                      echo `expr 10 + 20 `
+                      + expr 10 + 20
+                      + echo 30
+                      30
+                      
+                      which can be turned off like set +x
+                      set +x
+                      echo `expr 10 + 20 `
+                      30
            
 getfacl, setfacl    - These commands retrieve or set the file access control list -- the owner, group, and file permissions.
 setquota            - Set user or group disk quotas from the command-line
