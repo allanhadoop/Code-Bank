@@ -353,7 +353,8 @@ scp                 - Secure copy, similar in function to rcp, copies files betw
 sdiff               - Compare and/or edit two files in order to merge them into an output file. Because of its interactive nature, this command would find little use in a script.
 sed                 - a non-interactive text file editor. It receives text input, whether from stdin or from a file, performs certain operations on specified lines of the input, one line at a time, then outputs the result to stdout or to a file.
 service             - Starts or stops a system service. The startup scripts in /etc/init.d and /etc/rc.d use this command to start services at bootup.
-set                 - The set command changes the value of internal script variables/options.
+set                 - The set command changes the value of internal script variables/options. This is to set local variable in user shell. 
+                      if we use ENV then it is for envrionment /global variables.
 getfacl, setfacl    - These commands retrieve or set the file access control list -- the owner, group, and file permissions.
 setquota            - Set user or group disk quotas from the command-line
 setserial           - Set or display serial port parameters
