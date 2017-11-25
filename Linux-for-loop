@@ -69,6 +69,17 @@ do
   echo "$file"
 done | sort   
 
+-------------FUnctions in detail - 
+value1=red
+value2='non red'
+function prompt { 
+if [[ $1 = "red" ]]
+ then 
+   export PS1=$value1
+ else
+   export PS1=$value2
+fi } 
+
 
 
 
