@@ -50,6 +50,10 @@ Firewall commands - sudo ufw allow 22/tcp
 sudo visudo ALL=(ALL:ALL) ALL  # To grant root level permission to normal user
 A systemd component called journald collects and manages journal entries from all parts of the system. 
 ------------------------
+alias               - to set userfriendly name to some command. example alias aliasname='commands'
+                      alias mydirectory=ls --color auto     -- this means anytime we type mydirctory , it will show output of ls command
+alias and functions reside in the memory
+
 lsb_release -c      - To get operating system details for Ubuntu
 uname -a            - To get operating system details
 chmod               - all related to permission u/g/o(others) +r/w/x filename - 7 = 4+2+1 (read/write/execute)
