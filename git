@@ -1,11 +1,111 @@
-//git 
+———————————Git —
 
-ls -l
-//remove .git if any exists
-git init
-git add --all .
-git commit -m "My first commit"
-git remote add origin https://github.com/<your-github-username>/my-first-blog.git
+Object model of Git consists of Commit , Tree and Blog. Each has SHA-1 identify key. See diagram to understand 
 
-git checkout branch <name of brach>
-git push -u origin master
+There are three types of references in Git - Tags ( never changes - it is fixed) , Branches ( reference to latest commit , most updated)  and Head ( special reference managed by contract by branch ) 
+
+Configuration Files - 
+1. System-level configuration — 
+	- git config —system 
+  	- Stored in /etc/gitconfig 
+2. User-level configuration 
+	- git config —global 
+	- Stored in ~/.gitconfig 
+3. Repository-level configuration 
+	- git config
+	- Stored in .git/config in each repo 
+
+Yum install git-core 
+
+Set global configuration file as below
+> git config —global user.name “Allan”
+> git config —global user.email “allan.gonsalves@test.com”
+> git config —global core.editor vim                                      — this is to set default editor for git code
+> git config —global help.autocorrect 1              		 	— this is to auto correct names of git command , like a spell check 
+> git config --global color.ui auto
+> git config --global core.autocrlf  true | false | input 		— convert carriage read line feed - it will operate on text file not on binary files so it will not correct binary files. For windows, use True , for linux use Input. 
+
+
+————————————— Overview section 
+1. Creating a local repo
+2. Adding files 
+3. Committing changes 
+4. Viewing history 
+5. Viewing a difference 
+6. Working copy , staging and repository
+7. Deleting Files
+8. Cleaning the working copy 
+9. Ignoring files with .gitignore 
+
+- We can convert local repo or folder into a git repo by doing below command
+> git init  
+> echo “Hello git” > README.txt     
+> git status                  —this will show that README.txt is not in git repo yet so we need to add it. It is untracked right now. Remember we are not into .git folder. We are outside of that folder and added README.txt which then needs to be added into .git repo or folder using git add command. Here add command will add files to git staging area which is then needs to be committed using below command.
+
+>git commit   — because we have set Vim as editor , system will open vim editor now. If we want to make any new comment in the file then we can do it using below command as well
+> git commit -m “this is new text” 
+
+>git log 
+
+Based on commit id which is shown in Git status command, we can find the difference in each commit . Example using below command that identifies difference between two commits on README.txt file 
+
+> git diff 2f8f..c297e       — here 2f8f is few character of first commit and c297e is few characters of second commit 
+
+Here as per shown in architecture diagram, we have TAG, Branch and HEAD. So we can use HEAD for latest commit and if we want to one commit backward then we use ~1 as shown below
+
+> git diff HEAD~1 .. HEAD 
+
+Let’s add more files as shown below 
+> touch file1.txt file2.txt 
+> git add -u             				( where -u means updated files only) 
+> git add file1.txt file2.txt or we can add all files using git add -A  (A means all files) 
+
+So basically when we make changes to README.txt it stored into git repo , if you want to stage it then use git add command and if you want to commit it finally then use git commit. But if you want to undo changes when file is in repo then use git checkout command.  If there are multiple changes in multiple files, we can also do git reset —hard to reset changes back to HEAD
+
+
+So there are three sections - 
+HEAD —> INDEX (STAGE) —> WORKING COPY ( REPO) 
+
+If we have already committed wrong code then it is in HEAD section . it is possible to revert or bring back that wrong code back to repo .
+If we use git reset —soft HEAD~1 then it will bring that committed code from HEAD to INDEX section (staging section) 
+If we use git reset —mixed HEAD~1 then it will bring that code from INDEX to working copy section. 
+If we use git reset —hard HEAD~1 then it will wipe out that code from HEAD, INDEX and WORKING COPY .. it will stay in untracked status.. meaning you can now correct it and move it to stage or index 
+
+
+Graphical explanation is at https://davidzych.com/difference-between-git-reset-soft-mixed-and-hard/
+
+
+To remove unwanted files from repo , we can use below command
+>git clean -n			— this will list files to be removed
+>git clean -f 			- this will remove files 
+
+To ignore files in git, create .gitignore file and add either absolute path ( meaning files that you have in git repo to be ignored ) or relative path (meaning files located anywhere ) 
+
+
+>vim .gitignore 
+/log.*				— when we put / in front of log it means absolute path to files starts with log in git repo 
+log.* 				— this means all files everywhere we have files starts with log keyword
+
+> git status 			- this will show .gitignore file as 
+> git add .gitignore 
+> git commit -m “added ignore file” 
+
+————— Clone remote repo ———— 
+> git clone <url >
+
+> git log 	— this will show all the commits done to the repo 
+> git log --oneline | wc -l		— this will show oneline commit and wc is word count so it will show how many such commits happened on repo
+
+> git log —graph 			— this will show graph option showing different branches and merges happened in the repo
+
+> git shortlog				— this provides authors and commits done by them 
+
+> git show HEAD 			— this will show last commit made to repo.. 
+
+
+
+
+
+
+
+
