@@ -100,9 +100,435 @@ log.* 				— this means all files everywhere we have files starts with log keyw
 
 > git shortlog				— this provides authors and commits done by them 
 
-> git show HEAD 			— this will show last commit made to repo.. 
+> git show HEAD~1 			— this will show last commit made to repo.. 
+
+> git remote -v 			— this will show where is this remote repo came from , url link 
+
+There are several git protocols as follows - 
+1. http(s) with port 80/443   			— read /write possible with password 
+2. git with port 9418 				- read only 
+3. ssh on port 22					- read/ write possible with SSH keys for authentication so no password required. 
+
+—— if we look at cat .git/config  , it will show our remote master branch which is what we have at this time. And URL of repo etc 
+> git branch 			—this will display only master since we have no other branches
+
+Branches are used as temporary working copy for bug fixes etc . 
+
+When you create local repo , it does not get remote repo automatically , so you can add remote repo to local working copy  
+> git remote add origin <http url of repo>
+
+Now we fetch any changes from remote repo into local working copy by using below command 
+> git fetch 
+> git log origin/master 		— here we can check commits done on remote repo
+> git merge origin/master 		— this will now merge or sync-up README.md file from repo to local copy.  we can see under git log 
+
+So instead of doing git fetch and then git merge , we can use only two commands as follows
+> git branch —set-upstream master origin/master 		— this will set correspondence of local master branch (master specified after —set-upstream ) and remote master which is specified by origin/master . Once this correspondence is set , we can pull the code from remote repo . 
+Or we can also use latest command git branch --set-upstream-to=origin/master
+>git pull 
+
+Another approach is use below command to pull remote branch without setting correspondence 
+> git pull origin/master 
+
+All of this is from remote add , fetch , merger , setting correspondence and finally pull all is happening since we are not cloning remote repo. Cloning does this automatically . 
+
+Now if we make some change to README.md file locally then we can push it to git remote repo using 
+> git push
+
+> git remote rm origin 		— this will remote remote repo . 
+> git remote -v			— this will not show any remote repo now. 
+
+—now lets add ssh version of the git remote repo url as below
+> git remote add origin <>ssh url>
+> git remote -v 			— this will now show remote repo now
 
 
+We can use various types of tags ( which is code releases ) like message tags or signed or unsigned tags using below command
+> git tag v1.0
+> git tag -a v1.0_with_message
+> git tag -s v1.1_signed_tag
+
+All these are used to create tags in git that help identify code release. This tagging is captured in version.txt file in master branch. Tagging is for individual build or code release.
+
+To get details log along with tags and oneline commits, we can use below command 
+> git log --graph --oneline  --all --decorate
+> git config --global alias.lga "log --graph --oneline --all --decorate"		this will add new code into ~/.gitconfig file for alias like shown below
+
+[alias]
+	lga = log --graph --oneline --all --decorate
+
+To add new branch under master , use below code
+
+> git branch feature1
+> git checkout feature1			This will switch to feature1 branch
+
+Branches are simply labels on SHA1 hashes of individual commits so lets commit new change to readme.txt file and analyze the update on branches
+
+> echo “feature1” >> readme.txt 
+> git commit -am “feature1”
+> git lga 
+
+* 07f5c7a (HEAD, feature1) feature1
+* d90f1d1 (master) new tag commit
+* a00ebc4 (tag: v1.0_with_message, tag: v1.0, origin/master) readme changed
+* d9afc9b made change to local copy
+*   5c9e1e0 Merge remote-tracking branch 'origin/master'
+|\  
+| * bc52252 README.md created online with Bitbucket
+* b36ad43 v3
+* e602b7e v2
+* 2f8fd7a Updated text in README.txt
+* c297ec2 Added readme.tx on 13th Feb2018
+
+As we see above, first two lines, master is pointed to different commit SHA hash key d90f1d1 but both HEAD and feature1 is pointed to same commit id 07f5c7a.
+
+Now lets switch to master branch and analyze 
+> git checkout master 
+> git lga
+* 07f5c7a (feature1) feature1
+* d90f1d1 (HEAD, master) new tag commit
+* a00ebc4 (tag: v1.0_with_message, tag: v1.0, origin/master) readme changed
+* d9afc9b made change to local copy
+*   5c9e1e0 Merge remote-tracking branch 'origin/master'
+|\  
+| * bc52252 README.md created online with Bitbucket
+* b36ad43 v3
+* e602b7e v2
+* 2f8fd7a Updated text in README.txt
+* c297ec2 Added readme.tx on 13th Feb2018
+
+As you see in first two lines, HEAD is now pointed to same commit as master. 
+
+Now lets create new branch with specific commit id as below 
+
+> git branch fix1 b36ad43 		 ——here b36ad43 is one of the commit of v3 above. 
+> git checkout fix1 
+> git lga
+* 07f5c7a (feature1) feature1
+* d90f1d1 (master) new tag commit
+* a00ebc4 (tag: v1.0_with_message, tag: v1.0, origin/master) readme changed
+* d9afc9b made change to local copy
+*   5c9e1e0 Merge remote-tracking branch 'origin/master'
+|\  
+| * bc52252 README.md created online with Bitbucket
+* b36ad43 (HEAD, fix1) v3
+* e602b7e v2
+* 2f8fd7a Updated text in README.txt
+* c297ec2 Added readme.tx on 13th Feb2018
+
+Here we will see that HEAD is pointed to fix1 at b36ad43 commit id. Now lets make some more changes to add new text to readme.txt
+> echo “fix1” >> readme.txt
+> git commit -am “fix1”
+> git lga 
+
+* 42ee0e4 (HEAD, fix1) fix1
+| * 07f5c7a (feature1) feature1
+| * d90f1d1 (master) new tag commit
+| * a00ebc4 (tag: v1.0_with_message, tag: v1.0, origin/master) readme changed
+| * d9afc9b made change to local copy
+| *   5c9e1e0 Merge remote-tracking branch 'origin/master'
+| |\  
+|/ /  
+| * bc52252 README.md created online with Bitbucket
+* b36ad43 v3
+* e602b7e v2
+* 2f8fd7a Updated text in README.txt
+* c297ec2 Added readme.tx on 13th Feb2018
+
+Here HEAD and fix1 is now pointed to same commit id 42ee0e4. We can in fact change name of fix1 to something else 
+
+> git checkout master 
+> git branch -m fix1 bug1234 
+> git lga 
+
+* 42ee0e4 (bug1234) fix1
+| * 07f5c7a (feature1) feature1
+| * d90f1d1 (HEAD, master) new tag commit
+| * a00ebc4 (tag: v1.0_with_message, tag: v1.0, origin/master) readme changed
+| * d9afc9b made change to local copy
+| *   5c9e1e0 Merge remote-tracking branch 'origin/master'
+| |\  
+|/ /  
+| * bc52252 README.md created online with Bitbucket
+* b36ad43 v3
+* e602b7e v2
+* 2f8fd7a Updated text in README.txt
+* c297ec2 Added readme.tx on 13th Feb2018
+
+Here we changed fix1 to bug1234 which has same commit id . 
+Now if we want to delete branch then we cannot use below small d which will throw out error 
+> git branch -d bug1234 		— this will error out saying first merge changes with master before deletion but we can force it by using -D option 
+> git branch -D bug1234		— when we delete that branch , whole commit id disappears 
+
+* 07f5c7a (feature1) feature1
+* d90f1d1 (HEAD, master) new tag commit
+* a00ebc4 (tag: v1.0_with_message, tag: v1.0, origin/master) readme changed
+* d9afc9b made change to local copy
+*   5c9e1e0 Merge remote-tracking branch 'origin/master'
+|\  
+| * bc52252 README.md created online with Bitbucket
+* b36ad43 v3
+* e602b7e v2
+* 2f8fd7a Updated text in README.txt
+* c297ec2 Added readme.tx on 13th Feb2018
+
+———— So normally procedure is  , we create branch and then checkout to that branch but we can directly do both together as follows 
+> git checkout -b feature2		—where -b means create branch .. 
+
+Even if we delete branches or do any changes, all is captured in below command
+> git reflog 
+> git branch fix1 42ee0e4			— This will bring back fix1 branch with that commit id back so we will get as below
+> git lga
+
+* 91b8165 (HEAD, feature2) feature2
+| * 42ee0e4 (fix1) fix1
+| | * 07f5c7a (feature1) feature1
+| |/  
+|/|   
+* | d90f1d1 (master) new tag commit
+* | a00ebc4 (tag: v1.0_with_message, tag: v1.0, origin/master) readme changed
+* | d9afc9b made change to local copy
+* |   5c9e1e0 Merge remote-tracking branch 'origin/master'
+|\ \  
+| |/  
+|/|   
+| * bc52252 README.md created online with Bitbucket
+* b36ad43 v3
+* e602b7e v2
+* 2f8fd7a Updated text in README.txt
+* c297ec2 Added readme.tx on 13th Feb2018
+
+——Git keeps all changes in reflog only for 30 days . 
+If we wanted to save changes into some buffer till we are ready for production release, we can use below command
+> git checkout feature2 
+> echo “new changes for buffer -stash” >> README.txt
+> git stash 
+> git stash list 		— this will show all changes that are in buffer 
+
+
+Now we can work on another changes or branch and then come back to above change and apply changes from stash 
+> git checkout bug1234 
+> echo “adding bug fix on bug1234” >> README. Txt
+> git commit -am “bug fix to bug1234 branch”
+—now apply buffered changes from stash 
+> git checkout feature2 
+> git stash apply 	`		—Now we will see changes are applied on REQDME.txt file 
+> git stash list 			— this will still show those stash changes as below
+stash@{0}: WIP on feature3: 1f88a01 README.txt
+
+Above changes of stash can be remove from list as follows- 
+> git reset —hard HEAD 			—or we can use below command
+> git stash pop 				— this will remove all from stash 
+> git stash list 				— this will not show any stash item anymore 
+> git stash clear				— this will clear stash also 
+
+— We can stash at multiple steps as shown below - 
+> echo “change1 stash “ >> README.txt
+> git stash 
+> echo “second change stash” >> README.txt 
+> git stash 
+> git stash list 
+
+If you make changes to file , it will show in git status until you move it to stash using git stash , it will not go into stash 
+
+Now you can apply changes from stash to working directory 
+> git stash apply
+
+We can move stash changes to new branch by below command
+> git stash branch feature2_new 
+> git stash list 		— this will not show any list now since all changes are moved to new branch 
+> git commit -am “move changes from stash branch” 
+> git lga
+
+
+* 4d2c2a8 (HEAD, feature2_newstashchanges) move changes from stash branch
+| * ab3e32a (feature2) second
+| * 5d959e6 second stash change commit
+| * d7af1ca stash changes
+|/  
+* 5e3a4af changes
+* 1f88a01 (feature3) README.txt
+* 91b8165 feature2
+| * 4b52d7c (feature1) feature1 changes
+| * 07f5c7a feature1
+|/  
+* d90f1d1 (master) new tag commit
+* a00ebc4 (tag: v1.0_with_message, tag: v1.0, origin/master) readme changed
+* d9afc9b made change to local copy
+*   5c9e1e0 Merge remote-tracking branch 'origin/master'
+|\  
+| * bc52252 README.md created online with Bitbucket
+| * 42ee0e4 (fix1) fix1
+|/  
+* b36ad43 v3
+* e602b7e v2
+* 2f8fd7a Updated text in README.txt
+* c297ec2 Added readme.tx on 13th Feb2018
+
+————— Git merging process ————— 
+Lets say we have made few branches like feature1, 2 etc and we made our code modification there which are working ok , now we wish to merge those to main branch which is master. As shown below, git lga shows those changes above master branch commit id . As you see below, right now master branch is at commit id d90f1d1.  
+
+* f8047c8 (feature2) merger commits
+* ab3e32a second
+* 5d959e6 second stash change commit
+* d7af1ca stash changes
+* 5e3a4af changes
+* 1f88a01 (feature3) README.txt
+* 91b8165 feature2
+| * 0357f17 (feature2_newstashchanges, a00ebc4, 07f5c7a) readme changes
+|/  
+| * 4b52d7c (feature1) feature1 changes
+| * 07f5c7a feature1
+|/  
+* d90f1d1 (HEAD, master) new tag commit
+* a00ebc4 (tag: v1.0_with_message, tag: v1.0, origin/master) readme changed
+* d9afc9b made change to local copy
+*   5c9e1e0 Merge remote-tracking branch 'origin/master'
+|\  
+| * bc52252 README.md created online with Bitbucket
+| * 42ee0e4 (fix1) fix1
+|/  
+* b36ad43 v3
+* e602b7e v2
+* 2f8fd7a Updated text in README.txt
+* c297ec2 Added readme.tx on 13th Feb2018
+
+Now lets merge feature1 changes to master branch . Right now as shown above, feature1 is at commit its 4b52d7c and 07f5c7a. 
+> git merge feature1 
+> git lga 	— this will now show HEAD and master is moved to new commit id where feature1 was sitting 
+
+* f8047c8 (feature2) merger commits
+* ab3e32a second
+* 5d959e6 second stash change commit
+* d7af1ca stash changes
+* 5e3a4af changes
+* 1f88a01 (feature3) README.txt
+* 91b8165 feature2
+| * 0357f17 (feature2_newstashchanges, a00ebc4, 07f5c7a) readme changes
+|/  
+| * 4b52d7c (HEAD, master, feature1) feature1 changes
+| * 07f5c7a feature1
+|/  
+* d90f1d1 new tag commit
+* a00ebc4 (tag: v1.0_with_message, tag: v1.0, origin/master) readme changed
+* d9afc9b made change to local copy
+*   5c9e1e0 Merge remote-tracking branch 'origin/master'
+|\  
+| * bc52252 README.md created online with Bitbucket
+| * 42ee0e4 (fix1) fix1
+|/  
+* b36ad43 v3
+* e602b7e v2
+* 2f8fd7a Updated text in README.txt
+* c297ec2 Added readme.tx on 13th Feb2018
+
+Now that we have merge feature1 branch to master, we can now safely delete that branch as shown below
+> git branch -d feature1 		This command will not comparing that we yet to merge feature1 with master.
+
+————Resolving Git merge conflicts —- 
+Let’s say we need to merge git feature2_newstashchanges branch to master. If we try merging it, It may throw conflicts as shown below
+> git merge feature2_newstashchanges 
+Auto-merging README.txt
+CONFLICT (content): Merge conflict in README.txt
+Automatic merge failed; fix conflicts and then commit the result.
+
+Now if we cat README.txt , we will see the conflict as below — 
+> cat README.txt 
+Hello git
+Next line 
+<<<<<<< HEAD
+feature1
+intermediate changes between stash process
+=======
+feature2
+feature2 changes on 19/02/2018
+stash changes added on feature2 on 19/2/18
+new stash 19/2/2018 at 5pm
+>>>>>>> feature2_newstashchanges
+
+Now we can use mergetool to analyze the issue. There are several tools available . 
+> git mergetool 		— This will open comparison windows where we can see what text is entered in all intermediary branches that tool place before  feature2_newstashchanges . Example feature2 may have some changes before  feature2_newstashchanges . So in merge tool you will see BASE , REMOTE and LOCAL copy.. edit and finalize which changes you want to merge to master.
+
+> git status 		— This will show README.txt is now modified and ready to commit
+> git diff —cache 	— this will show difference that we wish to commit now 
+> git commit -m “now finally merging feature2_newstashchanges changes to master” 
+> cat README.txt 	— This will now show updated text including from branch feature2 etc since we wanted that to get merge into master along with changes done in  feature2_newstashchanges 
+
+> rm README.txt.orig 	— This file is of no use, so remove 
+
+————— Rebasing changes of branches to any branch we like 
+Example - as shown below we can rebase feature5 branch on master even if master branch is way below and there are other branches and changes on top of it.. 
+* 6757fb6 (HEAD, feature5) rebase example
+| |\  
+| | * 608287c (feature4) file100.txt
+| |/  
+|/|   
+| *   525c4e6 merged feature2_newstashchanges commited
+| |\  
+| | * 0357f17 (feature2_newstashchanges, a00ebc4, 07f5c7a) readme changes
+| * | 4b52d7c feature1 changes
+| * | 07f5c7a feature1
+| *   e123d7f (master) Merge branch 'feature4'
+| |/  
+| | * f8047c8 (feature2) merger commits
+| | * ab3e32a second
+| | * 5d959e6 second stash change commit
+| | * d7af1ca stash changes
+| | * 5e3a4af changes
+| | * 1f88a01 (feature3) README.txt
+| | * 91b8165 feature2
+| |/  
+| * d90f1d1 new tag commit
+
+So in example above, commit code e123d7f is where we have master branch and we want to base feature5 on top of master which is commit id 6757fb6. So we can run below command
+> git checkout master 
+> git rebase feature5
+> git merge feature5
+We can also rebase it to any branch for that matter. This rebasing is only for fast forward merge process. Merging of that branch to master will be easy because it will bypass all potential conflicts of other changes that are sitting between this branch and master, 
+> git branch -d feature5 	— Now once it is merge , delete the branch
+
+— How do we know which branch we are on ? Check HEAD , and it will point to branch where we are currently placed
+* 78964e3 (HEAD, master) readme changes
+* 83eedfc file100.txt
+* 71406ad readme changes
+* d101473 feature1 changes
+* c1234b1 feature1
+* 31b1d3f new tag commit
+| * 2ba6763 (feature2_newstashchanges) readme changes
+| * 6f0543e new tag commit
+|/  
+
+Example above, HEAD is at MASTER so we are in master . 
+
+———— So far we were rebasing entire branch commits on master but what if we have several commits in same branch and we wish to push only one of such commits into master , not whole branch 
+With below steps we can do that , just cherry pick any one commit and merge with master 
+As shown below, we added 2 independent commits to new branch charry and then checkout to master 
+* bcc3257 (cherry) code2
+* dd6aa48 commit c1
+| * 78964e3 (HEAD, master) readme changes
+| * 83eedfc file100.txt
+| * 71406ad readme changes
+| * d101473 feature1 changes
+So now we wish to push only commit c1 to master and not c2. 
+
+> git cherry-pick dd6aa48
+Now if we see c1.txt is now merged with master and is available in master branch. This is useful if you want to apply patches 
+Even if we merge cherry branch after above step , system will not repeat c1.txt again since is it already placed in master 
+
+>  3a69336 (HEAD, origin/master, master) Merge branch 'cherry'	— This means we have both remote and local master branch is where we have HEAD at . Both are in sync
+
+If we need to push local branch to remote repo then use below command
+> git push origin <name of branch> 	— this command will show new branch on remote repo 
+> git branch -r	— this will list all the remote branches 
+
+
+If we need to rename local branch while pushing it to remote then use below command
+> git push origin <name of local branch>:<name of remote branch> 
+
+To delete remote branch , use below command
+> git push origin : < name of the remote branch name> 
+
+--- Some of the material is referenced from Pluralsight course.
 
 
 
