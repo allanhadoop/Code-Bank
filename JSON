@@ -1,0 +1,44 @@
+{“k1“ : “v1“ , “k2“ : “v2“ } 
+
+Below code is for Javascript 
+Var start = ‘{“k1“ : “v1“ , “k2“ : “v2“ }’; 
+
+Var myObject =  JSON.parse(start);		— This will convert string JSON into JSON. Notice there is single quote around k1… JSON curly bracket that is why its string. 
+console.log(myObject); 
+
+— Below code will convert JSON into string 
+Var mystring = JSON.stringify(myObject) ; 
+console.log(mystring) 
+
+———— Double level JSON ——— 
+
+
+Var start = ‘{“Ram“ : “Tall“ , “Kavita“ : “slim“ }’; — we can make this JSON double level as follows 
+
+Var start = ‘{“Ram“ : {“age“:”25“}  , “Kavita“ : {“height“ : “5“} }’
+
+———— Thriple level JSON ——— 
+
+Var start = ‘{“Ram“ : {“age“:”25“}  , “Kavita“ : {“height“ : “5“} }’ — This can be made third level JSON as follows - 
+
+Var start = ‘{“Ram“ : {“age“: {“ “ : “ “ } }  , “Kavita“ : {“height“ :  {“ “ : “ “ }} }’
+
+
+———— JSON in an Array ——— 
+
+[ 
+ {“ “ : “ “ , “ “ : “ “ , “ “ : “ “}, 	— here each key-value pair is separated by comma and multiple pair within curly brackets
+ {“ “ : “ “ , “ “ : “ “ , “ “ : “ “}, 
+ {“ “ : “ “ , “ “ : “ “ , “ “ : “ “} 	— No comma here at the last curly bracket
+] 
+
+—— we can now use above structure as a value into another JSOn as follows 
+
+{“President“ : “ “ , “VicePresident“: “ “ }     — This is let’s say original JSON key pair , now we will replace value quote with above structure 
+
+{“President“ : []  , “VicePresident“: [] }  	— Here we replaced value section with [] structure and now lets fill third level details as follows 
+
+{“President“ : [ { } , { } , { } ]  , “VicePresident“: [{ } , { } , { } ] } — Now lets fill in other info as follows 
+
+
+{“President“ : [ { “k1” : “v1” , “k2” : “v2” } , { } , { } ]  , “VicePresident“: [{ } , { } , { } ] }
