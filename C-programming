@@ -1,0 +1,265 @@
+C Programming at https://app.pluralsight.com/player?course=c-programming-language-in-action&author=kenny-kerr&name=c-programming-language-in-action-m4-tour&clip=1&mode=live
+
+The #include preprocessor is used to include header files to a C program. For example, #include <stdio.h>
+Here, "stdio.h" is a header file. The #include preprocessor directive replaces the above line with the contents of stdio.h header file which contains function and macro definitions. That's the reason why you need to use #include <stdio.h> before you can use functions like scanf() and printf().You can also create your own header file containing function declaration and include it in your program using this preprocessor directive.#include "my_header.h" 
+
+Data stored in “Objects” , Named objects called “Variables” and data placed in variable called “Values”  and variables are seen through some “Type” . Variable names are case sensitive 
+
+Data types 
+“Char” , “Int” , “ Float” and “Double” or we can define other type names using “typedef”.  Integers are by default signed. Also there is short and long version of Int. Short is 16 bit and long is 32 bit. Character data type is also signed and unsigned. To use unsigned char , we should use Typedef as shown below . We use typedef mainly for bytes 
+
+> Typedef unsigned char byte  
+
+
+— Lets find out size of the integer below
+
+
+int main(void) {
+	int i = 123; 
+	printf("%d of (%d) ", i ,(int) sizeof(i));
+ 
+}
+
+—> output will be 
+123 of (4) 
+So here size of integer 123 is 4 bites and 4 * 8 = 32 bytes . 
+
+Variable must be declared . 
+Declaration — Type + name 
+Defintion - Type + Name + Storage 
+
+There are 3 types of variables - 1. Internal or local variable of function 
+2. Global variable and 3. Static variables 
+
+If we use global variables at multiple places, its value will get buffered and will not get initialized so we have to manually initialized to use it properly. Use static word or static variable to ensure this clearing up value of global variable is not required. C will automatically take care of initialization. Static means storage for variable stays till lifetime of the application . This means variable retains its value . So if we don’t initialize the variable then word static will initialize it to zero. So if we don’t use static and also do not initialize the variable then we will get some garbage sitting on stack as value of that variable. Below statement means we are initializing eggs to 0
+Static int eggs; 
+
+
+
+When we write C program source code file ( with .c extension and .h files if you defined declaration separately from main source code file ) , compiler / Pre-processor creates object file ( .obj extension) which is language independent and which is then converted to executable file (with .exe extension) by linker. 
+
+In case of header file, we can have all our functions defined there and just declare that header file into main source code file as follows
+#include “<name of the header file.h>”
+
+———— what is macros ————
+You can define a macro in C using #define preprocessor directive. A macro is a fragment of code that is given a name. You can use that fragment of code in your program by using the name.  #define c 299792458  // speed of light
+
+
+#include <stdio.h>
+#define PI 3.1415
+
+int main()
+{
+    float radius, area;
+    printf("Enter the radius: ");
+    scanf("%d", &radius);
+    // Notice, the use of PI
+    area = PI*radius*radius;
+    printf("Area=%.2f",area);
+    return 0;
+}
+
+You can also define macros that works like a function call, known as function-like macros. For example, #define circleArea(r) (3.1415*r*r) 
+Suppose, we passed 5 as an argument then, it expands as below:  circleArea(5) expands to (3.1415*5*5)
+
+#include <stdio.h>
+#define PI 3.1415
+#define circleArea(r) (PI*r*r)
+
+int main()
+{
+    int radius;
+    float area;
+
+    printf("Enter the radius: ");
+    scanf("%d", &radius);
+    area = circleArea(radius);
+    printf("Area = %.2f", area);
+
+    return 0;
+}
+
+——————————— Structure , Unions and Enumerations —————————   
+
+Structure means collection of sequence of variables . 
+
+int main(void) {
+	float x, y;
+	unsigned char red, green , blue;		— here we can specify 0- 255 values for color channel 
+
+}
+— We can have all of the above code replaced by more sophisticated structure as follows 
+
+
+struct pixel { 
+	float x; 
+	float y;
+	
+};
+typedef unsigned char byte; 
+struct color{ 
+	byte red; 
+	byte green;
+	byte blue;
+};
+int main(void) {
+//	float x, y;
+//	unsigned char red, green , blue;
+	struct pixel p; 
+	struct color c;
+}
+
+—————— We can remove struct pixel p above , if we define structure as typedef as shown below
+
+typedef struct  { 
+	float x; 
+	float y;
+	
+} pixel;
+typedef unsigned char byte; 
+struct color{ 
+	byte red; 
+	byte green;
+	byte blue;
+};
+int main(void) {
+//	float x, y;
+//	unsigned char red, green , blue;
+	pixel p = { 2.2f, 3.4f }; 		//this is initialization of variables
+	struct color c = { 20,30,50} ;
+}
+
+——————— Memory size and how bytes alignment impacts memory size of structure 
+#include <stdio.h>
+#include <stdlib.h>
+#include "myfunc.h"
+
+typedef struct   {
+	short first ;
+	int second;
+//	short first ;
+	long third;
+} getage;
+int main() {
+
+	printf("size of %d\n ", sizeof(short));  //here output will be 2
+	printf("size of %d\n ",  sizeof(int));  //here it will be 4
+	printf("size of %d\n ",  sizeof(long)); //here it will be 8
+	printf("size of %d\n ", (int) sizeof(getage)); // here total for structure will show 16
+
+	// 2+ 4+ 8 should have been 14 but structure size shows 16. What happens is that in machine
+	//we need to align first member with second member , so if short takes 2 byte then
+	// it will be XX__ because short is of 2 byte size. so second one gets aligned properly
+	//as XXXX since size of int is 4 byte so first one shows XX__ to align it to second int.
+	//now third one is long which is 8 byte so it goes XXXXXXXX
+	//so now if we total all up = xx__ + xxxx + xxxxxxxx = 16 byte. if we reshuffle first
+	//int like below then total will match
+	// int second   XXXX
+	// short first  XX 	 -- here no alignment is required because first is higher than second in size
+	// long third XXXXXXXX
+	//so total now comes to 16
+
+}
+
+
+—————————— Union ———————————— 
+In case of union all elements shares same memory address whereas in case of structure , all has different memory address
+
+#include <stdio.h>
+
+typedef union {
+	int firstelement;
+	float secondelement;
+}WholeUnion ;
+
+int main()  {
+
+	printf("size of INT %d\n", (int) sizeof(int));
+	printf("size of FLOAT %d\n", (int) sizeof(float));
+	printf("size of union %d\n", (int) sizeof(WholeUnion));
+
+}
+
+
+—OUTPUT - 
+size of INT 4
+size of FLOAT 4 //here if we use char then it shows 1 since char occupies only 1 byte but total size of union will stay 4.
+size of union 4
+
+——————————————— Union and Enumeration —————————— 
+———— Enum just gives memory location to elements of union , else all are shared so gets messed up. 
+#include <stdio.h>
+
+typedef union {
+	int firstelement;
+	float secondelement;
+}WholeUnion ;
+
+typedef enum {
+	TheIntegerLocation = 0,
+	TheFloatLocation = 1
+
+} enumToPutMemoryLocationToUnionElement;
+
+
+
+int main()  {
+	//assign values to union element as below
+	WholeUnion var;
+	var.firstelement = 123;
+
+	enumToPutMemoryLocationToUnionElement elementlocation = TheIntegerLocation;
+	printf("location of %d  is at %d\n", var.firstelement , elementlocation);
+
+	var.secondelement = 23.5;
+	elementlocation = TheFloatLocation;
+
+	printf("location of %.2f  is at %d\n", var.secondelement , elementlocation);
+}
+
+—Output - 
+location of 123  is at 0
+location of 23.50  is at 1
+
+
+————————————— If statements —————— 
+#include <stdio.h>
+int main() { 
+	
+	if (condition) , statement1 else statement2 ;
+	
+	if (condition) { statement1 ; statement2 ;..} 
+	
+}
+———————————— SWITCH statement ———————
+int main() { 
+	 
+	
+	int egg = 1; 
+	switch ( egg) {
+		case 0 : printf("no cake\n") ; break;
+		case 1 : printf("cup cake"); break;
+		default : printf("cake"); break;
+	}
+}
+———————————— for loop ——————————— 
+int main() {
+
+
+    for (int count=1 ; count <10 ; count++)  {
+    		printf("print counter here %d\n", count);
+	}
+
+}
+————————————— 
+
+—Pending - 
+1. Pre-processor 
+2. Installing GCC 
+
+
+
+
+
+
+
