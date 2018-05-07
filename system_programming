@@ -1,0 +1,511 @@
+---Installation ---- 
+Install gcc on centos7
+	•	Yum group list             àCheck if “Development Tools” available
+	•	Yum group install “Development Tools”        -- This wil install gcc compiler.
+ 
+Write program in test1.c and then compile as below -
+cc test1.c -o test1
+Run text1 program as follows -
+./text1
+
+---------
+v1_read_Write.c
+
+— 
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+#define BUF_SIZE 8192
+
+int main (int argc , char* argv[]) {
+
+	int open_input, open_output;
+	ssize_t ret_in , ret_out ; 
+	char buffer[BUF_SIZE];
+
+	if (argc != 3) 
+	{	printf("Usage : file1 and file2");
+		return 1; 
+	}
+	
+	open_input = open(argv[1], O_RDONLY);
+	if (open_input == -1) { 
+	perror("inopen");
+	return 	2; }
+
+	open_output = open(argv[2], O_WRONLY | O_CREAT, 0644);
+        if (open_output == -1) {	
+        perror("outopen");
+        return 	3; }
+
+
+	while((ret_in = read(open_input, &buffer, BUF_SIZE)) > 0 ){
+	       ret_out = write(open_output, &buffer, (ssize_t) ret_in);
+	       if (ret_out != ret_in) { 
+		perror("inoutissuewrite");
+		return 4;
+		} 
+	
+	};
+	
+		
+	close(open_input);
+	close(open_output);
+
+	return (EXIT_SUCCESS);	
+}
+
+----------------
+v1_lseek_position 
+
+— 
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <string.h>
+ 
+#define BUF_SIZE 100
+
+int main(int argc, char* argv[]) {
+
+	int sk_in , fdin;
+	int pos;
+	ssize_t r_in;
+	const char *buf = "this is initial entry\n";
+
+	fdin = open(argv[1], O_RDWR | O_CREAT, 0644 | O_APPEND) ;
+
+	pos = lseek(fdin, (off_t) 5, SEEK_SET) ;
+
+	r_in = pwrite(fdin , buf, strlen(buf), (off_t) 30 ) ;	
+	printf("%d position", r_in);	
+	if (r_in == (off_t) -1) { 
+		perror("offset issue") ; 
+		return 3; }
+
+	sk_in = lseek(fdin, (off_t) 30, SEEK_SET);
+	printf("new set position %d", sk_in) ; 
+
+    	close(fdin);
+
+    return (EXIT_SUCCESS);
+}
+
+---------------------- 
+V3_select_Call.c
+——
+
+#include <stdio.h> 
+#include <sys/time.h> 
+#include <sys/types.h> 
+#include <unistd.h>
+
+
+#define TIMEOUT 5
+#define BUF_LEN 1024
+
+
+
+int main(void) { 
+
+struct timeval tv;
+fd_set readfds;
+int ret_in, ret;;
+char buf[BUF_LEN];
+FD_ZERO(&readfds); 
+FD_CLR(0, &readfds);
+FD_SET(STDIN_FILENO, &readfds); 
+
+tv.tv_sec = 5;
+tv.tv_usec = 0;
+
+
+ret_in = select(0, &readfds , NULL, NULL, &tv) ; 
+if (ret_in == -1 ) { 
+	perror ("couldnot block" ) ;
+	return 1; }
+
+
+if (FD_ISSET(STDIN_FILENO, &readfds)) {
+    	read(STDIN_FILENO, buf, BUF_LEN);
+	printf("\n\n\n ----print your data here----  %s\n\n", buf);			
+} 
+
+} 
+
+----------------- ----------
+v4_bufferIO_fopenfclose.c
+
+— 
+ #include <stdio.h> 
+
+int main (void) {
+ FILE *in, *out; 
+ struct pirate { 
+	char name[100]; 
+	unsigned long booty; 
+	unsigned int beard_len; 
+	int age;	
+} 
+
+
+
+p,blackbeard = { "Edward Teach", 950, 48 , -40}; 
+
+out = fopen ("data", "w"); 
+fwrite(&blackbeard, sizeof (struct pirate), 1, out) ;
+/* read man page of fwrite and fread , above 1 means number of times record will be written*/
+fclose(out);
+
+
+in = fopen ("data", "r"); 
+fread (&p, sizeof (struct pirate), 1, in);
+/* here 1 means number of times record will be read */
+fclose(in);
+
+printf ("name=\"%s\" booty=%lu beard_len=%u age=%d\n", p.name, p.booty, p.beard_len, p.age); 
+return 0; 
+}
+-----------------------------
+V5_bufferIO_fopenclose2.c
+
+——— 
+#include <stdio.h>
+#include <stdlib.h>
+#include <termios.h>
+#include <unistd.h>
+
+struct resources
+{ 
+	int number;
+	char name[200];
+};
+
+int main () { 
+	FILE *fp, *fpr; 
+	int i=0;
+	struct resources res;
+
+	fp = fopen("/root/sysprog/mydata.txt", "w");
+	if(fp == NULL) {
+		printf("\n Error opening file" ) ; 
+		exit(0) ; 
+	}
+
+	do { 
+		printf("Enter your roll number") ; 
+		scanf("%d", &res.number);
+		
+		printf("Enter your name");
+		scanf("%s", res.name);		
+		
+		fwrite(&res ,sizeof(res),1 ,fp );
+	i +=1;
+	}while (i < 3) ;
+
+	fclose(fp);
+	
+
+	fpr = fopen("/root/sysprog/mydata.txt", "r") ;
+        if(fpr == NULL) {
+                printf("\n Error opening file" ) ;
+                exit(0) ;
+        }
+
+	while(fread(&res,sizeof(res),1,fpr) > 0) {
+		printf("\n%d,%s", res.number, res.name);
+	}
+
+	fclose(fpr);
+
+	return 0;
+
+}
+---------------------------
+V6_bufferIO_fgetc 
+
+—
+
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() { 
+int c;
+FILE *fds;
+
+fds = fopen("/root/sysprog/mydata.txt", "r");
+
+do {
+if (feof(fds)) {
+	break;
+}
+	c = fgetc(fds);
+	printf("%c", c) ; 
+} while(0);
+
+fclose(fds);
+return 0;
+}
+-------------------------------
+V7_bufferIO_fgets
+
+—— 
+#include <stdio.h>
+
+int main () {
+   FILE *fp;
+   char str[160];
+   int i= 0;
+
+   /* opening file for reading */
+   fp = fopen("/root/sysprog/mydata.txt" , "r");
+
+   do { 
+      fgets (str, 60, fp);
+      puts(str);
+      i++;
+   }while(i <6);
+   fclose(fp);
+   
+   return(0);
+}
+
+-----------------------------
+V8_readv 
+——
+#include <stdio.h> 
+#include <sys/types.h> 
+#include <sys/stat.h> 
+#include <fcntl.h> 
+#include <sys/uio.h>
+
+
+int main () { 
+
+/* define manual field structure 
+   fopen
+   map structure
+   readv 
+   loop over all lines 
+   close file */
+
+char line1[47], line2[49], line3[53];
+int fd , i, j;
+struct iovec iov[3];
+ssize_t nr;
+
+
+fd = open("/root/sysprog/mydata.txt", O_RDONLY );
+if (fd == -1 )
+{
+ printf("file opening issue"); 
+} 
+
+iov[0].iov_base = line1;
+iov[0].iov_len = sizeof(line1);
+iov[1].iov_base = line2;
+iov[1].iov_len = sizeof(line2);
+iov[2].iov_base = line3;
+iov[2].iov_len = sizeof(line3);
+
+nr = readv(fd, iov, 3) ;
+if (nr == -1) 
+{
+	printf("error reading file") ;
+	return 1; 
+}
+
+for ( j = 0; j<3 ; j++) {
+printf("%s " , iov[j].iov_base);
+}
+
+close(fd);
+return 2;
+}
+------------------------------ 
+V8_StringToken-strtok.c
+
+
+———— 
+#include <string.h>
+#include <stdio.h>
+
+
+int main () {
+   char str[80] = "my name - is not there in the db - where to locate it";
+   const char s[2] = "-";
+   char *token;
+   
+   /* get the first token */
+   token = strtok(str, s);
+  
+   /* walk through other tokens */
+   while( token != NULL ) {
+      printf( " %s\n", token );    
+      token = strtok(NULL, s); 
+   }
+   return(0);
+}
+------------------------------
+V9_MultiThreadManualLock.c
+
+———— 
+#include <stdio.h>
+
+void flockfile(FILE *stream);
+void funlockfile(FILE *stream);
+int ftrylockfile(FILE *stream);
+
+
+int main ()  { 
+
+FILE *stream;
+int i=0;
+
+stream = fopen("/root/sysprog/data.txt","a+");
+if( stream == NULL ) {
+   printf("error opening file");
+   return 1;
+}
+flockfile (stream); 
+
+/* below is infinite lock due to i condition so file is locked forever to write. This is lock */
+do {
+fputs ("List of treasure:\n", stream); 
+printf("fputs works, %d", i);
+fputs (" (1) 500 gold coins\n", stream); 
+fputs (" (2) Wonderfully ornate dishware\n", stream); 
+i++;
+}while(i =100);
+
+funlockfile (stream);
+
+fclose(stream);
+return 0;
+}
+--------------------------------
+V10_EPOLL_Incomplete_page97.C
+
+——— 
+
+#include <stdio.h>
+#include <sys/epoll.h>
+
+
+int epfd;
+
+int main () { 
+
+int fd, fd1 , fd2, fd3;
+struct epoll_event event;
+int ret;
+
+
+fd1 = open ("/root/sysprog/mydata.txt", "r");
+fd2 = open ("/root/sysprog/myd2.txt", "r"); 
+fd3 = open ("/root/sysprog/myd3.txt", "r");
+
+epfd = epoll_create(3); 
+
+int epoll_ctl(  int epfd, 
+	        int op, 
+		int fd, 
+		struct epoll_event *event);
+
+event.data.fd = fd;	
+event.events = EPOLLIN | EPOLLOUT;
+
+epoll_ctl(epfd, EPOLL_CTL_ADD, fd1, &event);
+epoll_ctl(epfd, EPOLL_CTL_ADD, fd2, &event);
+epoll_ctl(epfd, EPOLL_CTL_ADD, fd3, &event);
+
+return 0;
+
+}
+
+----------------------------- 
+V11_writv.C
+
+———— 
+#include <stdio.h> 
+#include <sys/types.h> 
+#include <sys/stat.h> 
+#include <fcntl.h> 
+#include <string.h> 
+#include <sys/uio.h>
+
+int main () { 
+ssize_t nr;
+int fd;
+int i;
+struct iovec iov[3];
+char *buf[] = { "this is first line", 
+	        "this is second line",
+               "this is third line", } ;
+
+fd = open("/root/sysprog/mydata1.txt",O_WRONLY | O_CREAT) ; 
+if ( fd == -1 ) {
+	printf ("issue opening up file") ;
+}
+
+for (i = 0; i < 3; i++) {
+    iov[i].iov_base = buf[i];
+    iov[i].iov_len = strlen(buf[i]);
+}
+
+nr = writev (fd, iov,3) ; 
+if (nr == -1) {
+	printf("file write issue");
+	return 1;
+}
+
+ close (fd);
+return 0;
+
+}
+
+---------------------------
+V12_statofthefile.c 
+
+#include <unistd.h>
+#include <stdio.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+ 
+int main(int argc, char **argv)
+{
+    struct stat fileStat;
+
+    stat(argv[1],&fileStat) ;    
+ 
+    printf("Information for %s\n",argv[1]);
+    printf("---------------------------\n");
+    printf("File Size: \t\t%d bytes\n",fileStat.st_size);
+    printf("Number of Links: \t%d\n",fileStat.st_nlink);
+    printf("File inode: \t\t%d\n",fileStat.st_ino);
+ 
+    printf("File Permissions: \t");
+    printf( (S_ISDIR(fileStat.st_mode)) ? "d" : "-");
+    printf( (fileStat.st_mode & S_IRUSR) ? "r" : "-");
+    printf( (fileStat.st_mode & S_IWUSR) ? "w" : "-");
+    printf( (fileStat.st_mode & S_IXUSR) ? "x" : "-");
+    printf( (fileStat.st_mode & S_IRGRP) ? "r" : "-");
+    printf( (fileStat.st_mode & S_IWGRP) ? "w" : "-");
+    printf( (fileStat.st_mode & S_IXGRP) ? "x" : "-");
+    printf( (fileStat.st_mode & S_IROTH) ? "r" : "-");
+    printf( (fileStat.st_mode & S_IWOTH) ? "w" : "-");
+    printf( (fileStat.st_mode & S_IXOTH) ? "x" : "-");
+    printf("\n\n");
+ 
+    printf("The file %s a symbolic link\n", (S_ISLNK(fileStat.st_mode)) ? "is" : "is not");
+ 
+    return 0;
+}
+--------------------------- 
