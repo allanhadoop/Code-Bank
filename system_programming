@@ -8,6 +8,14 @@ cc test1.c -o test1
 Run text1 program as follows -
 ./text1
 
+
+Some references - 
+https://www.usna.edu/Users/cs/aviv/classes/ic221/s16/lec/1/lec.html#orgheadline8
+https://www.usna.edu/Users/cs/aviv/classes/ic221/s16/lec/2/lec.html#orgheadline8
+https://www.usna.edu/Users/cs/aviv/classes/ic221/s16/lec/.....
+
+https://www.usna.edu/Users/cs/aviv/classes/ic221/s16/lec/13/lec.html#orgheadline8
+
 ---------
 v1_read_Write.c
 
@@ -509,3 +517,840 @@ int main(int argc, char **argv)
     return 0;
 }
 --------------------------- 
+
+————————————  —— ——  —————— 
+ 
+int main()
+{
+    char buffer[150];
+    char* s = "this data is now being stored into the buffer";
+ 
+// Counting the character and storing in buffer using snprintf
+    int j = snprintf(buffer, 45, "%s\n", s);
+ 
+
+// Print the string stored in buffer and character count
+    printf("string:\n%s\ncharacter count = %d\n",
+                                     buffer, j);
+ 
+    return 0;
+}
+
+————————————— —————————————— V1_POSIX_FADVISE.c
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <error.h>
+#include <string.h>
+#include <assert.h>
+
+#define BUF_SIZE 8192           
+
+/*** file size function 
+open input file
+check filesize using function and also check data type at man page of fstat function
+open output file
+use posix to give instruction to kernel 
+loop to write data
+close input and output file ***/
+
+
+static off_t getfsize(const char *filename) { 
+	struct stat st = { 0 } ;
+	if (stat(filename, &st) == 0) {
+		return st.st_size;
+	}
+	return -1;	
+	} 
+
+
+int main (int argc, char **argv) { 
+int fdin , fdout; 
+ssize_t filesize = 0;
+char buffer[8192]= { };
+
+fdin = open(argv[1], O_RDONLY);
+
+filesize = getfsize(argv[1]);
+printf("%d filesize", filesize);
+
+fdout = open(argv[2], O_WRONLY | O_CREAT ) ;
+
+posix_fadvise(fdin, 0, filesize, POSIX_FADV_SEQUENTIAL);
+
+while (1) { 
+	filesize = read(fdin, &buffer, sizeof(BUF_SIZE)) ;
+	if (!filesize) { 
+		break;
+	}
+	assert(filesize>0);
+	write(fdout,&buffer, filesize ); 
+}
+
+close(fdin);
+close(fdout);
+
+}
+
+————————————— —————————————— V2_aio_read_AsynchronousRead.c 
+#include <sys/types.h>
+#include <aio.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <stdio.h>
+
+#define BUF_SIZE 9000
+
+int main () { 
+
+/* open 
+create control block structure 
+aio_Read
+wait til reading happens - check using aio_Error
+final check returncode aio_return
+delete buffer - dont know how to do this so left it
+close file 
+To run this code , cc -lrt <name of the this file.c> -o <name of the executable to be generated without extension">
+*/
+
+
+
+int fd; 
+int *buffer[BUF_SIZE]; 
+int getstatus ; 
+
+
+fd = open("mydata.txt", O_RDONLY);
+
+
+struct aiocb cb ; 
+cb.aio_fildes = fd; 
+cb.aio_offset = 0;
+cb.aio_buf = &buffer;
+cb.aio_nbytes = BUF_SIZE;
+
+if (aio_read(&cb) == -1 ) {
+	printf("unable to read file");
+	close(fd);
+}
+
+while(aio_error(&cb) == EINPROGRESS) {
+	printf("reading in progress\n");
+}
+
+getstatus = aio_return(&cb);
+if (aio_return(&cb) != -1) {
+	printf("------reading done---------\n-");
+}
+
+close(fd);
+return 0;
+
+}
+————————————— —————————————— V3_PrintInodeOfFile.c 
+
+#include <stdio.h> 
+#include <stdlib.h> 
+#include <fcntl.h> 
+#include <sys/types.h> 
+#include <sys/stat.h>
+
+/*
+ * get_inode - returns the inode of the file associated
+ * with the given file descriptor, or -1 on failure
+ */
+
+int get_inode (int fd)
+{
+        struct stat buf;
+        fstat (fd, &buf);
+	return buf.st_ino;
+}
+
+int main (int argc, char *argv[])
+{
+        int fd, inode;
+        
+        fd = open (argv[1], O_RDONLY);
+
+        inode = get_inode (fd);
+        printf ("%d\n", inode);
+return 0;
+}
+
+————————————— —————————————— V4_PhysLogBlock.c
+
+#include <stdio.h> 
+#include <stdlib.h> 
+#include <fcntl.h> 
+#include <sys/types.h> 
+#include <sys/stat.h> 
+#include <sys/ioctl.h> 
+#include <linux/fs.h>
+
+/*
+* get_block - for the file associated with the given fd, 
+returns * the physical block mapping to logical_block
+*/
+int get_block (int fd, int logical_block)
+{
+
+	ioctl (fd, FIBMAP, &logical_block);
+	return logical_block;
+}
+
+
+/*
+ * get_nr_blocks - returns the number of logical blocks
+ * consumed by the file associated with fd
+ */
+
+int get_nr_blocks (int fd)
+{
+struct stat buf;
+	fstat (fd, &buf);
+	return buf.st_blocks;
+}
+
+
+/*
+ * print_blocks - for each logical block consumed by the file
+ * associated with fd, prints to standard out the tuple
+ * "(logical block, physical block)"
+ */
+void print_blocks (int fd)
+{
+        int nr_blocks, i;
+        nr_blocks = get_nr_blocks (fd);
+
+        if (nr_blocks < 0) {
+		fprintf (stderr, "get_nr_blocks failed!\n"); return;
+	}
+        if (nr_blocks == 0) {
+                printf ("no allocated blocks\n");
+        return;
+} else if (nr_blocks == 1)
+	printf ("1 block\n\n");
+else
+printf ("%d blocks\n\n", nr_blocks);
+
+for (i = 0; i < nr_blocks; i++) {
+        int phys_block;
+        phys_block = get_block (fd, i);
+        printf ("(%u, %u) ", i, phys_block);
+	putchar ('\n');
+   }
+}
+
+
+int main (int argc, char *argv[])
+{
+	int fd;
+        fd = open (argv[1], O_RDONLY);
+        print_blocks (fd);
+        return 0;
+}
+————————————— —————————————— V5_EXECV_vector.c 
+#include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
+
+int main () {
+/*below we are running apache program with -t to check syntax */
+char *args[] = {"/sbin/httpd" ,"-t", NULL } ; 
+
+/*below args[0] is the program name and args is all command line variables */
+execv(args[0], args) ; 
+
+}
+————————————— —————————————— V6_EXECLP_list.c 
+
+
+#include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
+
+int main () {
+/*below we are running apache program with -t to check syntax */
+char *args[] = {"/sbin/httpd" ,"-t", NULL } ; 
+
+/*below args[0] is the program name and args is all command line variables */
+execv(args[0], args) ; 
+
+}
+[root@ispuncentos 1oldprograms]# cat V6_EXECLP_list.c 
+#include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <sys/types.h>
+
+
+int main() { 
+
+ execlp("ls", "ls", "-l", "/", NULL) ;
+ return 0;
+
+} 
+
+/*#include <stdio.h>
+#include <unistd.h>
+
+int main(int argc, const char* argv[]) {
+  printf("Running ps with execlp\n");
+  execlp("ps", "ps", "-ax", 0);
+  printf("Done. \n");
+  return 0;
+
+}*/
+
+————————————— —————————————— V6_EXECVP_vectorPath.c
+#include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
+
+
+int main() { 
+
+char *ls_args[] = { "httpd" , "-v", NULL};
+
+/* in case of execvp , where last character p stands for path, we donot have to 
+specify path of httpd package. System will automatically find that out and then fire command
+-v for version */
+
+execvp( ls_args[0], ls_args );
+
+
+}
+————————————— —————————————— V7_Fork.c
+
+#include <sys/types.h>
+#include <unistd.h>
+#include <stdio.h>
+
+
+int main() { 
+
+pid_t pid;
+pid=fork( ); 
+
+printf("PID is %d------------", pid);
+if (!pid) { 
+	execlp("ls","-l",NULL); 
+/*  	execlp("ps", "ps", "-ax", 0); */
+}
+
+}
+————————————— —————————————— V8_vfork.c
+
+#include <stdio.h>  
+#include <unistd.h>
+#include <sys/types.h>
+#include <stdlib.h>
+
+int main()  
+ {  
+      pid_t pid;  
+      printf("Parent\n");  
+      pid = vfork();  
+      if(pid==0)  
+      {  
+          printf("Child\n");  
+     		_exit(0);   /* without this statement parent will not get released to child. Try remove
+	//this line */	 
+	}  
+  }
+————————————— —————————————— V8.1_vfork.c
+#include <stdio.h>  
+#include <unistd.h>
+#include <sys/types.h>
+#include <stdlib.h>
+
+int main()  
+ {  
+      pid_t pid;  
+      printf("Parent\n");  
+      pid = vfork();  
+      if(pid==0)  
+      {  
+          printf("Child\n");  
+	  execl("/bin/ls", "ls", "-l" , NULL) ;
+	}  
+  }
+
+————————————— —————————————— V9_atexit.c
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
+
+void out (void)
+{
+	printf ("atexit(  ) succeeded!\n");
+}
+
+int main (void)
+{
+if (atexit (out))
+        fprintf(stderr, "atexit(  ) failed!\n");
+	return 0;
+}
+
+
+/* // output of this program will be atexit(  )succeeded */
+
+————————————— —————————————— V10_forkWait.c
+
+/*///
+The following example uses both the fork and the wait system calls. As before, 
+the child process simply prints its pid 
+and exits with a status of 0 (zero). After the fork system call, the parent process 
+waits for the child to complete. After the child exits, the parent process prints its 
+own pid and the pid of the child process. This is followed by the exit status 
+of the child (zero in this case). 
+When you run this program, the output produced by the child will appear first 
+and then the output produced by the parent. 
+Thus, the outputs of the two processes won’t be interleaved.
+Technically it works like a fork block and else block. Whatever is in fork block is all child
+and whatever starts with wait into else block is parent block.
+*/
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <stdlib.h>
+
+int main(void) { 
+
+int cstatus;
+pid_t cpid;
+pid_t ppid;
+pid_t c;
+
+if ((cpid = fork( )) == 0) { 
+	printf("this is child world with pid %ld\n", getpid());
+	exit(1); }
+else { 
+	c = wait(&cstatus);
+	printf("Parent: PID of Parent = %ld\n", (long) getpid());	
+	printf("Parent: Child  %ld exited with status =  %d\n",
+        	       (long) c, cstatus);
+}
+return 0;
+}
+
+————————————— —————————————— V11_forwait2.c
+#include<stdio.h>
+#include<stdlib.h>
+#include<sys/wait.h>
+#include<unistd.h>
+ 
+/* in this example, technically child and parent process is coded separtely under for loop */
+void waitexample()
+{
+    int i, stat;
+    pid_t pid[5];
+    for (i=0; i<5; i++)
+    {
+        if ((pid[i] = fork()) == 0)
+        {
+            sleep(1);
+            exit(100 + i);
+        }
+    }
+ 
+    // Using waitpid() and printing exit status
+    // of children.
+    for (i=0; i<5; i++)
+    {
+        pid_t cpid = waitpid(pid[i], &stat, 0);
+        if (WIFEXITED(stat))
+            printf("Child %d terminated with status: %d\n",
+                   cpid, WEXITSTATUS(stat));
+    }
+}
+ 
+// Driver code
+int main()
+{
+    waitexample();
+    return 0;
+}
+
+————————————— —————————————— V12.forkWait-status.c
+/* This program forks a child, which immediately exits. The parent process then executes the wait( ) 
+system call to determine the status of its child. The process prints the child's pid, and how it died. 
+*/
+
+#include <unistd.h> 
+#include <stdio.h> 
+#include <sys/types.h> 
+#include <sys/wait.h>
+#include <stdlib.h>
+
+int main (void)
+{
+
+ int status;
+ pid_t pid;
+
+ if (!fork (  ))
+         return 1;  
+
+ pid = wait (&status);
+ printf ("pid=%d\n", pid); 
+ if (pid == -1)
+         perror ("wait");
+ if (WIFEXITED (status))
+         printf ("Normal termination with exit status=%d\n",
+                 WEXITSTATUS (status));
+ if (WIFSIGNALED (status))
+         printf ("Killed by signal=%d%s\n",
+                 WTERMSIG (status),
+                 WCOREDUMP (status) ? " (dumped core)" : "");
+ if (WIFSTOPPED (status))
+         printf ("Stopped by signal=%d\n",
+                 WSTOPSIG (status));
+ if (WIFCONTINUED (status))
+         printf ("Continued\n");
+ return 0;
+}
+
+————————————— —————————————— V13_forkwait3.c
+/*The following program demonstrates the use of fork(2) and waitpid().  The program creates a child  process.
+       If  no  command-line  argument  is  supplied  to  the  program, then the child suspends its execution using
+       pause(2), to allow the user to send signals to the child.  Otherwise, if a command-line  argument  is  sup‐
+       plied, then the child exits immediately, using the integer supplied on the command line as the exit status.
+       The parent process executes a loop that monitors the child  using  waitpid(),  and  uses  the  W*()  macros
+       described above to analyze the wait status value. */
+
+
+#include <sys/wait.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
+
+ int
+       main(int argc, char *argv[])
+       {
+           pid_t cpid, w;
+           int status;
+
+           cpid = fork();
+           if (cpid == -1) {
+               perror("fork");
+               exit(EXIT_FAILURE);
+           }
+
+           if (cpid == 0) {            /* Code executed by child */
+               printf("Child PID is %ld\n", (long) getpid());
+               if (argc == 1)
+                   pause();                    /* Wait for signals */
+               _exit(atoi(argv[1]));
+
+           } else {                    /* Code executed by parent */
+               do {
+                   w = waitpid(cpid, &status, WUNTRACED | WCONTINUED);
+                   if (w == -1) {
+                       perror("waitpid");
+                       exit(EXIT_FAILURE);
+                   }
+
+                   if (WIFEXITED(status)) {
+                       printf("exited, status=%d\n", WEXITSTATUS(status));
+                   } else if (WIFSIGNALED(status)) {
+                       printf("killed by signal %d\n", WTERMSIG(status));
+                   } else if (WIFSTOPPED(status)) {
+                       printf("stopped by signal %d\n", WSTOPSIG(status));
+                   } else if (WIFCONTINUED(status)) {
+                       printf("continued\n");
+                   }
+               } while (!WIFEXITED(status) && !WIFSIGNALED(status));
+               exit(EXIT_SUCCESS);
+           }
+       }
+————————————— —————————————— V14_system.c
+#include <unistd.h> 
+#include <stdio.h> 
+#include <sys/types.h> 
+#include <sys/wait.h>
+#include <stdlib.h>
+#include <string.h>
+
+int main () {
+   char command[50];
+   int ret;
+   
+	strcpy( command, "ls -l");
+	ret = system(command) ; 
+	if (WIFSIGNALED (ret) && (WTERMSIG (ret) == SIGINT || WTERMSIG (ret) == SIGQUIT) )
+	{
+	 printf("system process is killed by signal") ; 
+	} 
+	else 
+	{ 
+	printf( "%d print this----", ret); 
+	}
+
+   return(0);
+} 
+————————————— —————————————— V15_exit_exitfunctions.c
+#include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
+
+
+int main() { 
+
+printf("will print"); /*since we are doing emergency exit _exit(0) , this will not be printed*/
+/*fflush(stdout); /*this command will flush or write buffer to memory so above print will be printed*/ 
+/*_exit(0) ; */
+
+/* if you donot want to use above fflush command then use proper exit(0) library function which will
+execute code to flush buffer to memory and will print above line*/
+
+exit(0);
+
+}
+
+————————————— —————————————— V16_exit_buffermodes.c
+#include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
+
+
+int main() { 
+
+/* there are three modes _IONBF unbuffered ; _IOLBF line buffered and _IOFBF fully buffered
+so if we use \n for line buffered then even with emergency exit _exit(0) , we will print that
+at stderr . _IONBF is to write data directly to memory without any buffer and I_OFBF can be used to print 
+if we fflush buffer data to memory prior to _exit(0) */
+
+setvbuf(stderr, NULL, _IOFBF, 0);  
+fprintf(stderr, "will not print b/c stderr is\n now lined buffered");
+
+_exit(0) ; 
+
+}
+
+————————————— —————————————— V17_Atexit_handler.c 
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+
+void firstfun() { 
+	printf("this is At exit handler1\n ") ;
+}
+
+void secondfun() { 
+	printf("this is second At exit handler2\n");
+}
+
+int main() { 
+	int status;
+
+	atexit(firstfun);
+	atexit(secondfun);
+	exit(status);	
+}
+
+————————————— —————————————— V17_parentwaitstatus.c
+
+#include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
+
+#include <sys/types.h>
+#include <sys/wait.h>
+
+int main(int argc, char * argv[]){
+  //arguments for ls, will run: ls  -l /bin                                                                                                                                  
+  char * ls_args[3] = { "ls", "-l", NULL} ;
+  pid_t c_pid, pid;
+  int status;
+
+  c_pid = fork();
+
+  if (c_pid == 0){
+    /* CHILD */
+
+    printf("Child: executing ls%d\n", getpid());
+
+    //execute ls                                                                                                                                                               
+    execvp( ls_args[0], ls_args);
+    //only get here if exec failed                                                                                                                                             
+    perror("execve failed");
+  }else if (c_pid > 0){
+    /* PARENT */
+    
+    if( (pid = wait(&status)) < 0){
+      perror("wait");
+      _exit(1);
+    }
+
+    printf("Parent:%d finished\n",getppid());
+
+  }else{
+    perror("fork failed");
+    _exit(1);
+  }
+
+  return 0; //return success
+}
+
+————————————— —————————————— V18_ppid.c
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+/* shell is the parent of this program so parent pid will remain same even if we run this program several times */
+
+int main()  { 
+
+pid_t pid, ppid;
+
+
+pid = getpid() ; 
+ppid = getppid() ; 
+
+
+printf("child pid %d\n", pid) ;
+printf("parent pid %d\n", ppid) ;
+
+return 0;
+}
+
+————————————— —————————————— V19_SetupProcessPriority.c 
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+/* shell is the parent of this program so parent pid will remain same even if we run this program several times */
+
+int main()  { 
+
+pid_t pid, ppid;
+
+
+pid = getpid() ; 
+ppid = getppid() ; 
+
+
+printf("child pid %d\n", pid) ;
+printf("parent pid %d\n", ppid) ;
+
+return 0;
+}
+[root@ispuncentos 1oldprograms]# cat V19_SetupProcessPriority.c 
+#include <stdlib.h>
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/resource.h>
+
+/* Priority is from -20 to +10. - means mean prioroty , it has high preference and positive ones 
+are nice ones which has low priority */
+
+int main() { 
+
+	int prio; 
+	prio = getpriority(PRIO_PROCESS, 0) ;
+
+	printf("Priority %d\n", prio); /* by default priority will be 0 which we can change using
+nice() system call as shown below */
+
+        prio = nice(20);
+        printf("new priority is %d\n",prio); 
+	return 0;
+
+}
+
+——————————————————— V20_get_process_grp_programming.c
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+/*getpgrp.c*/
+int main(int argc, char * argv[]){
+
+  pid_t pid, pgid; //process id and process group for this program                                                                         
+  pid_t ppid, ppgid; //process id and proces group for the _parent_                                                                        
+
+  //current 
+  pid = getpid();
+  pgid = getpgrp();
+
+  //parent
+  ppid = getppid();
+  ppgid = getpgid(ppid);
+
+  //print this parent's process pid and pgid                                                                                               
+  printf("%s: (current) pid:%d pgid:%d\n", argv[0], pid, pgid);
+  printf("%s: (parrent) ppid:%d pgid:%d\n", argv[0], ppid, ppgid);
+
+  return 0;
+}
+
+——————————————— V21_set_proces_grp.c
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+/*setpgrp.c*/
+int main(int argc, char * argv[]){
+
+  pid_t cpid, pid, pgid, cpgid; //process id's and process groups
+
+  cpid = fork();
+
+  if( cpid == 0 ){
+    //set process group to itself
+    setpgrp();
+
+    //print the pid, and pgid of child from child
+    pid = getpid();
+    pgid = getpgrp();
+    printf("Child:          pid:%d pgid:*%d*\n", pid, pgid);
+
+  }else if( cpid > 0 ){
+    //print the pid, and pgid of parent
+    pid = getpid();
+    pgid = getpgrp();
+    printf("Parent:         pid:%d pgid: %d \n", pid, pgid);    
+
+    //print the pid, and pgid of child from parent
+    cpgid = getpgid(cpid);
+    printf("Parent: Child's pid:%d pgid:*%d*\n", cpid, cpgid);
+
+  }else{
+    perror("fork");
+    _exit(1);
+  }
+
+  return 0;
+}
+
+
+—————————————— ——————— V22_process_race_condition.c
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+int main () { 
+
+pid_t c_pid , p_pid;
+
+c_pid = fork();
+
+if (c_pid == 0)  {
+setpgrp();
+printf("child pid %d and group pid %d \n", getpid(), getpgrp());
+}
+
+
+return 0;
+}
+
