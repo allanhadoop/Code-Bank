@@ -258,6 +258,360 @@ int main() {
 2. Installing GCC 
 
 
+----------------------- 
+———— Advance C programming - 
+
+——————————————————— How to use malloc on simple characteristics and on structure 
+#include <stdio.h>
+#include <stdlib.h>
+
+int main () {
+    char *str;
+    
+    /* Initial memory allocation */
+    str = (char *) malloc(15);
+    strcpy(str, "tutorialspoint");
+    printf("String = %s,  Address = %u\n", str, str);
+    
+    /* Reallocating memory */
+    str = (char *) realloc(str, 25);
+    strcat(str, ".com");
+    printf("String = %s,  Address = %u\n", str, str);
+    
+    free(str);
+    
+    return(0);
+}
+————— 
+String = tutorialspoint,  Address = 7566976
+String = tutorialspoint.com,  Address = 7567600
+Program ended with exit code: 0 
+
+
+——————————————————— Depth first search 
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <unistd.h>
+
+#define MAX 5
+
+struct Vertex {
+    char label;
+    bool visited;
+};
+
+//stack variables
+int stack[MAX];
+int top = -1;
+
+//array of vertices
+struct Vertex*  firstVertices[MAX];
+
+//adjacency matrix
+int adjMatrix[MAX][MAX];
+
+//vertex count
+int vertexCount = 0;
+
+//stack functions
+void push(int item) {
+    stack[++top] = item;
+}
+
+int pop() {
+    return stack[top--];
+}
+
+int peek() {
+    return stack[top];
+}
+
+bool isStackEmpty() {
+    return top == -1;
+}
+
+//add vertex to the vertex list
+void addVertex(char label) {
+    struct Vertex* vertex = (struct Vertex*) malloc(sizeof(struct Vertex));
+    vertex->label = label;
+    vertex->visited = false;
+    firstVertices[vertexCount++] = vertex;
+}
+
+//add edge to edge array
+void addEdge(int start,int end) {
+    adjMatrix[start][end] = 1;
+    adjMatrix[end][start] = 1;
+}
+
+//display the vertex
+void displayVertex(int vertexIndex) {
+    printf("%c ",firstVertices[vertexIndex]->label);
+}
+
+//get the adjacent unvisited vertex
+int getAdjUnvisitedVertex(int vertexIndex) {
+    int i;
+    
+    for(i = 0; i < vertexCount; i++) {
+        if(adjMatrix[vertexIndex][i] == 1 && firstVertices[i]->visited == false) {
+            return i;
+        }
+    }
+    
+    return -1;
+}
+
+void depthFirstSearch() {
+    int i;
+    
+    //mark first node as visited
+    firstVertices[0]->visited = true;
+    
+    //display the vertex
+    displayVertex(0);
+    
+    //push vertex index in stack
+    push(0);
+    
+    while(!isStackEmpty()) {
+        //get the unvisited vertex of vertex which is at top of the stack
+        int unvisitedVertex = getAdjUnvisitedVertex(peek());
+        
+        //no adjacent vertex found
+        if(unvisitedVertex == -1) {
+            pop();
+        } else {
+            firstVertices[unvisitedVertex]->visited = true;
+            displayVertex(unvisitedVertex);
+            push(unvisitedVertex);
+        }
+    }
+    
+    //stack is empty, search is complete, reset the visited flag
+    for(i = 0;i < vertexCount;i++) {
+        firstVertices[i]->visited = false;
+    }
+}
+
+int main() {
+    int i, j;
+    
+    for(i = 0; i < MAX; i++)    // set adjacency {
+        for(j = 0; j < MAX; j++) // matrix to 0
+            adjMatrix[i][j] = 0;
+    
+    addVertex('S');   // 0
+    addVertex('A');   // 1
+    addVertex('B');   // 2
+    addVertex('C');   // 3
+    addVertex('D');   // 4
+    
+    addEdge(0, 1);    // S - A
+    addEdge(0, 2);    // S - B
+    addEdge(0, 3);    // S - C
+    addEdge(1, 4);    // A - D
+    addEdge(2, 4);    // B - D
+    addEdge(3, 4);    // C - D
+    
+    printf("Depth First Search: \n");
+    depthFirstSearch();
+    
+    return 0;
+}
+
+————————————————————— Returning structure from function - 
+#include <unistd.h>
+
+//structure
+struct familytree {
+    char name;
+    struct familytree *son;
+    struct familytree *daughter;
+};
+//instance of the structure
+struct familytree* detailedfun(char fullname){
+    struct familytree* myfamily = (struct familytree*) malloc(sizeof(struct familytree));
+    myfamily->name = fullname;
+    myfamily->son  = 'A';
+    myfamily->daughter = 'C';
+    return myfamily;
+}
+
+
+int main() {
+//main - fill structure and return structure
+    struct familytree *tree = detailedfun('M');
+    
+//print structure
+    printf("Full name %c-\n", tree->name );
+    printf("name of the son - %c\n", tree->son);
+    printf("name of the daughter - %c\n", tree->daughter);
+    
+}
+——output - 
+Full name M-
+name of the son - A
+name of the daughter - C
+————————————————————— Deep First search traversal 
+// C program for different tree traversals
+//Unlike linear data structures (Array, Linked List, Queues, Stacks, etc) which have only one logical way to
+// traverse them, trees can be traversed in different ways. Following are the generally used ways for traversing trees.
+
+// https://www.geeksforgeeks.org/tree-traversals-inorder-preorder-and-postorder/
+//    Depth First Traversals:
+//(a) Inorder (Left, Root, Right) : 4 2 5 1 3
+//(b) Preorder (Root, Left, Right) : 1 2 4 5 3
+//(c) Postorder (Left, Right, Root) : 4 5 2 3 1
+
+#include <stdio.h>
+#include <stdlib.h>
+
+/* A binary tree node has data, pointer to left child
+ and a pointer to right child */
+struct node
+{
+    int data;
+    struct node* left;
+    struct node* right;
+};
+
+/* Helper function that allocates a new node with the
+ given data and NULL left and right pointers. */
+struct node* newNode(int data)
+{
+    struct node* node = (struct node*) malloc(sizeof(struct node));
+    node->data = data;
+    node->left = NULL;
+    node->right = NULL;
+    
+    return(node);
+}
+
+/* Given a binary tree, print its nodes according to the
+ "bottom-up" postorder traversal. */
+void printPostorder(struct node* node)
+{
+    if (node == NULL)
+        return;
+    
+    // first recur on left subtree
+    printPostorder(node->left);
+    
+    // then recur on right subtree
+    printPostorder(node->right);
+    
+    // now deal with the node
+    printf("%d ", node->data);
+}
+
+/* Given a binary tree, print its nodes in inorder*/
+void printInorder(struct node* node)
+{
+    if (node == NULL)
+        return;
+    
+    /* first recur on left child */
+    printInorder(node->left);
+    
+    /* then print the data of node */
+    printf("%d ", node->data);
+    
+    /* now recur on right child */
+    printInorder(node->right);
+}
+
+/* Given a binary tree, print its nodes in preorder*/
+void printPreorder(struct node* node)
+{
+    if (node == NULL)
+        return;
+    
+    /* first print data of node */
+    printf("%d ", node->data);
+    
+    /* then recur on left sutree */
+    printPreorder(node->left);
+    
+    /* now recur on right subtree */
+    printPreorder(node->right);
+}
+
+/* Driver program to test above functions*/
+int main()
+{
+    struct node *root  = newNode(1);
+    
+    root->left             = newNode(2);
+    root->right           = newNode(3);
+    root->left->left     = newNode(4);
+    root->left->right   = newNode(5);
+    root->left->left->left   = newNode(6);
+    
+    printf("\nPreorder traversal of binary tree is \n");
+    printPreorder(root);
+    
+    printf("\nInorder traversal of binary tree is \n");
+    printInorder(root);
+    
+    printf("\nPostorder traversal of binary tree is \n");
+    printPostorder(root);
+    
+    getchar();
+    return 0;
+}
+———————— 
+
+Preorder traversal of binary tree is 
+1 2 4 6 5 3 
+Inorder traversal of binary tree is 
+6 4 2 5 1 3 
+Postorder traversal of binary tree is 
+6 4 5 2 3 1 
+————————————————————— ————————— Linked list and How to use malloc on structure 
+#include <stdio.h>
+#include <stdlib.h>
+//struct
+
+struct node {
+    int data;
+    struct node *next;
+};
+
+//print
+void printlist(struct node *getdata) {
+    while (getdata != NULL) {
+        printf("print the list %d\n ", getdata->data);
+        getdata = getdata->next;
+    }
+}
+//main
+int main() {
+    
+   struct node *head = ( struct node*) malloc(sizeof(struct node));
+    struct node *second = ( struct node*) malloc (sizeof(struct node));
+    struct node *third = (struct node *) malloc(sizeof(struct node));
+    
+    head->data = 1;
+    head->next = second;
+    
+    second->data = 2;
+    second->next = third;
+    
+    third->data = 3;
+    third->next = NULL;
+    
+    printlist(head);
+    
+}
+
+————————— 
+print the list 1
+ print the list 2
+ print the list 3
+————————————————————— —————————  
+
 
 
 
