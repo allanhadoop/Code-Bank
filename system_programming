@@ -1354,3 +1354,325 @@ printf("child pid %d and group pid %d \n", getpid(), getpgrp());
 return 0;
 }
 
+------------------------------ 
+———————————————— V1_Signal.c 
+
+#include <stdlib.h>
+#include <stdio.h>
+
+#include <signal.h> 
+
+void sigfun( int snumber){ 
+  printf("this came due to signal sent by user\n");
+}
+
+
+int main() { 
+
+signal(SIGUSR1, sigfun) ; 
+
+raise(SIGUSR1);
+} 
+————————————————————  V2_signalkill.c 
+#include <stdio.h>
+#include <stdlib.h>
+#include <signal.h>
+
+void hello(){
+  printf("Hello World!\n");
+}
+
+int main(){
+
+  pid_t cpid;
+  pid_t ppid;
+
+  signal(SIGUSR1, hello);
+ 
+  if ( (cpid = fork()) == 0){
+    ppid = getppid();
+    printf("print ppid and cpid %d-  %d\n ", getppid(), cpid); 
+
+//send SIGUSR1 signal to parrent
+    kill(ppid, SIGUSR1);
+    exit(0); 
+  }  else {
+//just wait for child to terminate
+    wait(NULL);
+  }
+}
+
+———————————————————— V3_signalDefaultHandler.c 
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <signal.h>
+
+void h3(int n3) {
+  printf("third attempt\n");
+  signal(SIGINT, SIG_DFL);
+}
+
+void h2(int n2) {
+  printf("second attempt\n");
+  signal(SIGINT, h3);
+}
+
+void h1(int n1) { 
+  printf("first attempt to kill loop \n");
+  signal(SIGINT, h2);
+
+}
+
+int main() { 
+
+signal(SIGINT , h1) ; 
+while(1);
+
+
+} 
+
+————————————————————V4_signalalarm.c 
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <signal.h>
+#include <sys/signal.h>
+
+
+void alarm_handler(int signum){
+  printf("this buzz is triggerd by a signal which was intern delivered by an alarm\n");
+}
+
+int main(){
+
+  //set up alarm handler
+  signal(SIGALRM, alarm_handler);
+
+  //schedule alarm for 1 second. so signal is delivered via this alarm call here
+  alarm(2);
+
+  //do not proceed until signal is handled
+  pause();
+
+}
+
+————————————————————V5_SignalRecurringAlarm.c 
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <signal.h>
+#include <sys/signal.h>
+
+  void alarm_handler(int signum){
+    printf("Buzz Buzz Buzz\n");
+
+    //set a new alarm for 1 second
+    alarm(1);
+  }
+
+  int main(){
+
+    //set up alarm handler
+    signal(SIGALRM, alarm_handler);
+
+    //schedule the first alarm
+    alarm(1);
+
+    //pause in a loop
+    while(1){
+      pause();
+    }
+
+  }
+
+————————————————————V6_SignalResettingAlarm.c
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <signal.h>
+#include <sys/signal.h>
+
+void sigint_handler(int signum){
+  printf("Snoozing!\n");
+
+  //schedule next alarm for 5 seconds
+  alarm(5);
+}
+
+void alarm_handler(int signum){
+  printf("Buzz Buzz Buzz\n");
+
+  //set a new alarm for 1 second
+  alarm(1);
+}
+
+int main(){
+
+  //set up alarm handler
+  signal(SIGALRM, alarm_handler);
+
+  //set up signint handler
+  signal(SIGINT, sigint_handler);
+
+  //schedule the first alarm
+  alarm(1);
+
+  //pause in a loop
+  while(1){
+    pause();
+  }
+
+}
+
+————————————————————V6_SignalResettingAlarm2.c 
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <signal.h>
+#include <sys/signal.h>
+
+void sigquit_handler(int signum){
+  printf("Alarm Off\n");
+
+  //turn off all pending alarms
+  alarm(0);
+
+  //reinstate default handler for SIGINT
+  // Ctrl-C will now terminate program
+  signal(SIGINT, SIG_DFL);
+}
+
+void sigint_handler(int signum){
+  printf("Snoozing!\n");
+
+  //schedule next alarm for 5 seconds
+  alarm(5);
+}
+
+void alarm_handler(int signum){
+  printf("Buzz Buzz Buzz\n");
+
+  //set a new alarm for 1 second
+  alarm(1);
+}
+
+int main(){
+
+  //set up alarm handler
+  signal(SIGALRM, alarm_handler);
+
+  //set up signint handler
+  signal(SIGINT, sigint_handler);
+
+  //set up signint handler
+  signal(SIGQUIT, sigquit_handler);
+
+  //schedule the first alarm
+  alarm(1);
+
+  //pause in a loop
+  while(1){
+    pause();
+  }
+
+}
+
+————————————————————V7_Sigaction.c 
+#define _POSIX_SOURCE
+#define _XOPEN_SOURCE_EXTENDED 1
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <signal.h>
+#include <sys/signal.h>
+
+void takeactionnow() { 
+  printf("this is printed because signal alert got triggered\n");
+} 
+
+
+int main() {  
+ struct sigaction Act;
+ Act.sa_handler  = takeactionnow;
+  
+ sigaction(SIGALRM, &Act , NULL) ;
+ alarm(1) ; 
+ pause() ; /* wait till 1 min of alarm is over */ 
+
+ return 0;
+
+}
+
+————————————————————V8_SignalEINTER.c
+#include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/signal.h>
+#include <unistd.h>
+
+void handler(int signum){
+  printf("What's taking so long?\n");
+  alarm(1);
+}
+
+int main(){
+
+  char name[1024];
+
+  struct sigaction action;
+  action.sa_handler = handler;
+  action.sa_flags = SA_RESTART;   //this flag will restart the message what is taking so long instead of scanf error
+
+  sigaction(SIGALRM, &action, NULL);
+
+  alarm(5);
+
+  printf("What is your name?\n");
+
+  //scanf returns the number of items scanned
+  if( scanf("%s", name) != 1){ 
+    perror("scanf fail");
+    exit(1);
+  }
+
+  printf("Hello %s!\n", name);
+
+}
+
+————————————————————V9_SignalReenterant.c
+/* The program runs for only 1 second, and that is because sleep() is not reentrant. It cannot be restarted 
+after a signal handler. This is just a singular example, 
+but there are other system calls that meet these conditions, 
+some you might also use, like send() and recv() for network socket
+ programming, and understanding the properties of reentrant 
+system calls is important to becoming an effective systems programmer. */
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <signal.h>
+#include <sys/signal.h>
+
+void handler(int signum){
+  printf("Alarm is triggered\n");
+  alarm(1);
+}
+
+int main(){
+
+  struct sigaction action;
+  action.sa_handler = handler;
+  action.sa_flags = SA_RESTART;
+
+  sigaction(SIGALRM, &action, NULL);
+
+  alarm(1);
+
+  sleep(2);
+
+}
+
+
