@@ -1,0 +1,134 @@
+—————Kernal Programming —Process File System———————————— https://lwn.net/Kernel/LDD3/
+
+
+//http://devarea.com/linux-kernel-development-creating-a-proc-file-and-interfacing-with-user-space/#.Wzn55C2B1bU
+
+#include <linux/module.h>
+#include <linux/moduleparam.h>
+#include <linux/init.h>
+#include <linux/kernel.h>   
+#include <linux/proc_fs.h>
+#include <asm/uaccess.h>
+#define BUFSIZE  100
+ 
+ 
+MODULE_LICENSE("Dual BSD/GPL");
+MODULE_AUTHOR("Test user");
+ 
+ 
+static struct proc_dir_entry *ent;
+ 
+static ssize_t mywrite(struct file *file, const char __user *ubuf,size_t count, loff_t *ppos) 
+{
+	int num, c, i, m, irq , mode; 
+	char buf[BUFSIZE];
+	printk("--------------------------------------\n");
+	printk("position is  ----- %d\n", *ppos);
+	printk("first count is ----- %d\n", count);
+        printk("write buf is ----- %d\n", buf);	
+	printk("write ubuf is ----- %d\n", ubuf);
+	if(copy_from_user(buf,ubuf,count))
+		return -EFAULT;
+	num = sscanf(buf,"%d %d", &i , &m);
+	irq = i;
+        printk("Entered value of irq is----- %d\n", irq);
+	mode = m;
+        printk("Entered value of mode is ----- %d\n", m);
+	c = strlen(buf); 
+        printk("write final buf value is ----- %d\n", c);
+	*ppos = c;
+	return c;
+}
+
+static int irq=20;
+module_param(irq,int,0660);
+ 
+static int mode=1;
+module_param(mode,int,0660); 
+
+static ssize_t myread(struct file *file, char __user *ubuf,size_t count, loff_t *ppos) 
+{
+	char buf[BUFSIZE]; 
+	int len=0;
+	printk(KERN_DEBUG "read handler\n");
+	if(*ppos > 0 || count < BUFSIZE)
+		return 0;
+	len += sprintf(buf,"irq = %d\n",irq);
+        printk("read length is ----- %d\n", len);
+        printk("read value of intial buf is ----- %d\n", buf);
+	len += sprintf(buf + len,"mode = %d\n",mode);
+	printk("read new value of length is adding buf is ----- %d\n", len);
+	if(copy_to_user(ubuf,buf,len))
+		return -EFAULT;
+        printk("read final value of ubuf is is ----- %d\n", ubuf);
+        printk("final value of buf is----- %d\n", buf);
+	*ppos = len;
+	return len;
+}
+ 
+static struct file_operations myops = 
+{
+	.owner = THIS_MODULE,
+	.read = myread,
+	.write = mywrite,
+};
+ 
+static int simple_init(void)
+{
+	ent=proc_create("mydev",0660,NULL,&myops);
+	return 0;
+}
+ 
+static void simple_cleanup(void)
+{
+	proc_remove(ent);
+}
+ 
+module_init(simple_init);
+module_exit(simple_cleanup);
+
+——————————— user application below ————— 
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+ 
+void main(void)
+{
+	char buf[100];
+	int fd = open("/proc/mydev", O_RDWR);
+	read(fd, buf, 100);
+	puts(buf);
+ 
+	lseek(fd, 0 , SEEK_SET);
+	write(fd, "33 4", 5);
+	
+	lseek(fd, 0 , SEEK_SET);
+	read(fd, buf, 100);
+	puts(buf);
+}
+
+
+——————— Steps to compile
+1. Create Makefile and then run make
+2. Insert module insmod <name of code>.ko 
+3. Dmesg
+4. Cc <user application code.c> -o <name of user application>
+5. ./<name of the user application>
+6. Dmesg
+— Sample answers 
+[87344.424755] position is  ----- 0
+[87344.424756] first count is ----- 5
+[87344.424757] write buf is ----- -1477411308
+[87344.424758] write ubuf is ----- 193064960
+[87344.424760] Entered value of irq is----- 30
+[87344.424761] Entered value of mode is ----- 3
+[87344.424762] write final buf value is ----- 9
+[87424.670491] read handler
+[87424.670496] read length is ----- 9
+[87424.670498] read value of intial buf is ----- -1980482004
+[87424.670499] read new value of length is adding buf is ----- 18
+[87424.670503] read final value of ubuf is is ----- 20762624
+[87424.670504] final value of buf is----- -1980482004
+[87424.670518] read handler
