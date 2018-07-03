@@ -1,0 +1,384 @@
+—————Kernal Programming —Character device /driver programming———————————— https://lwn.net/Kernel/LDD3/
+————1. Write c program first , example hello.c 
+————2 . Write Makefile referring to .0 extension of that C program
+—————3. Depending on KER_xxx logging, check DMESG for detailed log . There are around 8 ways to log data
+———— All types of devices ( block or char ) are at /proc/devices . All kernel config is at /boot/ directory.
+——————— read log levels at cat /proc/sys/ kernel/printk  — The file hosts four integer values: the current loglevel, the default level for messages that lack an explicit loglevel, the minimum allowed loglevel, and the boot-time default loglevel. 
+——————— All documentation is at - https://linux-kernel-labs.github.io/master/labs/device_drivers.html ———— 
+—————— Once we generate major and minot number using program , insert driver using insmod and then create devices using mknod command 
+
+—————————————   INIT function convention ———————————————————————— 
+
+static int __init initialization_function(void) { 
+         /* Initialization code here */
+     }
+     module_init(initialization_function);
+
+
+————————————————Clean up function convention ———————————————— 
+static void __exit cleanup_function(void) { 
+         /* Cleanup code here */
+     }
+     module_exit(cleanup_function);
+
+
+———————————— Hello.c ——————————————— 
+#include <linux/init.h>
+#include <linux/module.h>       
+#include <linux/kernel.h>       
+
+static int hello_init(void) { 
+  printk(KERN_NOTICE "newly built trigger");
+  return 0;
+}
+
+static void hello_exit(void) { 
+   printk(KERN_NOTICE "--------This is end of newly built trigger");
+}
+
+
+module_init(hello_init);
+module_exit(hello_exit);
+
+
+————— Makefile ————— below /usr path is where we have Kernel source tree located.
+———The M= option causes that makefile to move back into your module source directory before trying to build the modules target. 
+——-This target, in turn, refers to the list of modules found in the obj-m variable 
+
+
+obj-m += hello.o
+
+KDIR = /usr/src/kernels/3.10.0-693.el7.x86_64
+
+all:
+	make -C /usr/src/kernels/3.10.0-693.el7.x86_64 M=$(PWD) modules
+
+clean : 
+	make -C /usr/src/kernels/3.10.0-693.el7.x86_64 M=$(PWD) clean
+
+———————————hello2.c ————————
+#include <linux/module.h>
+#include <linux/kernel.h>
+#include <linux/init.h>
+
+
+static int __init myfirstkerfun_init(void) { 
+   printk(KERN_INFO "this is second trigger start -- \n") ;
+   return 0;
+} 
+
+static void __exit myfirstkerfun_exit(void) { 
+   printk(KERN_INFO "this is second trigger --------- \n");
+}
+
+module_init(myfirstkerfun_init);
+module_exit(myfirstkerfun_exit);
+
+———————————————————————hello3.c———————————
+#include <linux/module.h>
+#include <linux/kernel.h>
+#include <linux/init.h>
+
+
+static int hello3_variable __initdata = 3;
+
+static int __init hello3_init(void) 
+{ 
+	printk(KERN_INFO "this came from  triggerhello3 %d\n", hello3_variable); 
+	return 0;
+}
+
+static void __exit hello3_exit(void) 
+{ 
+	printk(KERN_INFO "This is end of triggerhello3\n");
+} 
+
+
+module_init(hello3_init);
+module_exit(hello3_exit);
+
+—————————————hello4.c—————————————————————
+#include <linux/module.h>
+#include <linux/kernel.h>
+#include <linux/init.h>
+
+#define DRIVER_AUTHOR "Triggercontrol"
+#define DRIVER_DESC "Trigger is switched"
+
+
+static int __init hello4(void) 
+{ 
+	printk(KERN_ALERT "This is hello4\n");
+	return 0;
+}
+
+static void __exit hello4_cleanup(void) 
+{ 
+	printk(KERN_ALERT "End of hello4\n");
+}
+
+module_init(hello4);
+module_exit(hello4_cleanup);
+
+MODULE_LICENSE("GPL") ;
+MODULE_AUTHOR(DRIVER_AUTHOR) ; 
+MODULE_DESCRIPTION(DRIVER_DESC);
+MODULE_SUPPORTED_DEVICE("testdevice");
+
+———————————————— Makefile —————————————— 
+obj-m += hello.o
+obj-m += hello2.o
+obj-m += hello3.o
+obj-m += hello4.o
+
+KDIR = /usr/src/kernels/3.10.0-693.el7.x86_64
+
+all:
+    	make -C /usr/src/kernels/3.10.0-693.el7.x86_64 M=$(PWD) modules
+
+clean :
+       	make -C /usr/src/kernels/3.10.0-693.el7.x86_64 M=$(PWD) clean
+
+—————————— —Makefile for above program————————————————————————— 
+obj-m += myker.o
+
+KDIR = /usr/src/kernels/3.10.0-693.el7.x86_64
+
+all:
+	make -C /usr/src/kernels/3.10.0-693.el7.x86_64 M=$(PWD) modules
+
+clean : 
+	make -C /usr/src/kernels/3.10.0-693.el7.x86_64 M=$(PWD) clean
+
+
+———————————————— Multiple files a part of same module - start.c and stop.c as shown below————
+#include <linux/module.h>
+#include <linux/init.h>
+#include <linux/kernel.h>
+
+
+static int __init start(void)
+{
+        printk(KERN_ERR "this is file1\n");
+        printk(KERN_DEBUG "Here I am: %s:%i\n", __FILE__, __LINE__);   /*this is for debugging*/
+        return 0;
+}
+
+
+module_init(start);
+
+———————————————— stop.c ———————
+#include <linux/module.h>
+#include <linux/kernel.h>
+
+static void __exit stop(void) 
+{ 
+	printk(KERN_ERR "Done now------\n");
+	
+}
+
+module_exit(stop);
+—————————————Integrated Makefile —————————
+obj-m += mycombinedobjectname.o    
+mycombinedobjectname-objs := start.o stop.o
+
+all:
+	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
+
+clean : 
+	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
+
+————————————— Error Handling ——————————————— 
+
+#include <linux/module.h>
+#include <linux/kernel.h>
+#include <linux/sched.h>
+
+struct something *item1;
+struct somethingelse *item2;
+int stuff_ok;
+
+void my_cleanup(void) 
+{ 
+	if (item1)
+	   release_thing(item1);
+	if (item2) 
+	   release_thing2(item2);
+	if (stuff_ok)
+           unregister_stuff();
+	return ; 
+}
+
+int __init my_init(void) 
+{ 
+	int err = -ENOMEM;
+	item1 = allocate_thing(arguments);
+	item2 = allocate_thing2(arguments);
+	if (!item1 || !item2)
+		goto fail; 
+	err = register_stuff(item1, item2);	
+	if (!err) 
+		stuff_ok = 1;
+	else
+	 	goto fail;
+	return 0; 
+	fail:
+		my_cleanup() ; 
+		return err;
+}
+——————————————————————  ——————————————— 
+Semaphore - Since all threads run in the same address space, they all have access to the same data and variables. If two threads simultaneously attempt to update a global counter variable, it is possible for their operations to interleave in such way that the global state is not correctly modified. A semaphore is somewhat like an integer variable, but is special in that its operations (increment and decrement) are guaranteed to be atomic .Semaphores are also specifically designed to support an efficient waiting mechanism. If a thread can’t proceed until some change occurs, it is undesirable for that thread to be looping and repeatedly checking the state until it changes. In this case semaphore can be used to represent the right of a thread to proceed. A non-zero value means the thread should continue, zero means to hold off. When a thread attempts to decrement a unavailable semaphore (with a zero value), it efficiently waits until another thread increments the semaphore to signal the state change that will allow it to proceed using SemaphoreWait and SemaphoreSignal .  
+By convention, when a semaphore is zero it is "locked" or "in use". Otherwise, positive values indicate that the semaphore is available. A semaphore will never have a negative value. SemaphoreWait(Semaphore s) - If a semaphore value is positive, decrement the value otherwise suspend the thread and block on that semaphore until it becomes positive . SemaphoreSignal(Semaphore s)  - Increment the semaphore value, potentially awakening a suspended thread that is blocked on it. If multiple threads are waiting, it is not deterministic which will be chosen. 
+———— — Simple char device program, - follow below steps given after code to compile 
+#include <linux/module.h>
+#include <linux/kernel.h>
+#include <linux/fs.h> // required for various structures related to files liked fops.
+#include <asm/uaccess.h> // required for copy_from and copy_to user functions
+#include <linux/semaphore.h>
+#include <linux/cdev.h>
+
+static int Major;
+dev_t dev_no,dev;
+
+struct device
+{
+	char array[100];
+	struct semaphore sem;
+}char_dev;
+
+int open(struct inode *inode, struct file *filp)
+ {
+        printk(KERN_INFO "Inside open \n");
+        if(down_interruptible(&char_dev.sem)) {
+        	printk(KERN_INFO " could not hold semaphore");
+        return -1;
+  }
+ return 0;
+}
+
+int release(struct inode *inode, struct file *filp)
+ {
+        printk (KERN_INFO "Inside close \n");
+        printk(KERN_INFO "Releasing semaphore");
+        up(&char_dev.sem);
+        return 0;
+}
+
+ssize_t read(struct file *filp, char *buff, size_t count, loff_t *offp) 
+{
+       unsigned long ret;
+       printk("Inside read \n");
+       ret = copy_to_user(buff, char_dev.array, count);
+       return ret;
+}
+
+ssize_t write(struct file *filp, const char *buff, size_t count, loff_t *offp) 
+{
+       unsigned long ret;
+       printk(KERN_INFO "Inside write \n");
+       ret = copy_from_user(char_dev.array, buff, count);
+       return count;
+}
+
+struct file_operations fops = {
+ read:  read,
+ write:  write,
+ open:   open,
+ release: release
+};
+
+struct cdev *kernel_cdev;
+
+int char_dev_init (void) 
+{
+      int ret;
+      kernel_cdev = cdev_alloc();
+      kernel_cdev->ops = &fops;
+      kernel_cdev->owner = THIS_MODULE;
+      printk (" Inside init module\n");
+      ret = alloc_chrdev_region( &dev_no , 0, 1,"chr_arr_dev");
+      if (ret < 0) {
+      		printk("Major number allocation is failed\n");
+      return ret;
+ }
+
+Major = MAJOR(dev_no);
+dev = MKDEV(Major,0);
+sema_init(&char_dev.sem,1);
+printk (" The major number for your device is %d\n", Major);
+ret = cdev_add( kernel_cdev,dev,1);
+if(ret < 0 )
+{
+     printk(KERN_INFO "Unable to allocate cdev");
+     return ret;
+}
+     return 0;
+}
+
+void char_dev_cleanup(void) 
+{
+     printk(KERN_INFO " Inside cleanup_module\n");
+     cdev_del(kernel_cdev);
+     unregister_chrdev_region(Major, 1);
+}
+
+MODULE_LICENSE("GPL");
+module_init(char_dev_init);
+module_exit(char_dev_cleanup);
+
+—————— Makefile 
+obj-m += char_dev.o
+
+KDIR = /usr/src/kernels/3.10.0-693.el7.x86_64
+
+all:
+	make -C /usr/src/kernels/3.10.0-693.el7.x86_64/ M=$(PWD) modules
+
+clean : 
+	make -C /usr/src/kernels/3.10.0-693.el7.x86_64/ M=$(PWD) clean
+———————— Main user application code 
+#include <stdio.h>
+#include <fcntl.h>
+
+main ( )
+ {
+        int i,fd;
+        char ch, write_buf[100], read_buf[100];
+        fd = open("/dev/char_dev", O_RDWR);
+        if (fd == -1)
+        {
+                printf("Error in opening file \n");
+                exit(-1);
+        }
+        printf ("Press r to read from device or w to write the device ");
+        scanf ("%c", &ch);
+
+        switch (ch) {
+                case 'w':
+                       printf (" Enter the data to be written into device");
+                        scanf (" %[^\n]", write_buf);
+                        write(fd, write_buf, sizeof(write_buf));
+                        break;
+                case 'r':
+                        read(fd, read_buf, sizeof(read_buf));
+                        printf ("The data in the device is %s\n", read_buf);
+                        break;
+                default:
+                        printf("Wrong choice \n");
+                        break;
+        }
+        close(fd);
+}
+————————— Compilation steps - 
+1. Compile char_drv.c driver with given MakeFile.
+2. Load char_drv in to kernel using # insmod char_drv.ko.
+3. Verify the driver is loaded using # dmesg 
+> dmesg | tail -5
+
+4. See the Major number of device (here is 246)
+5. Now create nod in /dev using # mknod /dev/char_dev c 246 0
+6. Verify the above node created in /dev using > ls -l /dev/char_dev
+crw-r--r--. 1 root root 247, 0 Mar 17 09:03 /dev/char_dev
+> cc main.c -o main
+> ./main  
+————————————— 
