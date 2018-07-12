@@ -1,0 +1,580 @@
+—————————— Kernel API —————————covers below - linked list ; atomic lock , spinlock and prof fs programs ——— - ——— 
+——————Linked list - http://www.roman10.net/2011/07/28/linux-kernel-programminglinked-list/
+————— https://isis.poly.edu/kulesh/stuff/src/klist/
+——————— https://linux-kernel-labs.github.io/master/labs/kernel_api.html?highlight=init_list_head
+
+Check kernel version using name -r
+— API Covered 
+1. Linked List
+2. Atomic lock
+3. Spinlock 
+4. Proc file 
+5. CPU time usage
+———————— ———————————— Linked List ———————————————————  ————————————
+
+#include <linux/slab.h>
+#include <linux/kernel.h>
+#include <linux/list.h>
+#include <linux/module.h>
+#include <linux/string.h>
+
+MODULE_LICENSE("GPL");
+MODULE_DESCRIPTION("this is sample description");
+MODULE_AUTHOR("Test user");
+
+//There are three types of pointers as below .
+//1. Main linked list which is called stack list 
+//2. newstack - This is used to add new list to main stack list 
+//3. PrintstackPlaceholder - This is used to print elements of stack list 
+//4. cleanupstack - This is to clean the list from memory.
+
+struct stackdetails { 
+	char name[30];
+	unsigned int age;
+	struct list_head list;
+};
+
+struct stackdetails stacklist;
+
+int init_module() {
+
+	struct stackdetails *newstack  ;
+ 	INIT_LIST_HEAD(&stacklist.list);
+	
+	unsigned int i;
+	for(i=0 ; i<5 ; i++) {
+		newstack = kmalloc(sizeof(*newstack), GFP_KERNEL);
+		strcpy(newstack->name , "terminalstack");
+		newstack->age = 3;
+		INIT_LIST_HEAD(&newstack->list);
+
+		list_add_tail(&(newstack->list),&(stacklist.list));		
+	}
+
+	printk(KERN_INFO "Traversing the list using the list\n");
+
+	struct stackdetails *PrintstackPlaceholder;
+	list_for_each_entry(PrintstackPlaceholder, &stacklist.list, list) { 
+		printk(KERN_INFO "Name : %s ; age:%d" , PrintstackPlaceholder->name, PrintstackPlaceholder->age);
+	}
+	printk(KERN_INFO "---Done----");
+	return 0;
+}
+
+void cleanup_module() { 
+	struct stackdetails *cleanupstack , *tmp;
+	printk(KERN_INFO "Kernel module uploaded---\n");
+	printk(KERN_INFO "Delete the list below\n");
+	list_for_each_entry_safe(cleanupstack, tmp, &stacklist.list, list) { 
+		printk(KERN_INFO "Freeing node one by one %s\n", cleanupstack->name);
+		list_del(&cleanupstack->list);
+		kfree(cleanupstack);
+	}
+	
+}
+
+————————— output ———————————— 
+[255138.327389] ----Initializing kernal module here ----
+[255138.327392] Traversing the list using the list
+[255138.327395] Name : terminalstack ; age:3
+[255138.327396] Name : terminalstack ; age:3
+[255138.327397] Name : terminalstack ; age:3
+[255138.327398] Name : terminalstack ; age:3
+[255138.327399] Name : terminalstack ; age:3
+[255138.327399] ---Done----
+——————————— ———  —— - ———————  ——————— -  ———————  Another program ————— 
+#include <linux/slab.h>
+#include <linux/list.h>
+
+struct pid_list {
+    pid_t pid;
+    struct list_head list;
+};
+
+LIST_HEAD(my_list);
+
+pid = 200;
+static int add_pid(pid_t pid)
+{
+    struct pid_list *ple = kmalloc(sizeof *ple, GFP_KERNEL);
+	
+    if (!ple)
+        return -ENOMEM;
+    printk("pid number -----%d" , pid);
+
+    ple->pid = pid;
+    list_add(&ple->list, &my_list);
+
+    return 0;
+}
+
+static int del_pid(pid_t pid)
+{
+    struct list_head *i, *tmp;
+    struct pid_list *ple;
+
+    list_for_each_safe(i, tmp, &my_list) {
+        ple = list_entry(i, struct pid_list, list);
+
+        if (ple->pid == pid) {
+            list_del(i);
+            kfree(ple);
+            return 0;
+        }
+    }
+
+    return -EINVAL;
+}
+
+static void destroy_list(void)
+{
+    struct list_head *i, *n;
+    struct pid_list *ple;
+
+    list_for_each_safe(i, n, &my_list) {
+        ple = list_entry(i, struct pid_list, list);
+        list_del(i);
+        kfree(ple);
+    }
+}
+———————— ———————————— Atomic Lock Operations ———————————————————  ————————————
+——atomic_t is is mainly used for counters.
+
+#include <linux/module.h>
+#include <linux/types.h>
+#include <linux/init.h>
+
+
+atomic_t a;
+
+static int __init atomic_init(void) { 
+        printk("-----------");
+	atomic_set(&a , 20);
+	printk(KERN_INFO "%d--initial set value\n", atomic_read(&a));
+	
+	atomic_add_unless(&a, 15, 20);   //here no addition will happen if source &a matches to third parameter (20) 
+        printk(KERN_INFO "%d--updated set\n", atomic_read(&a));
+
+// Atomic compare and exchange cmpxchg - While system does compare and replace, it is locked down, no other process 
+// can change it.
+
+	atomic_set(&a, 4);
+	printk(KERN_INFO "%d--original set\n", atomic_read(&a));
+
+	atomic_cmpxchg(&a, 4, 7);  	// if incoming value of a matched with 4 then replace it with 7
+	printk(KERN_INFO "%d--updated set\n", atomic_read(&a));
+
+	atomic_cmpxchg(&a, 7, 8);    // if now updated 7 matches with 7 (Second argument) then replace with 8
+	printk(KERN_INFO "%d--second updated set\n", atomic_read(&a));	
+
+// Atomic Decrement 
+	atomic_set(&a, 10);
+	printk(KERN_INFO "%d--initial set value\n", atomic_read(&a));
+	atomic_dec(&a);
+	printk(KERN_INFO "%d--initial set value\n", atomic_read(&a));
+	
+//Atomic Increment 
+	atomic_set(&a, 23);
+	printk(KERN_INFO "%d--initial set value\n", atomic_read(&a));
+	atomic_inc(&a);
+	printk(KERN_INFO "%d--initial set value\n", atomic_read(&a));
+
+
+
+// Atomic Decrement and test 
+	int num ;
+	int ret;
+	atomic_set(&a, 4);
+	printk(KERN_INFO "%d--initial set value\n", atomic_read(&a));
+	ret = num = 0;
+	while ((ret = atomic_dec_and_test(&a)) == 0){
+		num ++;
+	        printk(KERN_INFO "%d--initial set value\n", atomic_read(&a));
+	}
+	printk(KERN_ALERT "num = %d\n", num);
+
+// Atomic sub return 
+	atomic_set(&a, 6);
+	printk(KERN_INFO "%d--initial set value\n", atomic_read(&a));
+	atomic_sub_return(13, &a);
+	printk(KERN_INFO "%d--initial set value\n", atomic_read(&a));
+
+	
+	return 0;
+}
+
+static void __exit atomic_exit(void) { 
+	printk(KERN_ALERT "--Done processing -----\n");	
+}
+
+module_init(atomic_init);
+module_exit(atomic_exit);
+MODULE_LICENSE("GPL");
+MODULE_AUTHOR("test");
+
+—— ————— ———— outcome —— ———
+[587958.376266] -----------
+[587958.376270] 20--initial set value
+[587958.376296] 20--updated set
+[587958.376298] 4--original set
+[587958.376299] 7--updated set
+[587958.376299] 8--second updated set
+[587958.376300] 10--initial set value
+[587958.376301] 9--initial set value
+[587958.376302] 23--initial set value
+[587958.376303] 24--initial set value
+[587958.376304] 4--initial set value
+[587958.376305] 3--initial set value
+[587958.376306] 2--initial set value
+[587958.376306] 1--initial set value
+[587958.376307] num = 3
+[587958.376309] 6--initial set value
+[587958.376310] -7--initial set value
+
+———————— ———————————— Spinlock ———————————————————  ————————————
+When two or more processes require dedicated access to a shared resource, they might need to enforce the condition that they are the sole process to operate in a given section of code. The basic form of locking in the Linux kernel is the spinlock. Spinlocks take their name from the fact that they continuously loop, or spin, waiting to acquire a lock. The drawback of spinlocks is that they busily loop, waiting for the lock to be freed. They are best used for critical sections of code that are fast to complete. For code sections that take time, it is better to use another Linux kernel locking utility: the semaphore. Semaphores differ from spinlocks because the task sleeps, rather than busy waits, when it attempts to obtain a contested resource. One of the main advantages is that a process holding a semaphore is safe to block; they are SMP and interrupt safe: Both architecture implementations provide a pointer to a wait_queue and a count. The count is the number of processes that can hold the semaphore at the same time. With semaphores, we could have more than one process entering a critical section of code at the same time. If the count is initialized to 1, only one process can enter the critical section of code; a semaphore with a count of 1 is called a mutex.
+
+http://www.informit.com/articles/article.aspx?p=414983&seqNum=3
+
+——— 
+spin_lock_irqsave is basically used to save the interrupt state before taking the spin lock, this is because spin lock disables the interrupt, when the lock is taken in interrupt context, and re-enables it when while unlocking. The interrupt state is saved so that it should reinstate the interrupts again.
+
+Example:
+
+Lets say interrupt x was disabled before spin lock was acquired
+spin_lock_irq will disable the interrupt x and take the the lock
+spin_unlock_irq will enable the interrupt x.
+So in the 3rd step above after releasing the lock we will have interrupt x enabled which was earlier disabled before the lock was acquired.
+
+So only when you are sure that interrupts are not disabled only then you should spin_lock_irq otherwise you should always use spin_lock_irqsave.
+
+#include <linux/module.h>
+
+#include <linux/kernel.h>
+
+#include <linux/kthread.h>
+
+#include <linux/spinlock_types.h>
+
+#include <linux/fs.h>
+
+#include <linux/cdev.h>
+
+#include <linux/delay.h>
+
+#include <asm/uaccess.h>
+
+
+
+
+#define LOOPS 100000
+
+
+
+
+static int list[LOOPS];
+
+static int idx = 0, cs1 = 0, cs2 = 0;
+
+static struct task_struct *t1, *t2;
+
+static spinlock_t spinlock;
+
+
+
+
+static int consumer(void* ptr)
+
+{
+
+	unsigned long flags = 0;
+
+	printk(KERN_INFO "Consumer TID %d\n", (int)ptr);
+
+
+
+
+	while (1) 
+
+	{
+
+		spin_lock_irqsave(&spinlock, flags);
+
+		if (idx >= LOOPS)
+
+		{
+
+			spin_unlock_irqrestore(&spinlock, flags);
+
+			break;
+
+		}
+
+		list[idx++] += 1;
+
+		spin_unlock_irqrestore(&spinlock, flags);
+
+		if ((int)ptr == 1)
+
+			cs1++;
+
+		else
+
+			cs2++;
+
+	}
+
+	printk(KERN_INFO "Consumer %d done\n", (int)ptr);
+
+	return 0;
+
+}
+
+
+
+
+static int spinlock_init(void)
+
+{
+
+	int i, id1 = 1, id2 = 2, lo_cnt = 0, hi_cnt = 0;
+
+	for (i = 0; i < LOOPS; i++)
+
+		list[i] = 0;
+
+
+
+
+	spin_lock_init(&spinlock);
+
+
+
+
+	t1 = kthread_create(consumer, (void*)id1, "cons1");
+
+	t2 = kthread_create(consumer, (void*)id2, "cons2");
+
+
+
+
+	if (t1 && t2) {
+
+		printk(KERN_INFO "Starting...\n");
+
+		wake_up_process(t1);
+
+		wake_up_process(t2);
+
+	} else {
+
+		printk(KERN_EMERG "Error\n");
+
+	}
+
+
+
+
+	msleep(100);
+
+
+
+
+	for (i = 0; i < LOOPS; i++) {
+
+		if (list[i] == 0) {
+
+			lo_cnt++;
+
+			printk(KERN_INFO "lo:%d ", i);
+
+		} else if (list[i] > 1) {
+
+			hi_cnt++;
+
+			printk(KERN_INFO "hi: %d ", i);
+
+		}
+
+	}
+
+	printk(KERN_INFO "lo_cnt = %d hi_cnt = %d cs1 = %d cs2 = %d\n", lo_cnt, hi_cnt, cs1, cs2);
+
+	return 0;
+
+}
+
+
+
+
+void spinlock_cleanup(void)
+
+{
+
+	printk(KERN_INFO "Inside cleanup_module\n");
+
+}
+
+
+
+
+MODULE_LICENSE("GPL");
+
+MODULE_AUTHOR("Miroslav Tisma <tisma@linux.com>");
+
+MODULE_DESCRIPTION("Simple kernel module which demonstrates using of spinlock");
+
+module_init(spinlock_init);
+
+module_exit(spinlock_cleanup);
+————Output — 
+…(run this program and see the output) 
+
+————— —————— Another example —————— run and see output yourself
+#include <linux/module.h>
+#include <linux/kernel.h>
+#include <linux/semaphore.h>
+#include <linux/kthread.h>  // for threads
+#include <linux/sched.h>  // for task_struct
+#include <linux/time.h>
+#include <linux/timer.h>
+#include <linux/delay.h>
+
+#define DEFINE_SPINLOCK(x)    spinlock_t x = __SPIN_LOCK_UNLOCKED(x)
+static struct task_struct *thread1,*thread2;
+static DEFINE_SPINLOCK(my_lock) ;
+
+//static spinlock_t my_lock = SPIN_LOCK_UNLOCKED;
+
+int thread_fn1() {
+unsigned long j0,j1;
+int delay = 60*HZ;
+j0 = jiffies;
+j1 = j0 + delay;
+spin_lock(&my_lock);
+while (time_before(jiffies, j1))
+  schedule();
+spin_unlock(&my_lock);
+return 0;
+}
+
+int  thread_fn2() {
+int ret=0;
+msleep(100);
+ret=spin_trylock(&my_lock);
+if(!ret) {
+ printk(KERN_INFO "Unable to hold lock");
+ return 0;
+} else {
+printk(KERN_INFO "Lock acquired");
+spin_unlock(&my_lock);
+return 0;
+}
+}
+
+
+
+int thread_init (void) {
+ char name[8]="thread1";
+ char name1[8]="thread2";
+ thread1 = kthread_create(thread_fn1,NULL,name);
+ if((thread1))
+  {
+  wake_up_process(thread1);
+  }
+ thread2 = kthread_create(thread_fn2,NULL,name1);
+ if((thread2))
+  {
+  wake_up_process(thread2);
+  }
+ return 0;
+}
+
+
+
+void thread_cleanup(void) {
+ int ret,ret1;
+ ret = kthread_stop(thread1);
+ if(!ret)
+  printk(KERN_INFO "Thread stopped");
+
+}
+MODULE_LICENSE("GPL"); 
+module_init(thread_init);
+module_exit(thread_cleanup);
+
+
+—————— ——————— Dealing with /proc files. ————— simple read/write operation ——————————
+#include <linux/module.h>
+#include <linux/kernel.h>
+#include <linux/proc_fs.h>
+#include<linux/sched.h>
+#include <asm/uaccess.h>
+#include <linux/slab.h>
+
+int len,temp;
+
+char *msg;
+
+int test_read_proc(struct file *filp,char *buf,size_t count,loff_t *offp ) {
+if(count>temp){
+count=temp; }
+temp=temp-count;
+copy_to_user(buf,msg, count);
+if(count==0)
+temp=len;
+return count;
+}
+
+int test_write_proc(struct file *filp,const char *buf,size_t count,loff_t *offp) {
+printk(KERN_INFO "Value of count from write_fops - %d -------", count);
+copy_from_user(msg,buf,count);
+len=count;
+temp=len;
+return count;
+}
+
+struct file_operations test_proc_fops = {
+read: test_read_proc,
+write: test_write_proc
+};
+
+
+void test_create_new_proc_entry() {
+proc_create("hello",0,NULL,&test_proc_fops);
+msg=kmalloc(GFP_KERNEL,10*sizeof(char));
+}
+
+
+int proc_init (void) {
+ test_create_new_proc_entry();
+ return 0;
+}
+
+void proc_cleanup(void) {
+ remove_proc_entry("hello",NULL);
+ printk(KERN_INFO "-------------Done processing------------");
+}
+
+MODULE_LICENSE("GPL"); 
+module_init(proc_init);
+module_exit(proc_cleanup);
+
+—————————Makefile below  — ————
+obj-m += k_3_10.o
+
+KDIR = /usr/src/kernels/3.10.0-693.el7.x86_64
+
+all:
+	make -C /usr/src/kernels/3.10.0-693.el7.x86_64/ M=$(PWD) modules
+
+clean : 
+	make -C /usr/src/kernels/3.10.0-693.el7.x86_64/ M=$(PWD) clean
+—————————output — ————
+> make 
+> insmod k_3_10.ko
+> echo "this data going to user buffer then to kernel" > /proc/hello 
+> cat /proc/hello 
+this data going to user buffer then to kernel
+———————————————————————————————————————————————————————————————
+
