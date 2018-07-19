@@ -10,6 +10,8 @@ Check kernel version using name -r
 3. Spinlock 
 4. Proc file 
 5. CPU time usage
+6. Waiting queues
+6. USB Driver 
 ———————— ———————————— Linked List ———————————————————  ————————————
 
 #include <linux/slab.h>
@@ -576,5 +578,524 @@ clean :
 > echo "this data going to user buffer then to kernel" > /proc/hello 
 > cat /proc/hello 
 this data going to user buffer then to kernel
-———————————————————————————————————————————————————————————————
+—————————————————————————————————CPU Timer usage Example 1—————————————————————————
+————EXAMNPLE 1 -  Simple timer API, getting response timer from kernel depending on parameter —————
+//Readme file is very helpful at https://github.com/danghai/Kernel/blob/master/time_jiffies/time_example1.c
+/* 
+	j = jiffies;                      /* read the current value */
+	stamp_1    = j + HZ;              /* 1 second in the future */ s
+	tamp_half = j + HZ/2;             /* half a second */
+	stamp_n    = j + n * HZ / 1000;   /* n milliseconds */
+/*
+*   time_example1.c: It is a simple kernel module that demonstrates
+*   the core aspects of the simple timer API. You set the parameter to
+*   get reponse from Kernel. Ex: sudo insmod time_example1.ko value=3. It will
+*   response after 3 seconds.
+*/
+
+#include <linux/kernel.h>
+#include <linux/module.h>
+#include <linux/timer.h>
+#include <linux/moduleparam.h>
+
+#define SUCCESS 0
+
+MODULE_LICENSE("GPL");
+MODULE_AUTHOR("Test user ");
+
+static struct timer_list my_timer;
+static int value;
+module_param(value,int,S_IRUSR | S_IWUSR);
+
+void my_timer_response (unsigned long data)
+{
+  printk(KERN_INFO "My timer response (%ld) . \n",jiffies);
+}
+
+static int __init time_example1_init(void)
+{
+  int ret;
+  printk(KERN_INFO "Timer module installing ...\n");
+  setup_timer (&my_timer, my_timer_response, 0);
+
+  printk(KERN_INFO "Starting timer to fire in %d seconds (jiffies = %ld) \n",value,jiffies);
+  ret = mod_timer(&my_timer,jiffies + value*HZ);
+  if (ret)
+    printk(KERN_INFO "Error in mod_timer\n");
+  return SUCCESS;
+}
+
+static void __exit time_example1_exit(void)
+{
+  int ret;
+  ret = del_timer( &my_timer );
+  if (ret)
+    printk("The timer is still in use...\n");
+
+  printk("Timer module uninstalling ...\n");
+}
+
+module_init(time_example1_init);
+module_exit(time_example1_exit);
+————— output - ————— 
+insmod time_example1.ko value=3
+——check dmesg ——————————     —————— —————————
+
+—————————————————————————————————CPU Timer usage Example 2—————————————————————————
+
+———EXAMPLE 2- Simple timer API, getting response timer from kernel depending on factor — 
+
+//https://github.com/danghai/Kernel/blob/master/time_jiffies/time_example2.c
+
+/*
+*	time_example2.c: provides a simple kernel module that demonstrates the core aspects of the
+* 	simple timer API. Within `init_module`, you initialize a timer with `setup_timer` and then kick it off with a call to `mod_timer`. When the timer expires depending on factor, the callback function `timer_response` is invoked. The timer response will be :
+* 	1s --> 2s --> 3s --> 4s ....
+*/
+
+
+#include <linux/module.h>
+#include <linux/types.h>
+#include <linux/time.h>
+
+MODULE_LICENSE("GPL/BSD");
+MODULE_AUTHOR("test");
+MODULE_VERSION("0.1");
+//timer structure 
+struct timer_list my_timer;
+
+//structure for factor and respective jiffies
+static struct my_struct {
+	int factor;
+	unsigned long jiff_variable;
+} my_str;
+
+
+//logic function
+static void time_response(unsigned long data) { 
+	
+	struct my_struct *val = (struct my_struct* )data ;
+	printk(KERN_INFO "factor=%u elapsed time = %lu\n", val->factor, val->jiff_variable);
+	
+	val->factor = val->factor + 3;
+	val->jiff_variable = jiffies;
+        printk(KERN_INFO "Updated factor=%u elapsed time = %lu\n", val->factor, val->jiff_variable);
+
+//here we are adding factor to jiffies to get new value for expiry
+	mod_timer(&my_timer, (jiffies + (val->factor * HZ))); 
+}
+
+
+
+//init function
+static int __init time_example2_init(void) { 
+	
+	my_str.factor = 2;
+	my_str.jiff_variable = jiffies;
+//setup_timer(timer, callback_fn, cb_data)
+	setup_timer(&my_timer, time_response, (unsigned long)&my_str) ;
+//mod_timer(timer, expires)
+	mod_timer(&my_timer,(jiffies + (1 * HZ)));
+
+}
+
+
+//exit function
+static void __exit time_example2_exit(void) { 
+	printk(KERN_INFO "Unloading timer");
+//del_timer(timer)
+	del_timer(&my_timer);
+}
+
+
+
+module_init(time_example2_init);
+module_exit(time_example2_exit);
+——out put ———
+[86134.248010] factor=2 elapsed time = 4380800524
+[86134.248025] Updated factor=5 elapsed time = 4380801526
+[86139.249989] factor=5 elapsed time = 4380801526
+[86139.250005] Updated factor=8 elapsed time = 4380806528
+[86147.265978] factor=8 elapsed time = 4380806528
+[86147.265991] Updated factor=11 elapsed time = 4380814544
+
+——————— ——— Example 3- Blink LED Caps Locks with blink rate ————— 
+// Blink LED Caps Locks with blink rate
+//https://github.com/danghai/Kernel/blob/master/time_jiffies/time_example3.c
+
+
+/*
+* time_example3.c: provides a simple kernel module that demonstrates the core aspects of the
+* simple timer API. It takes parameter to set the blink_rate. The LED on Caps Lock will
+* blink with the blink_rate.
+*/
+
+#include <linux/module.h>
+#include <linux/types.h>
+#include <linux/time.h>
+#include <linux/moduleparam.h>
+#define CAPS_LED 4
+
+MODULE_LICENSE("GPL/BSD");
+MODULE_AUTHOR("test user");
+MODULE_VERSION("0.1");
+
+struct timer_list my_timer;
+
+
+//  Struct: factor for call mod_timer, Jiff saves current LED status
+static struct my_struct {
+	unsigned char status_led ;
+} my_str;
+
+static int blink_rate = 2; // Set the default blink_rate
+module_param(blink_rate,int,S_IRUSR | S_IWUSR);
+
+static void timer_response(unsigned long data)
+{
+	struct my_struct *val = (struct my_struct *)data;
+
+// Turn ON/OFF LED  Read keyboard status and send command 0xED to port 0x60 to set LED
+  while((inb(0x64)&2)!=0){}
+	  outb(0xED,0x60);
+// Read keyboard status again and Send value to LED on keyboard 
+  while((inb(0x64)&2)!=0){}
+  	  outb(val->status_led,0x60);
+
+// now update with the data: toogle LED 
+	val->status_led = val->status_led  ^ CAPS_LED ;
+
+// and restart the timer: 1s blinking 
+	mod_timer(&my_timer, ((jiffies/blink_rate) + HZ));
+}
+
+static int __init time_example2_init(void)
+{
+	printk(KERN_INFO "%s started, HZ=%d\n", __func__, HZ);
+	my_str.status_led = 0;
+	setup_timer(&my_timer, timer_response, (unsigned long)&my_str);
+	mod_timer(&my_timer, ((jiffies/blink_rate) + (1 * HZ)));
+	return 0;
+}
+
+static void __exit time_example2_exit(void)
+{
+	del_timer_sync(&my_timer);
+	printk(KERN_INFO "unloaded\n");
+}
+
+module_init(time_example2_init);
+module_exit(time_example2_exit);
+
+———— —————— Two timers ——————Example ————— 
+// https://technologyasilearn.wordpress.com/tag/kernel-timers/
+
+/*
+ * Key Takeaways:
+ * 1. How to use init_timer() and add_timer()
+ * 2. How/where to use add_timer_on() and mod_timer_pinned()
+ * 3. How to get CPU id (smp_processor_id())
+ */
+#include <linux/kthread.h>
+#include <linux/slab.h>
+#include <linux/spinlock_types.h>
+#include <linux/init.h>
+#include <linux/kernel.h>
+#include <linux/module.h>
+#include <linux/timer.h>        /* for timers apis */
+#include <linux/delay.h>        /* for msleep() */
+#include <linux/hardirq.h>      /* for in_interrupt(), in_atomic() , moved to preempt_mask.h, 3.0 onwards */
+
+MODULE_DESCRIPTION("Usage of init_timer(), add_timer(), add_timer_on() and mod_timer_pinned()");
+
+MODULE_AUTHOR("test user");
+
+struct timer_list timer;
+struct timer_list timer2;
+unsigned long *data;
+//spinlock_t data_lock = SPIN_LOCK_UNLOCKED;
+
+#define DEFINE_SPINLOCK(x)    spinlock_t x = __SPIN_LOCK_UNLOCKED(x)
+static DEFINE_SPINLOCK(data_lock) ;
+
+void timer_func(unsigned long data)
+{
+        unsigned long *d = (unsigned long *)data;
+        printk("%s() is running on CPU-%u\n", __FUNCTION__, smp_processor_id());
+        spin_lock(&data_lock);
+        (*d)--;
+        printk("%s : data = %lu...\n",__FUNCTION__, *d);
+        if (in_interrupt())
+                printk("%s : In interrupt context...\n", __FUNCTION__);
+
+        if (in_atomic())
+                printk("%s : In atomic context...\n", __FUNCTION__);
+
+        if ((*d) != 0) {
+
+                printk(KERN_INFO "timer 1 - decrementing <data> faster\n");
+                mod_timer(&timer, jiffies + msecs_to_jiffies(500));
+        }
+        spin_unlock(&data_lock);
+}
+
+void timer2_func(unsigned long data)
+{
+        unsigned long *d = (unsigned long *)data;
+        printk("%s() is running on CPU-%u\n", __FUNCTION__, smp_processor_id());
+        spin_lock(&data_lock);
+        (*d)++;
+        printk("%s : data = %lu***\n",__FUNCTION__, *d);
+
+        if (in_interrupt())
+                printk("%s : In interrupt context***\n", __FUNCTION__);
+
+        if (in_atomic())
+                printk("%s : In atomic context***\n", __FUNCTION__);
+
+        if ((*d) != 0) {
+		printk(KERN_INFO "timer2 - decrementing <data> faster\n");
+                printk(KERN_INFO "scheduling it again and pinning to same CPU\n");
+                mod_timer_pinned(&timer2, jiffies + msecs_to_jiffies(10));
+        }
+        spin_unlock(&data_lock);
+}
+
+int __init start_module(void)
+{
+        data = kmalloc(sizeof(unsigned long), GFP_KERNEL);
+        *data = 10;
+	printk(KERN_INFO "-----------------show begins here --------------");
+
+        //create timer 1
+        setup_timer(&timer, timer_func, (unsigned long)data);
+        //set expiry time
+        mod_timer(&timer, jiffies + msecs_to_jiffies(1000));
+	printk(KERN_INFO "-------------------we are after timer1 function before timer2\n");
+
+        //create timer 2
+        init_timer(&timer2);
+        timer2.function = timer2_func;
+        timer2.expires = jiffies + msecs_to_jiffies(1000);
+        timer2.data = (unsigned long)data;              //type-casting pointer to unsigned long
+        printk(KERN_INFO "--------we are in timer2 definition before add timer on begins\n");
+        //now schedule timer on specified CPU
+        add_timer_on(&timer2, 1); //on CPU 1
+
+        return 0;
+}
+
+void __exit stop_module(void)
+{
+        int i = 0;
+        printk("%s() is running on CPU-%u\n", __FUNCTION__, smp_processor_id());
+        while (timer_pending(&timer)) {
+                printk("timer 1 is pending\n");
+                msleep(100);
+                i++;
+                if (i == 5)
+                        del_timer(&timer);
+        }
+        if (i == 0) {
+                printk("deleting timer 1\n");
+                del_timer(&timer);
+        }
+
+        i = 0;
+        while (timer_pending(&timer2)) {
+                printk("timer 2 is pending\n");
+                msleep(100);
+                i++;
+                if (i == 5)
+                        del_timer(&timer2);
+        }
+        if (i == 0) {
+                printk("deleting timer 2\n");
+                del_timer(&timer);
+        }
+
+        kfree(data);
+        printk("exiting from module\n");
+
+}
+
+module_exit(stop_module);
+module_init(start_module);
+MODULE_LICENSE("GPL");
+
+——— — -   ————— -   ————output —— ————— - ——
+[98197.168334] -----------------show begins here --------------
+[98197.168339] -------------------we are after timer1 function before timer2
+[98197.168340] --------we are in timer2 definition before add timer on begins
+[98198.167765] timer2_func() is running on CPU-1
+[98198.167784] timer2_func : data = 11***
+[98198.167789] timer2_func : In interrupt context***
+[98198.167793] timer2_func : In atomic context***
+[98198.167797] timer2 - decrementing <data> faster
+[98198.167801] scheduling it again and pinning to same CPU
+[98198.169736] timer_func() is running on CPU-1
+[98198.169739] timer_func : data = 10...
+[98198.169740] timer_func : In interrupt context...
+[98198.169741] timer_func : In atomic context...
+[98198.169742] timer 1 - decrementing <data> faster
+[98198.177734] timer2_func() is running on CPU-1
+[98198.177736] timer2_func : data = 11***
+
+—————————————Waiting queues — Example 1 - Only scheduler ———————— - ——————— —————— ————————
+//https://sysplay.in/blog/linux-kernel-internals/2015/10/waiting-blocking-in-linux-driver/
+
+#include <linux/module.h>
+#include <linux/kernel.h>
+#include <linux/fs.h>
+#include <linux/cdev.h>
+#include <linux/device.h>
+#include <asm/uaccess.h>
+#include <linux/wait.h>
+#include <linux/sched.h>
+#include <linux/delay.h>
+
+#define FIRST_MINOR 0
+#define MINOR_CNT 1
+
+static dev_t dev;
+static struct cdev c_dev;
+static struct class *cl;
+
+int open(struct inode *inode, struct file *filp)
+{
+	printk(KERN_INFO "Inside open\n");
+	return 0;
+}
+
+int release(struct inode *inode, struct file *filp)
+{
+	printk(KERN_INFO "Inside close\n");
+	return 0;
+}
+
+ssize_t read(struct file *filp, char *buff, size_t count, loff_t *offp)
+{
+	printk(KERN_INFO "Inside read\n");
+	printk(KERN_INFO "Scheduling out\n");
+	schedule();
+	printk(KERN_INFO "Woken up\n");
+	return 0;
+}
+
+ssize_t write(struct file *filp, const char *buff, size_t count, loff_t *offp)
+{
+	printk(KERN_INFO "Inside Write\n");
+	return 0;
+}
+
+struct file_operations fops =
+{
+	.read = read,
+	.write = write,
+	.open = open,
+	.release = release
+};
+
+int schd_init (void)
+{
+	int ret;
+	struct device *dev_ret;
+
+	if ((ret = alloc_chrdev_region(&dev, FIRST_MINOR, MINOR_CNT, "wqd")) < 0)
+	{
+		return ret;
+	}
+	printk("Major Nr: %d\n", MAJOR(dev));
+
+	cdev_init(&c_dev, &fops);
+
+	if ((ret = cdev_add(&c_dev, dev, MINOR_CNT)) < 0)
+	{
+		unregister_chrdev_region(dev, MINOR_CNT);
+		return ret;
+	}
+
+	if (IS_ERR(cl = class_create(THIS_MODULE, "chardrv")))
+	{
+		cdev_del(&c_dev);
+		unregister_chrdev_region(dev, MINOR_CNT);
+		return PTR_ERR(cl);
+	}
+	if (IS_ERR(dev_ret = device_create(cl, NULL, dev, NULL, "mychar%d", 0)))
+	{
+		class_destroy(cl);
+		cdev_del(&c_dev);
+		unregister_chrdev_region(dev, MINOR_CNT);
+		return PTR_ERR(dev_ret);
+	}
+	return 0;
+}
+
+void schd_cleanup(void)
+{
+	printk(KERN_INFO " Inside cleanup_module\n");
+	device_destroy(cl, dev);
+	class_destroy(cl);
+	cdev_del(&c_dev);
+	unregister_chrdev_region(dev, MINOR_CNT);
+}
+
+module_init(schd_init);
+module_exit(schd_cleanup);
+
+MODULE_LICENSE("GPL");
+MODULE_AUTHOR("Pradeep Tewani");
+MODULE_DESCRIPTION("Waiting Process Demo");
+
+—————out put ———at dmesg —————— 
+$ insmod sched.ko
+Major Nr: 244
+$ cat /dev/mychar0
+Inside open
+Inside read
+Scheduling out
+Woken up
+
+—————————————Waiting queues — Example 2 -now introduce task to put pricess out of run queue and let it wait till we interrupt ———————— - ——————— —————— ————————
+
+ssize_t read(struct file *filp, char *buff, size_t count, loff_t *offp)
+{
+	printk(KERN_INFO "Inside read\n");
+	printk(KERN_INFO "Scheduling out\n");
+	set_current_state(TASK_INTERRUPTIBLE);
+	schedule();
+	printk(KERN_INFO "Woken up\n");
+	return 0;
+}
+
+
+> insmod sched.ko
+> now interrupt using cntrl+c and see dmesg log 
+[ 7031.930220] Major Nr: 244
+[ 7039.236148] Inside open
+[ 7039.236175] Inside read
+[ 7039.236176] Scheduling out
+[ 7049.763072] process woken up
+[ 7049.763177] Inside close/release 
+> rmmod sched
+[ 7281.160504]  Inside cleanup_module
+
+—————————————Waiting queues — Example 3 -this process is on indefinite wait till we interrupt manually using cntrl+C … below code shows how to tie this to event to wake it up ———————— - ——————— —————— ————————
+//https://sysplay.in/blog/linux-kernel-internals/2015/11/waiting-blocking-in-linux-driver-part-2/
+
+
+
+
+
+
+
+
+————————————— USB driver ————————— - ——————— —————— ———————— 
+
+// https://github.com/danghai/Kernel/blob/master/usb/example1/usb_driver.c
+
+
+
+
+
 
