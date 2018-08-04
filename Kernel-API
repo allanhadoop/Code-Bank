@@ -1,7 +1,19 @@
-—————————— Kernel API —————————covers below - linked list ; atomic lock , spinlock and prof fs programs ——— - ——— 
+—————————— Kernel API ————————— 
 ——————Linked list - http://www.roman10.net/2011/07/28/linux-kernel-programminglinked-list/
 ————— https://isis.poly.edu/kulesh/stuff/src/klist/
 ——————— https://linux-kernel-labs.github.io/master/labs/kernel_api.html?highlight=init_list_head
+
+Data types arch Size: i686 
+char 	1
+short 	2
+int 	4
+long 	4
+ptr 	4
+long-long 	8
+u8 		1
+u16 	2
+u32 	4
+u64  	8
 
 Check kernel version using name -r
 — API Covered 
@@ -11,7 +23,8 @@ Check kernel version using name -r
 4. Proc file 
 5. CPU time usage
 6. Waiting queues
-6. USB Driver 
+7. USB Driver 
+8. iotcl - input/output character device
 ———————— ———————————— Linked List ———————————————————  ————————————
 
 #include <linux/slab.h>
@@ -422,7 +435,7 @@ void spinlock_cleanup(void)
 
 MODULE_LICENSE("GPL");
 
-MODULE_AUTHOR("Miroslav Tisma <tisma@linux.com>");
+MODULE_AUTHOR(“TEST”);
 
 MODULE_DESCRIPTION("Simple kernel module which demonstrates using of spinlock");
 
@@ -1044,7 +1057,7 @@ module_init(schd_init);
 module_exit(schd_cleanup);
 
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Pradeep Tewani");
+MODULE_AUTHOR(“TEST”);
 MODULE_DESCRIPTION("Waiting Process Demo");
 
 —————out put ———at dmesg —————— 
@@ -1056,7 +1069,7 @@ Inside read
 Scheduling out
 Woken up
 
-—————————————Waiting queues — Example 2 -now introduce task to put pricess out of run queue and let it wait till we interrupt ———————— - ——————— —————— ————————
+—————————————Waiting queues — Example 2 -now introduce task to put process out of run queue and let it wait till we interrupt using cntrl+C  ———————— - ——————— —————— ————————
 
 ssize_t read(struct file *filp, char *buff, size_t count, loff_t *offp)
 {
@@ -1081,18 +1094,1332 @@ ssize_t read(struct file *filp, char *buff, size_t count, loff_t *offp)
 [ 7281.160504]  Inside cleanup_module
 
 —————————————Waiting queues — Example 3 -this process is on indefinite wait till we interrupt manually using cntrl+C … below code shows how to tie this to event to wake it up ———————— - ——————— —————— ————————
+
 //https://sysplay.in/blog/linux-kernel-internals/2015/11/waiting-blocking-in-linux-driver-part-2/
 
 
+#include <linux/module.h>
+#include <linux/kernel.h>
+#include <linux/fs.h> 
+#include <linux/cdev.h>
+#include <linux/device.h>
+#include <asm/uaccess.h>
+#include <linux/wait.h>
+#include <linux/sched.h>
+#include <linux/delay.h>
+
+#define FIRST_MINOR 0
+#define MINOR_CNT 1
+
+static dev_t dev;
+static struct cdev c_dev;
+static struct class *cl;
+static struct task_struct *sleeping_task;
+
+int open(struct inode *inode, struct file *filp)
+{
+	printk(KERN_INFO "Inside open\n");
+	return 0;
+}
+
+int release(struct inode *inode, struct file *filp)
+{
+	printk(KERN_INFO "Inside close\n");
+	return 0;
+}
+
+ssize_t read(struct file *filp, char *buff, size_t count, loff_t *offp)
+{
+	printk(KERN_INFO "Inside read\n");
+	printk(KERN_INFO "Scheduling out\n");
+	sleeping_task = current;
+	set_current_state(TASK_INTERRUPTIBLE);
+	schedule();
+	printk(KERN_INFO "Woken up\n");
+	return 0;
+}
+
+ssize_t write(struct file *filp, const char *buff, size_t count, loff_t *offp)
+{
+	printk(KERN_INFO "Inside Write\n");
+	wake_up_process(sleeping_task);
+	return count;
+}
+
+struct file_operations fops =
+{
+	.read = read,
+	.write = write,
+	.open = open,
+	.release = release
+};
+
+int schd_init (void) 
+{
+	int ret;
+	struct device *dev_ret;
+
+	if ((ret = alloc_chrdev_region(&dev, FIRST_MINOR, MINOR_CNT, "wqd")) < 0)
+	{
+		return ret;
+	}
+	printk(KERN_INFO "Major Nr: %d\n", MAJOR(dev));
+
+	cdev_init(&c_dev, &fops);
+
+	if ((ret = cdev_add(&c_dev, dev, MINOR_CNT)) < 0)
+	{
+		unregister_chrdev_region(dev, MINOR_CNT);
+		return ret;
+	}
+
+	if (IS_ERR(cl = class_create(THIS_MODULE, "chardrv")))
+	{
+		cdev_del(&c_dev);
+		unregister_chrdev_region(dev, MINOR_CNT);
+		return PTR_ERR(cl);
+	}
+	if (IS_ERR(dev_ret = device_create(cl, NULL, dev, NULL, "mychar%d", 0)))
+	{
+		class_destroy(cl);
+		cdev_del(&c_dev);
+		unregister_chrdev_region(dev, MINOR_CNT);
+		return PTR_ERR(dev_ret);
+	}
+	return 0;
+}
+
+void schd_cleanup(void) 
+{
+	printk(KERN_INFO "Inside cleanup_module\n");
+	device_destroy(cl, dev);
+	class_destroy(cl);
+	cdev_del(&c_dev);
+	unregister_chrdev_region(dev, MINOR_CNT);
+}
+
+module_init(schd_init);
+module_exit(schd_cleanup);
+
+MODULE_LICENSE("GPL");
+MODULE_AUTHOR("test");
+MODULE_DESCRIPTION("Waiting Process Demo");
+
+————— out put —————— here we will wake up process using write() and echo process as given below instead of read interrupt process cntrl+C —————— ——————— 
+
+$ echo 1 > /dev/mychar0
+Inside open
+Inside write
+Woken up
+Inside close
+Inside close
+
+—————————————Waiting queues — Example 4 -Here we are using IF condition to check if wakeup event is fired——————— - ——————— —The process will wake up only if the flag is set to ‘y’.————— ————————
+
+//https://sysplay.in/blog/linux-kernel-internals/2015/11/waiting-blocking-in-linux-driver-part-2/
+
+#include <linux/module.h>
+#include <linux/kernel.h>
+#include <linux/fs.h> 
+#include <linux/cdev.h>
+#include <linux/device.h>
+#include <asm/uaccess.h>
+#include <linux/wait.h>
+#include <linux/sched.h>
+#include <linux/delay.h>
 
 
+#define FIRST_MINOR 0
+#define MINOR_CNT 1
+
+static dev_t dev;
+static struct cdev c_dev;
+static struct class *cl;
+static struct task_struct *sleeping_task;
+static char flag;
+static char buffer;
+
+int open(struct inode *inode , struct file *filp) { 
+	return 0;
+} 
+
+int release(struct inode *inode, struct file *filp) { 
+	return 0;
+} 
+
+ssize_t read(struct file *filp, char *buff, size_t count , loff_t *offp) { 
+	sleeping_task = current;
+slp:
+	if (flag != 'y') { 
+		set_current_state(TASK_INTERRUPTIBLE);
+		schedule();
+	}
+	if (flag == 'y')  
+		printk(KERN_INFO "Woken up\n");
+	else {
+		printk(KERN_INFO "Interrupted by signal\n");
+		goto slp;
+	}
+	flag = 'n';
+	printk(KERN_INFO "Woken up\n");
+	return 0;
+} 
+
+ssize_t write(struct file *filp, const char *buff, size_t count, loff_t *offp ) { 
+        int ret;
+	printk(KERN_INFO "Inside write now\n");
+	ret = __get_user(flag, buffer);
+	printk(KERN_INFO "%c", flag);
+	wake_up_process(sleeping_task);
+	return count;
+} 
+
+struct file_operations fops = { 
+	.read = read,
+	.write = write,
+	.open = open,
+	.release = release
+};
+
+int __init wakeup_init(void) {
+	alloc_chrdev_region(&dev, FIRST_MINOR , MINOR_CNT, "wqd");
+	cdev_init(&c_dev, &fops);	
+	cdev_add(&c_dev, dev, MINOR_CNT);
+} 
 
 
+void __exit wakeup_clean(void) { 
+	printk(KERN_INFO "Cleaning up drive\n");
+	device_destroy(cl, dev);
+	class_destroy(cl);
+	cdev_del(&c_dev);
+	unregister_chrdev_region(dev, MINOR_CNT);
+} 
+
+
+module_init(wakeup_init);
+module_exit(wakeup_clean);
+
+MODULE_LICENSE("GPL");
+MODULE_AUTHOR("test");
+MODULE_DESCRIPTION("Wakeup event");
+
+———— ————— output —— ——— ——————
+$ echo 'y' > /dev/mychar0
+Inside open
+Inside write
+Woken up
+Inside close
+Inside close
+—————————— For above example, alternative is to use either statistic or dynamic wait queue as shown below 
+#include <linux/wait.h>
+// Data structure: wait_queue_head_t
+// Created statically 
+DECLARE_WAIT_QUEUE_HEAD(wait_queue_name);
+// Created dynamically
+wait_queue_head_t my_queue;
+init_waitqueue_head(&my_queue);
+
+—————actual example 
+//https://sysplay.in/blog/linux-kernel-internals/2015/12/waiting-blocking-in-linux-driver-part-3/
+
+
+#include <linux/module.h>
+#include <linux/kernel.h>
+#include <linux/fs.h>
+#include <linux/cdev.h>
+#include <linux/device.h>
+#include <linux/errno.h>
+#include <asm/uaccess.h>
+#include <linux/wait.h>
+#include <linux/sched.h>
+#include <linux/delay.h>
+
+#define FIRST_MINOR 0
+#define MINOR_CNT 1
+
+static char flag = 'n';
+static dev_t dev;
+static struct cdev c_dev;
+static struct class *cl;
+static DECLARE_WAIT_QUEUE_HEAD(wq);
+
+int open(struct inode *inode, struct file *filp)
+{
+	printk(KERN_INFO "Inside open\n");
+	return 0;
+}
+
+int release(struct inode *inode, struct file *filp) 
+{
+	printk (KERN_INFO "Inside close\n");
+	return 0;
+}
+
+ssize_t read(struct file *filp, char *buff, size_t count, loff_t *offp) 
+{
+	printk(KERN_INFO "Inside read\n");
+	printk(KERN_INFO "Scheduling Out\n");
+	wait_event_interruptible(wq, flag == 'y');
+	flag = 'n';
+	printk(KERN_INFO "Woken Up\n");
+	return 0;
+}
+
+ssize_t write(struct file *filp, const char *buff, size_t count, loff_t *offp) 
+{   
+	printk(KERN_INFO "Inside write\n");
+	if (copy_from_user(&flag, buff, 1))
+	{
+		return -EFAULT;
+	}
+	printk(KERN_INFO "%c", flag);
+	wake_up_interruptible(&wq);
+	return count;
+}
+
+struct file_operations pra_fops = {
+	read:        read,
+	write:       write,
+	open:        open,
+	release:     release
+};
+
+int wq_init (void)
+{
+	int ret;
+	struct device *dev_ret;
+
+	if ((ret = alloc_chrdev_region(&dev, FIRST_MINOR, MINOR_CNT, "SCD")) < 0)
+	{
+		return ret;
+	}
+	printk("Major Nr: %d\n", MAJOR(dev));
+
+	cdev_init(&c_dev, &pra_fops);
+
+	if ((ret = cdev_add(&c_dev, dev, MINOR_CNT)) < 0)
+	{
+		unregister_chrdev_region(dev, MINOR_CNT);
+		return ret;
+	}
+
+	if (IS_ERR(cl = class_create(THIS_MODULE, "chardrv")))
+	{
+		cdev_del(&c_dev);
+		unregister_chrdev_region(dev, MINOR_CNT);
+		return PTR_ERR(cl);
+	}
+	if (IS_ERR(dev_ret = device_create(cl, NULL, dev, NULL, "mychar%d", 0)))
+	{
+		class_destroy(cl);
+		cdev_del(&c_dev);
+		unregister_chrdev_region(dev, MINOR_CNT);
+		return PTR_ERR(dev_ret);
+	}
+	return 0;
+}
+
+void wq_cleanup(void)
+{
+	printk(KERN_INFO "Inside cleanup_module\n");
+	device_destroy(cl, dev);
+	class_destroy(cl);
+	cdev_del(&c_dev);
+	unregister_chrdev_region(dev, MINOR_CNT);
+}
+
+module_init(wq_init);
+module_exit(wq_cleanup);
+
+
+MODULE_LICENSE("GPL");
+MODULE_AUTHOR("test");
+MODULE_DESCRIPTION("Waiting Process Demo");
+
+
+————output —-
+>insmod wait.ko
+>cat /dev/mychar01
+—this will get process blocked , now open another console and try below to give event as signal to wake up process
+$ echo 'y' > /dev/mychar0
+Inside open
+Inside write
+y
+Inside close
+Woken up
+Inside close
 
 
 ————————————— USB driver ————————— - ——————— —————— ———————— 
+//http://lmu.web.psi.ch/docu/manuals/software_manuals/linux_sl/usb_linux_programming_guide.pdf
+
 
 // https://github.com/danghai/Kernel/blob/master/usb/example1/usb_driver.c
+
+// https://github.com/danghai/Kernel/tree/master/usb/example1
+#include <linux/module.h>
+
+#include <linux/kernel.h>
+
+#include <linux/usb.h>
+
+
+
+
+#define VENDOR_ID 0x154b
+
+#define PRODUCT_ID 0x00d4
+
+MODULE_LICENSE("GPL");
+
+MODULE_AUTHOR(“test”);
+
+MODULE_DESCRIPTION("USB Pen Registration Driver");
+
+
+
+
+static int pen_probe(struct usb_interface *interface, const struct usb_device_id *id)
+
+{
+
+    printk(KERN_INFO "Pen driver (%04X:%04X) plugged.\n", id->idVendor, id->idProduct);
+
+    return 0;
+
+}
+
+
+
+
+static void pen_disconnect(struct usb_interface *interface)
+
+{
+
+    printk(KERN_INFO "Pen drive removed \n");
+
+}
+
+
+
+
+static struct usb_device_id pen_table [] =
+
+{
+
+  {USB_DEVICE(VENDOR_ID,PRODUCT_ID)},
+
+  {}
+
+};
+
+
+
+
+MODULE_DEVICE_TABLE (usb, pen_table);
+
+static struct usb_driver pen_driver =
+
+{
+
+    .name = "pen_driver",
+
+    .id_table = pen_table,
+
+    .probe = pen_probe,
+
+    .disconnect = pen_disconnect,
+
+};
+
+
+
+
+static int __init pen_init(void)
+
+{
+
+    return usb_register(&pen_driver);
+
+}
+
+
+
+
+static void __exit pen_exit(void)
+
+{
+
+    usb_deregister(&pen_driver);
+
+}
+
+
+
+
+module_init(pen_init);
+
+module_exit(pen_exit);
+———— output ———— 
+Before insmod the module, we need to deregister the default usb driver that PNY used.
+the idVendor = 0x154b, idProduct = 0x00d4. usbcore: uas and usb-storage. You can check by command lsmod
+
+deregister them by command:
+//modprobe - Add and remove modules from the Linux Kernel
+	sudo modprobe -r uas
+	sudo modprobe -r usb_storage
+Make, insmod, and rmmod the module:
+
+	make
+	sudo insmod usb_driver.ko
+	sudo rmmod usb_driver.ko
+The output should be in dmesg:
+
+[  +2.109028] Pen driver (154B:00D4) plugged.
+[  +0.001420] usbcore: registered new interface driver pen_driver
+[Oct28 16:10] usbcore: deregistering interface driver pen_driver
+[  +0.000013] Pen drive removed 	
+
+———————— — —————— ——second example - https://github.com/danghai/Kernel/tree/master/usb/example2
+ usb_driver.c and user.c programs . 
+usb_driver.c below -
+/*
+
+*   usb_driver.c: A simple USB Pen registration Driver
+
+*/
+
+#include <linux/module.h>
+
+#include <linux/kernel.h>
+
+#include <linux/usb.h>
+
+#include <linux/fs.h>
+
+#include <linux/moduleparam.h>
+
+#include <linux/kernel.h>
+
+#include <linux/cdev.h>
+
+#include <linux/types.h>
+
+#include <linux/errno.h>
+
+#include <linux/slab.h>
+
+#include <asm/uaccess.h>
+
+
+
+
+#define MIN(a,b) (((a) <= (b))? (a): (b))
+
+#define BULK_OUT 0x02
+
+#define BULK_IN 0x81
+
+#define MAX_SIZE 512
+
+#define VENDOR_ID 0x154b
+
+#define PRODUCT_ID 0x00d4
+
+#define USB_MINOR_BASE 0
+
+
+
+
+//static struct usb_device *device;
+
+//static struct usb_class_driver class;
+
+static unsigned char bulk_buf[MAX_SIZE];
+
+
+
+
+/* Structure to hold all of our device specific stuff */
+
+struct usb_pen_driver {
+
+    struct usb_device     *device;               /* the usb device for this device*/
+
+    struct usb_interface  *interface;            /* the interface for this divce */
+
+    unsigned char         *bulk_in_buffer;       /* the buffer to receive data */
+
+    size_t                bulk_in_size;          /* the size of receive buffer */
+
+    __u8                  bulk_in_endpointAddr;  /* the address of the bulk in endpoint*/
+
+    __u8                  bulk_out_endpointAddr; /* the address of the bulk out endpoint*/
+
+};
+
+
+
+
+
+
+
+static int pen_open(struct inode *i, struct file *f)
+
+{
+
+  return 0;
+
+}
+
+
+
+
+static int pen_close(struct inode *i, struct file *f)
+
+{
+
+  return 0;
+
+}
+
+
+
+
+static ssize_t pen_read(struct file *f, char __user *buf, size_t cnt, loff_t *off)
+
+{
+
+  int retval;
+
+  int read_cnt;
+
+  struct usb_pen_driver *dev;
+
+  dev = f->private_data;
+
+  /* Read the data from the bulk endpoint */
+
+  retval = usb_bulk_msg(dev->device,
+
+                        usb_rcvbulkpipe(dev->device,dev->bulk_in_endpointAddr),
+
+                        bulk_buf,
+
+                        MIN(dev->bulk_in_size,cnt), &read_cnt,5000);
+
+
+
+
+  /* If the read was successful, copy the data to userspace */
+
+  if (retval)
+
+  {
+
+      printk(KERN_ERR "!Read: Bulk message returned %d\n", retval);
+
+      return retval;
+
+  }
+
+  if (copy_to_user(buf,bulk_buf, MIN(cnt,read_cnt)))
+
+      return -EFAULT;
+
+
+
+
+  return MIN(cnt,read_cnt);
+
+}
+
+
+
+
+static ssize_t pen_write(struct file *f, const char __user *buf, size_t cnt, loff_t *off)
+
+{
+
+  int retval;
+
+  int wrote_cnt = MIN (cnt, MAX_SIZE);
+
+  struct usb_pen_driver *dev;
+
+  dev = f->private_data;
+
+  if(copy_from_user(bulk_buf,buf, MIN(cnt,dev->bulk_in_size)))
+
+      return -EFAULT;
+
+  retval = usb_bulk_msg(dev->device,
+
+                        usb_sndbulkpipe(dev->device,
+
+                        dev->bulk_out_endpointAddr),
+
+                        bulk_buf,
+
+                        MIN(cnt,dev->bulk_in_size), &wrote_cnt,5000);
+
+  if(retval)
+
+  {
+
+      printk(KERN_ERR "!Write: bulk message returned %d\n", retval);
+
+      return retval;
+
+  }
+
+  return wrote_cnt;
+
+}
+
+
+
+
+static struct file_operations fops =
+
+{
+
+    .owner    = THIS_MODULE,
+
+    .open     = pen_open,
+
+    .release  = pen_close,
+
+    .read     = pen_read,
+
+    .write    = pen_write,
+
+};
+
+
+
+
+/*
+
+ * usb class driver info in order to get a minor number from the usb core
+
+ * and to have the device registered with devfs and the driver core
+
+ */
+
+
+
+
+static struct usb_class_driver usb_class = {
+
+  .name = "usb/pen%d",
+
+  .fops = &fops,
+
+};
+
+static int pen_probe(struct usb_interface *interface, const struct usb_device_id *id)
+
+{
+
+    int retval;
+
+    struct usb_pen_driver *dev;
+
+    struct usb_host_interface *iface_desc;
+
+    struct usb_endpoint_descriptor *endpoint;
+
+    size_t buffer_size;
+
+    int i;
+
+
+
+
+    /* allocate memory for our device state and initialize it */
+
+    dev = kzalloc(sizeof(*dev), GFP_KERNEL);
+
+    if (!dev) {
+
+      dev_err(&interface->dev, "Out of memory\n");
+
+      return 1;
+
+    }
+
+        printk(KERN_INFO "Pen i/f %d driver (%04X:%04X) plugged.\n",iface_desc->desc.bInterfaceNumber,
+
+          id->idVendor, id->idProduct);
+
+
+
+
+    printk(KERN_INFO "ID->bNumEndpoints: %02X\n",
+
+          iface_desc->desc.bNumEndpoints);
+
+
+
+
+    printk(KERN_INFO "ID->bInterfaceClass: %02X\n",
+
+              iface_desc->desc.bInterfaceClass);
+
+
+
+
+    for ( i = 0; i < iface_desc->desc.bNumEndpoints; i++)
+
+    {
+
+          endpoint = &iface_desc->endpoint[i].desc;
+
+
+
+
+          printk(KERN_INFO "ED[%d]->bEndpointAddress: 0x%02X\n",
+
+                       i, endpoint->bEndpointAddress);
+
+          printk(KERN_INFO "ED[%d]->bmAttributes: 0x%02X\n",
+
+                       i, endpoint->bmAttributes);
+
+          printk(KERN_INFO "ED[%d]->wMaxPacketSize: 0x%04X (%d)\n",
+
+                       i, endpoint->wMaxPacketSize,
+
+                       endpoint->wMaxPacketSize);
+
+
+
+
+          buffer_size = endpoint->wMaxPacketSize;
+
+          dev->bulk_in_endpointAddr = endpoint->bEndpointAddress;
+
+          dev->bulk_in_size =  buffer_size;
+
+          //dev->bulk_in_buffer = kmalloc(buffer_size, GFP_KERNEL);
+
+    }
+
+    dev->device = interface_to_usbdev(interface);
+
+
+
+
+  //  class.name = "usb/pen%d";
+
+  //  class.fops = &fops;
+
+    if ((retval = usb_register_dev(interface, &usb_class)) < 0)
+
+      printk(KERN_INFO "Not able to get a minor for this device. \n");
+
+    else
+
+      printk(KERN_INFO "Minor obtained: %d \n", interface ->minor);
+
+
+
+
+    return retval;
+
+}
+
+
+
+
+static void pen_disconnect(struct usb_interface *interface)
+
+{
+
+    printk(KERN_INFO "Pen drive removed \n");
+
+    usb_deregister_dev(interface, &usb_class);
+
+}
+
+
+
+
+static struct usb_device_id pen_table [] =
+
+{
+
+  {USB_DEVICE(VENDOR_ID,PRODUCT_ID)},
+
+  {}
+
+};
+
+
+
+
+MODULE_DEVICE_TABLE (usb, pen_table);
+
+static struct usb_driver pen_driver =
+
+{
+
+    .name = "pen_driver",
+
+    .id_table = pen_table,
+
+    .probe = pen_probe,
+
+    .disconnect = pen_disconnect,
+
+};
+
+
+
+
+static int __init pen_init(void)
+
+{
+
+    return usb_register(&pen_driver);
+
+}
+
+
+
+
+static void __exit pen_exit(void)
+
+{
+
+    usb_deregister(&pen_driver);
+
+}
+
+
+
+
+MODULE_LICENSE("GPL");
+
+MODULE_AUTHOR("Hai Dang Hoang");
+
+MODULE_DESCRIPTION("USB Pen Registration Driver");
+
+module_init(pen_init);
+
+module_exit(pen_exit);
+
+——— ———— —— user.c program below — 
+#include <stdio.h>
+
+#include <unistd.h>
+
+#include <sys/types.h>
+
+#include <sys/stat.h>
+
+#include <fcntl.h>
+
+#include <string.h>
+
+#include <stdlib.h>
+
+#include <errno.h>
+
+int main(int argc, char *argv[])
+
+{
+
+    int fd;
+
+    ssize_t num_read, num_written;
+
+    char my_read_str[100];
+
+    /* Open kernel */
+
+    fd = open("/dev/pen0", O_RDWR);
+
+    if (fd==-1)
+
+    {
+
+        perror("Cannot open file description from kernel \n");
+
+        return -1;
+
+    }
+
+
+
+
+    /* Read value data from kernel */
+
+    num_read = read(fd, &my_read_str, 100);
+
+    if (num_read==-1) /* Check error*/
+
+    {
+
+        perror("Cannot read information from kernel \n");
+
+        return -1;
+
+    }
+
+    printf("returned %d from the system call, num bytes read: %d\n",*my_read_str, (int)num_read);
+
+
+
+
+    /* Write back the new value data to kernel */
+
+    num_written = write(fd, argv[1], sizeof(argv[1]));
+
+    if (num_written==-1) /* Check error */
+
+    {
+
+        perror("Cannot write back to kernel \n");
+
+        return -1;
+
+    }
+
+    printf("successfully wrote %s (%d bytes) to the kernel\n", argv[1],(int)num_written);
+
+
+
+
+    close(fd);
+
+
+
+
+    return 0;
+
+}
+———— — —— ————— output —— —— ———— - ———
+>make
+>insmod user_driver.ko
+>cc user.c -o user
+>rmmod user_driver
+>dmesg
+
+————————— ——————————— ioctl - input/output character device ——————  —————— 
+//https://opensourceforu.com/2011/08/io-control-in-linux/
+Another example - 
+//https://github.com/skuhl/sys-prog-examples/tree/master/kernel-module/chardev-ioctl
+
+There are 4 programs - 1. query.ioctl.c , 2. query.ioctl.c , 3. query_app.c and 4. Makefile 
+—— query.ipctl.c ———
+//https://opensourceforu.com/2011/08/io-control-in-linux/
+//Debugging the driver -- check header file for variables used ( status, query, ego)
+
+
+#include <linux/module.h>
+#include <linux/kernel.h>
+#include <linux/version.h>
+#include <linux/fs.h>
+#include <linux/cdev.h>
+#include <linux/device.h>
+#include <linux/errno.h>
+#include <asm/uaccess.h>
+ 
+#include "query.ioctl.h"
+ 
+#define FIRST_MINOR 0
+#define MINOR_CNT 1
+ 
+static dev_t dev;
+static struct cdev c_dev;
+static struct class *cl;
+static int status = 1, dignity = 3, ego = 5;
+ 
+static int my_open(struct inode *i, struct file *f)
+{
+    return 0;
+}
+static int my_close(struct inode *i, struct file *f)
+{
+    return 0;
+}
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,35))
+static int my_ioctl(struct inode *i, struct file *f, unsigned int cmd, unsigned long arg)
+#else
+static long my_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
+#endif
+{
+    query_arg_t q;
+ 
+    switch (cmd)
+    {
+        case QUERY_GET_VARIABLES:
+            q.status = status;
+            q.dignity = dignity;
+            q.ego = ego;
+            if (copy_to_user((query_arg_t *)arg, &q, sizeof(query_arg_t)))
+            {
+                return -EACCES;
+            }
+            break;
+        case QUERY_CLR_VARIABLES:
+            status = 0;
+            dignity = 0;
+            ego = 0;
+            break;
+        case QUERY_SET_VARIABLES:
+            if (copy_from_user(&q, (query_arg_t *)arg, sizeof(query_arg_t)))
+            {
+                return -EACCES;
+            }
+            status = q.status;
+            dignity = q.dignity;
+            ego = q.ego;
+            break;
+        default:
+            return -EINVAL;
+    }
+ 
+    return 0;
+}
+ 
+static struct file_operations query_fops =
+{
+    .owner = THIS_MODULE,
+    .open = my_open,
+    .release = my_close,
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,35))
+    .ioctl = my_ioctl
+#else
+    .unlocked_ioctl = my_ioctl
+#endif
+};
+ 
+static int __init query_ioctl_init(void)
+{
+    int ret;
+    struct device *dev_ret;
+ 
+ 
+    if ((ret = alloc_chrdev_region(&dev, FIRST_MINOR, MINOR_CNT, "query_ioctl")) < 0)
+    {
+        return ret;
+    }
+ 
+    cdev_init(&c_dev, &query_fops);
+ 
+    if ((ret = cdev_add(&c_dev, dev, MINOR_CNT)) < 0)
+    {
+        return ret;
+    }
+     
+    if (IS_ERR(cl = class_create(THIS_MODULE, "char")))
+    {
+        cdev_del(&c_dev);
+        unregister_chrdev_region(dev, MINOR_CNT);
+        return PTR_ERR(cl);
+    }
+    if (IS_ERR(dev_ret = device_create(cl, NULL, dev, NULL, "query")))
+    {
+        class_destroy(cl);
+        cdev_del(&c_dev);
+        unregister_chrdev_region(dev, MINOR_CNT);
+        return PTR_ERR(dev_ret);
+    }
+ 
+    return 0;
+}
+ 
+static void __exit query_ioctl_exit(void)
+{
+    device_destroy(cl, dev);
+    class_destroy(cl);
+    cdev_del(&c_dev);
+    unregister_chrdev_region(dev, MINOR_CNT);
+}
+ 
+module_init(query_ioctl_init);
+module_exit(query_ioctl_exit);
+ 
+MODULE_LICENSE("GPL");
+MODULE_AUTHOR("test");
+MODULE_DESCRIPTION("Query ioctl() Driver");
+
+
+————— query.ioctl.h ——— 
+#ifndef QUERY_IOCTL_H
+#define QUERY_IOCTL_H
+#include <linux/ioctl.h>
+ 
+typedef struct
+{
+    int status, dignity, ego;
+} query_arg_t;
+ 
+//below we are setting initial values of all 3 functions.
+#define QUERY_GET_VARIABLES _IOR('q', 1, query_arg_t *)
+#define QUERY_CLR_VARIABLES _IO('q', 2)
+#define QUERY_SET_VARIABLES _IOW('q', 3, query_arg_t *)
+ 
+#endif
+————— — —query_app.c ———— ——— 
+#include <stdio.h>
+#include <sys/types.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <string.h>
+#include <sys/ioctl.h>
+ 
+#include "query.ioctl.h"
+ 
+void get_vars(int fd)
+{
+    query_arg_t q;
+ 
+    if (ioctl(fd, QUERY_GET_VARIABLES, &q) == -1)
+    {
+        perror("query_apps ioctl get");
+    }
+    else
+    {
+        printf("Status : %d\n", q.status);
+        printf("Dignity: %d\n", q.dignity);
+        printf("Ego    : %d\n", q.ego);
+    }
+}
+void clr_vars(int fd)
+{
+    if (ioctl(fd, QUERY_CLR_VARIABLES) == -1)
+    {
+        perror("query_apps ioctl clr");
+    }
+}
+void set_vars(int fd)
+{
+    int v;
+    query_arg_t q;
+ 
+    printf("Enter Status: ");
+    scanf("%d", &v);
+    getchar();
+    q.status = v;
+    printf("Enter Dignity: ");
+    scanf("%d", &v);
+    getchar();
+    q.dignity = v;
+    printf("Enter Ego: ");
+    scanf("%d", &v);
+    getchar();
+    q.ego = v;
+ 
+    if (ioctl(fd, QUERY_SET_VARIABLES, &q) == -1)
+    {
+        perror("query_apps ioctl set");
+    }
+}
+ 
+int main(int argc, char *argv[])
+{
+    char *file_name = "/dev/query";
+    int fd;
+    enum
+    {
+        e_get,
+        e_clr,
+        e_set
+    } option;
+ 
+    if (argc == 1)
+    {
+        option = e_get;
+    }
+    else if (argc == 2)
+    {
+        if (strcmp(argv[1], "-g") == 0)
+        {
+            option = e_get;
+        }
+        else if (strcmp(argv[1], "-c") == 0)
+        {
+            option = e_clr;
+        }
+        else if (strcmp(argv[1], "-s") == 0)
+        {
+            option = e_set;
+        }
+        else
+        {
+            fprintf(stderr, "Usage: %s [-g | -c | -s]\n", argv[0]);
+            return 1;
+        }
+    }
+    else
+    {
+        fprintf(stderr, "Usage: %s [-g | -c | -s]\n", argv[0]);
+        return 1;
+    }
+    fd = open(file_name, O_RDWR);
+    if (fd == -1)
+    {
+        perror("query_apps open");
+        return 2;
+    }
+ 
+    switch (option)
+    {
+        case e_get:
+            get_vars(fd);
+            break;
+        case e_clr:
+            clr_vars(fd);
+            break;
+        case e_set:
+            set_vars(fd);
+            break;
+        default:
+            break;
+    }
+ 
+    close (fd);
+ 
+    return 0;
+}
+
+——— —Makefile ————————— 
+obj-m += query.ioctl.o
+
+KDIR = /usr/src/kernels/3.10.0-693.el7.x86_64
+
+all:
+	make -C /usr/src/kernels/3.10.0-693.el7.x86_64/ M=$(PWD) modules
+
+clean : 
+	make -C /usr/src/kernels/3.10.0-693.el7.x86_64/ M=$(PWD) clean
+—————— — Executing above setof program —— ———— ————
+> make 
+> insmod query.ioctl.ko
+> cc query_app.c -o query
+> dmesg
+> ./query 
+> ./query -c —to clear all three variable 
+> ./query -s -to set all 3 variables , it will ask to enter values of 3 variables
+> ./query -g -to get all 3 variables 
+——————— ————— - —————— - ——————— - ———— - —— - — 
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
