@@ -1,0 +1,1526 @@
+———— Advance C programming - https://www.sanfoundry.com/advanced-c-programming-training/
+https://pebble.gitbooks.io/learning-c-with-pebble/content/chapter10.html
+
+————— POINTER — READ THIS — ——— 
+https://www.thegeekstuff.com/2011/12/c-pointers-fundamentals
+
+
+Number system - Binary , Octal , Decimal , Hexadecimal 
+To represent a number in binary you need to follow the universal rule: break down the number to a sum of exact powers of 2. 10010 = 1 * 26 + 1 * 25 + 0 * 24 + 0 * 23 + 1 * 22 + 0 * 21 + 0 * 20
+
+The octal numeral system, or oct for short, is the base-8 number system
+
+In the decimal system each decimal place is a power of ten.
+
+To represent a number as a hex in the source code use the “0x”(zero x) prefix. This tells the compiler that the number is in hex. The number will be converted to its decimal representation before compilation. We use a base of 16. 100 = 6 * 16 + 4 = 6 * 161 + 4 * 160
+
+	▪	Storage Class Specifiers
+	▪	Scope of a Variable
+	▪	Register, Auto, Static, Extern
+	▪	Why Register Class and Practical Examples
+	▪	Automatic Variables and Stack
+	▪	Static Variables and Functions
+	▪	True meaning of Extern
+	▪	How to Use extern across Multiple Files with Examples
+	▪	Best Practices for Extern Usage
+	▪	Local/Block/Global Scope
+	▪	Nesting of Scope
+	▪	Lifetime of a Variable
+	▪	Linkage of a Variable
+	▪	What is Const?
+
+————————————— File ———————————— 
+fopen()     create a new file or open a existing file
+fclose()    closes a file 
+getc()  reads a character from a file 
+putc() writes a character to a file 
+fscanf()    reads a set of data from a file 
+fprintf()   writes a set of data to a file 
+getw() reads a integer from a file 
+putw() writes a integer to a file 
+fseek() set the position to desire point 
+ftell() gives current position in the file 
+rewind() set the position to the beginning point 
+
+————————— ————— 
+Enumeration - this is just a key value pair db. Where values are in code and key are internal to complier 
+enum mydbname { value1, value2 …} ;
+
+
+#include <stdio.h>
+enum State {WORKING = 0, FAILED, FREEZED};
+enum State currState = 2;
+ 
+enum State FindState() {
+    return currState;
+}
+ 
+int main() {
+   (FindState() == WORKING)? printf("WORKING"): printf("NOT WORKING");
+   return 0;
+}
+— output — —— 
+NOT WORKING
+—— another example. 
+#include <stdio.h>
+
+enum db {a, c , g }; 
+
+int main() { 
+  enum db myask;
+  myask = c;
+  printf("value to be printed %d", myask);
+  return 0;
+}
+
+—output — 
+value to be printed c
+
+——————————— pass function by value(. Is used)  and by reference (-> used) but in case of pointer data and reference both uses -> 
+   ———————— 
+#include <stdio.h>
+#include <string.h>
+
+struct stdstructure { 				//union has same syntax as structure , only difference is union elements share memory location , structure is a record
+  char nameofsociety[20];
+  int numofpeoplestaying;
+};
+
+// typedef works exactly same as structure except definition is bit different as shown below
+typedef struct Books {
+   char title[50];
+   int book_id;
+} Book;
+//
+
+int printbyvalue(struct stdstructure getdata) { 
+    printf("name of the society %s\n", getdata.nameofsociety);
+    printf("number of folks staying %d\n", getdata.numofpeoplestaying);
+    return 0;
+}
+
+void printbyref(struct stdstructure *getref) { 
+    printf("name of society by ref %s\n", getref->nameofsociety);
+    printf("num of folks by ref %d\n", getref->numofpeoplestaying);
+}
+
+int main() { 
+  struct stdstructure setdata;
+  struct stdstructure refdata;
+  
+  strcpy(setdata.nameofsociety,"Pink city");
+  setdata.numofpeoplestaying = 50;
+  printbyvalue(setdata);  //this is pass structure by value
+  printf("-----------up by value----below by reference---\n");
+
+  strcpy(refdata.nameofsociety,"Ref Pink city");
+  refdata.numofpeoplestaying = 150;
+  printbyref(&refdata); //structure pass by reference
+  return 0;
+}
+
+————— output ——— 
+name of the society Pink city
+number of folks staying 50
+-----------up by value----below by reference---
+name of society by ref Ref Pink city
+num of folks by ref 150
+
+———————— Simple linked list -here casting ( struct mylink* ) malloc is also bit different and we use -> for both , to post and reference data  ————— 
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+struct mylink{ 
+  char data[30]; 
+  int pointer;
+};
+int main() { 
+  struct mylink *first;
+  struct mylink *second;
+  struct mylink *third;
+  first = (struct mylink*) malloc(sizeof(struct mylink));
+  second = (struct mylink*) malloc(sizeof(struct mylink));
+  third = (struct mylink*) malloc(sizeof(struct mylink));
+  strcpy(first->data, "Allan");
+  strcpy(second->data, "Michael");
+  strcpy(third->data, "Gonsalves");
+  first->pointer = second;
+  second->pointer = third;
+  third->pointer = NULL;
+  printf("value of first %s\n", first->data );
+  printf("value of second %s\n", second->data );
+  printf("value of third %s\n", third->data );
+  return 0;
+}
+
+——— — output ——— 
+value of first Allan
+value of second Michael
+value of third Gonsalves
+———————— nested structure ———————— 
+#include <stdio.h>
+
+struct insidestruct { 
+  int dimid;
+  char charname[20];
+};
+struct mainstruct { 
+  int sid;
+  struct insidestruct in;
+} driver;
+int main() { 
+  struct mainstruct driver = { 100, 200, strcpy( driver.in.charname, "product")};
+  printf("print structure data %d , %d , %s\n", driver.sid, driver.in.dimid,driver.in.charname);
+  return 0;
+} 
+——— — output ——— 
+print structure data 100 , 200 , product
+
+————— POINTER ——— 
+https://www.thegeekstuff.com/2011/12/c-pointers-fundamentals
+
+	•	    Constant pointer and pointer to constant.
+	•	    Pointer to pointer with an example
+	•	    Array of pointers with an example
+	•	    Pointer to functions with an example
+
+——————————— For constant pointer and pointer constant , try below rule to remember  ——————— 
+A C P ( Address cannot be changed - Constant - Pointer ) 
+P C V  ( Pointer - Constant - Value cannot be changed ) 
+
+Remove P so now it becomes AC - CV 
+AC (P) - (P) CV 
+
+—— Constant pointer - 
+#include <stdio.h>
+int main() { 
+  float Var = 20.33;
+  float jam = 32.34;
+  float *const pointer = &Var;  //note the *const — this is how we define constant pointer.
+//  pointer = &jam;  -- not allowed, we cannot assign new address to constant pointer
+  printf("%.2f",*pointer );
+  return 0;
+}
+—— Pointer  Constant - 
+#include <stdio.h>
+int main() { 
+  char var1 = 'a';
+  const char *pointer = &var1;
+//  *pointer = 'b';  in case of constant pointer, value cannot be changed
+  printf("value stored %c", *pointer);
+  return 0;
+}
+—— Pointer  to Pointer  - 
+#include <stdio.h> 
+int main() { 
+  const char *firstpointer = NULL;
+  const char **secondpointer = NULL;
+  firstpointer = "well done double pointer";
+  secondpointer = &firstpointer;
+  printf("print : %s\n", *secondpointer ); //for %s , we dont use * , we use only pointer name e.g. firstpointer but for double pointer we have to use one *
+  
+  return 0;
+} 
+—— Array of Pointer  - 
+#include<stdio.h> 
+
+int main(void)
+{
+    char *p1 = "Allan";
+    char *p2 = "Gonsalves";
+    char *p3 = "India"; 
+
+    char *arr[3]; 
+
+    arr[0] = p1;
+    arr[1] = p2;
+    arr[2] = p3; 
+
+   printf("\n p1 = [%s] \n",p1);
+   printf("\n p2 = [%s] \n",p2);
+   printf("\n p3 = [%s] \n",p3); 
+
+   printf("\n arr[0] = [%s] \n",arr[0]);
+   printf("\n arr[1] = [%s] \n",arr[1]);
+   printf("\n arr[2] = [%s] \n",arr[2]); 
+
+   return 0;
+}
+—— Function Pointer  - 
+int (*fptr)(int, int)
+
+— example below 
+#include<stdio.h> 
+
+int func (int a, int b)
+{
+    printf("\n a = %d\n",a);
+    printf("\n b = %d\n",b); 
+    return 0;
+} 
+
+int main(void)
+{
+    int(*fptr)(int,int); // Function pointer 
+    fptr = func; // Assign address to function pointer  . Note that, name of the function can be treated as starting address of the function so
+// we can assign the address of function to function pointer using function’s name.
+    func(2,3);
+    fptr(2,3); 
+    return 0;
+}
+—— Passing structure as a return type in the Function Pointer  - 
+
+————————————— 
+int main(void) 
+{ 
+
+    char *ptr = "I am a string"; 
+
+    printf("[%c], [%s]\n",  *ptr, ptr);  // Asterisk means value of the pointer. By default 
+//any character pointer pointing to a string stores the address of the first character of the string. In the code above, ‘ptr’ holds the address 
+of the character ‘I’ ie 1001. Now, when we apply the ‘value of’ operator ‘*’ to ‘ptr’, we intend to fetch the value at address 1001 which is 
+‘I’ and hence when we print ‘*ptr’, we get ‘I’ as the output. The concept is that %s specifier requires the address of the beginning byte 
+of string to display the complete string, which we provided using ‘ptr’ (which we know holds the beginning byte address of the string).
+
+    return 0; 
+}
+—— output — 
+[I], [I am a string]
+
+——————— how to use structure pointer ————— 
+#include<stdio.h> 
+
+struct st{ 
+int a; 
+char ch; 
+}; 
+
+int main(void) 
+{ 
+    struct st obj; 
+    struct st *stobj = &obj; 
+
+    stobj->a = 5; 
+    stobj->ch = 'a'; 
+
+    printf("\n [%d] [%c]\n", stobj->a, stobj->ch); 
+    return 0; 
+}
+——————— 
+———————————— nested structure with pointer variable ————————— 
+#include <stdio.h>
+#include <string.h>
+ 
+struct student_college_detail
+{
+    int college_id;
+};
+ 
+struct student_detail 
+{
+    float percentage; 
+    struct student_college_detail clg_data; 
+}stu_data, *stu_data_ptr;
+ 
+int main() 
+{
+  struct student_detail stu_data = { 90.5, 71145};
+    stu_data_ptr = &stu_data;
+    printf(" Percentage is: %f \n\n", 
+                         stu_data_ptr->percentage);
+    printf(" College Id is: %d \n", 
+                         stu_data_ptr->clg_data.college_id);
+    return 0;
+}
+——— — output ——— 
+ Percentage is: 90.500000 
+ College Id is: 71145 
+—————————— using dot notation in structure with pointer variables ——————— 
+
+#include <stdio.h>
+#include <string.h>
+ 
+struct student_college_detail
+{
+    int college_id;
+    int another_id;
+};
+ 
+struct student_detail 
+{
+    float percentage; 
+    struct student_college_detail clg_data; 
+}stu_data, *stu_data_ptr;
+ 
+int main() 
+{
+  struct student_detail stu_data = { 
+    .percentage = 200, 
+    .clg_data.college_id = 300   };
+    
+    stu_data_ptr = &stu_data;
+    printf(" Percentage is: %f \n\n", 
+                         stu_data_ptr->percentage);
+    printf(" College Id is: %d \n", 
+                         stu_data_ptr->clg_data.college_id);
+    return 0;
+}
+
+————— output ————— 
+ Percentage is: 200.000000 
+ College Id is: 300 
+
+————— passing structure to function pointer —————— 
+#include <stdio.h>
+
+struct pro { 
+  char name;
+  int id;
+};
+void dosomething(struct pro *getinfo) { 
+      printf("%c\n", getinfo->name);
+      printf("%d\n", getinfo->id);
+}
+
+int main() { 
+  struct pro info;
+  info.name = 'a';
+  info.id = 300;
+  void(*funpointer)(struct pro *);
+  funpointer = dosomething;
+  funpointer(&info);
+  return 0;
+}
+
+——output —- 
+a
+300
+
+——————  —— Extern ————— - - 
+#include <stdio.h>
+int x = 10;
+int z = 5;
+int main()
+{
+    extern int y; // line 2
+    extern int z;
+    printf("%d %d %d", x, y, z);
+}
+int y = 2;
+————— output ————— 
+10 2 5.  We define 2 variables x and z in global scope. By default, all of them have external linkage. When we use extern int z, we tell the compiler to use the same z as the global one. In main, we declare y as externally linked and tell the compiler to look for definition of y elsewhere. It has local scope upto when line 2 is compiled.The compiler reaches the end of the program and finds the definition of y. Since it is declared outside main, it is now promoted to global scope. Thus, the linker does not complain of not finding definition of y and the program runs.
+————— ———Preprocessors———— ———————
+//https://pebble.gitbooks.io/learning-c-with-pebble/content/chapter15.html
+
+#define
+#include
+#undef
+#pragma
+#ifdef
+#ifndef
+#if
+#else
+#elif
+#endif
+#error 
+
+———— Few examples on preprocessor————— ————
+#define APWIDTH 20
+#define BASWIDTH 30
+#define CHWIDTH 50
+#define WIDTHS APWIDTH, BASWIDTH, CHWIDTH
+int widths[] =  { WIDTHS } ;
+
+int main() { 
+  int i;
+  for(i= 0; i<4; i++) { 
+    printf("values %d\n", widths[i]);
+  }
+  return 0;
+}
+—————output ————— 
+values 20
+values 30
+values 50
+values 0
+
+———— Example 2 - preprocessor conditional code ————— ————
+
+#if defined(TABLE_SIZE)
+  #if TABLE_SIZE > 100 
+    #undef TABLE_SIZE
+    #define TABLE_SIZE 100
+    int boundary = 200;
+  #else
+    int boundary = 100;
+  #endif
+#else 
+  #define TABLE_SIZE 50;
+  int boundary = 100;
+#endif 
+————— ———Pointer arithmetic ———— ———————
+Here we can do integer type operation on pointer as shown below 
+
+#include <stdio.h>
+const int MAX = 3;
+int main () {
+   int  var[] = {10, 100, 200};
+   int  i, *ptr;
+   /* let us have address of the first element in pointer */
+   ptr = &var;
+   i = 0;
+   while ( ptr <= &var[MAX - 1] ) {
+      printf("Address of var[%d] = %x\n", i, ptr );
+      printf("Value of var[%d] = %d\n", i, *ptr );
+
+      /* point to the previous location */
+      ptr++;
+      i++;
+   }
+   return 0;
+}
+———— output ————— 
+Address of var[0] = f2f4b0e0
+Value of var[0] = 10
+Address of var[1] = f2f4b0e4
+Value of var[1] = 100
+Address of var[2] = f2f4b0e8
+Value of var[2] = 200
+————— ———Heap memory (this is global , configured using malloc, free is must to avoid memory leak) and stack memory (normal variables lives during function)  ———— ———————
+#include <stdio.h>
+#include <stdlib.h>
+int main() { 
+  int *whatever = malloc(sizeof(int));
+  *whatever = 30;
+  printf("print %d", *whatever);
+  free(whatever);
+  return 0;
+}
+--output -- 
+print 30
+
+
+———— Some examples —— 
+#undef FILE_SIZE
+#define FILE_SIZE 42 
+It tells the CPP ( C pre-processor ) to undefine existing FILE_SIZE and define it as 42.
+
+#ifndef MESSAGE 
+	#define MESSAGE “You wish”
+#endif
+It tells the CPP to define MESSAGE only if MESSAGE isn't already defined.
+
+Predefined Macros as follows - 
+__DATE__
+__TIME__
+__FILE__
+__STDC__
+
+————— ——————— ——————— 
+There are two types of macros - Object-like (do not take parameters) and function-like (Can take parameters)
+// object-like macro
+#define        
+// function-like macro          
+#define () 
+To delete macro use #undef 
+
+We can write multi-line macro same like function, but each statement ends with “\”. 
+#include <stdio.h>
+  
+#define MACRO(num, str) {\
+            printf("%d", num);\
+            printf(" is");\
+            printf(" %s number", str);\
+            printf("\n");\
+           }
+
+———— example 1- 
+#include <stdio.h>
+
+#define M1
+#define M2
+
+int main(void) { 
+#ifdef M1
+  printf("this is macro M1\n");
+#endif 
+
+#ifdef M2
+  printf("this is M2 micro\n");
+#endif
+  return 0;
+}
+
+------- Output — 
+this is macro M1
+this is M2 micro
+—————Below macro value is passed in the code 
+#include <stdio.h>
+#define M1(x)  x * (x+5)
+int main() { 
+#ifdef M1
+  printf("macro M1 is active\n");
+#endif
+  int res = M1(2);
+  printf("new value based on macro %d - \n ", res);
+  return 0;
+}
+———To pass macro value from command line use below - 
+> gcc -Wall -DMACRO1=25 macro.c -o macro
+
+————— ———Macro functions———— ———————
+#include <stdio.h>
+#define PRINT(i, limit) while (i < limit) \
+                        { \
+                            printf("GeeksQuiz "); \
+                            i++; \
+                        }
+int main()
+{
+    int i = 0;
+    PRINT(i, 3);
+    return 0;
+}
+// Output: GeeksQuiz  GeeksQuiz  GeeksQuiz
+
+Stringize operator is # as shown below #a and #b.
+#define  message_for(a, b)  \
+   printf(#a " and " #b ": We love you!\n")
+
+int main(void) {
+   message_for(Carole, Debra);
+   return 0;
+}
+
+—— Token pasting operator (##) —— 
+#include <stdio.h>
+
+#define tokenpaster(n) \
+  printf ("token" #n " = %d", token##n)
+
+int main(void) {
+   int token34 = 400;
+   tokenpaster(34);
+   return 0;
+}
+—— output 
+token34 = 400
+
+————— ———Endian-ness – Little Vs Big ——— ———————
+Little and big endian are two ways of storing multibyte data-types ( int, float, etc).
+\\ https://www.geeksforgeeks.org/little-and-big-endian-mystery/
+
+————— ———All about file ———— ———————
+#include <stdio.h>
+#include <string.h>
+
+
+int main() { 
+  char c[100];
+  char buffer[100];
+  FILE *pointer;
+  pointer  = fopen("/root/c_world/sample.txt", "w+") ; 
+  fgets(c, 100, stdin);
+  fwrite(c, strlen(c) + 1, 1, pointer); 
+  fseek(pointer, 3, SEEK_SET);
+  fread(buffer, strlen(c) + 1, 1, pointer);
+  printf("%s", buffer);
+  fclose(pointer);
+
+  return 0 ;
+
+}
+————— output ——————— 
+> this is my life 
+> s is my life 
+
+————— ———Inline functions - (inline code of function gets when called)———— ———————
+#include <stdio.h>
+int inline func1(int a) { 
+  return ( a + 10 );
+}
+
+void inline func2() { 
+  printf("Printing value : %d", func1(30) );
+}
+
+int main() { 
+  func2();
+  return 0;  
+}
+———— Output - 
+Printing value : 40
+————— ——————— ——————— 
+//constant pointer, pointer to constant and constant pointer to constant.
+/*constant pointer = A constant pointer is a pointer that cannot change the address its holding. In other words, we can say that once a constant pointer points to a variable then it cannot point to any other variable
+
+int main(void)
+{
+    int var1 = 0, var2 = 0;
+    int *const ptr = &var1;
+ //   ptr = &var2;   this is not possible
+    printf("%d\n", *ptr);
+    
+    return 0;
+} */
+/*Pointer to constant - a pointer through which one cannot change the value of variable it points is known as a pointer to constant. These type of pointers can change the address they point to but cannot change the value kept at those address.
+
+
+int main(void)
+{
+    int var1 = 10;
+    const int* ptr = &var1;
+//    *ptr = 1;           //changing value of the pointer now possible
+    printf("%d\n", *ptr);
+    
+    return 0;
+} */
+
+/* Constant pointer to constant - A constant pointer to constant is a pointer that can neither change the address its pointing to and nor it can change the value kept at that address. */
+
+#include<stdio.h>
+
+int main(void)
+{
+    int var1 = 20,var2 = 0;
+    const int* const ptr = &var1;
+//    *ptr = 1;
+//    ptr = &var2;
+    printf("%d\n", *ptr);
+    
+    return 0;
+}
+
+
+——————— - —————— Function pointer —————— —————— 
+//https://www.geeksforgeeks.org/function-pointer-in-c/
+
+#include <stdio.h>
+int fun(int a)
+{
+    printf("Value of a is %d\n", a);
+    return a * 2;
+
+}
+ 
+int main()
+{
+    // fun_ptr is a pointer to function fun() 
+    int (*fun_ptr)(int) = &fun;
+ 
+    /* The above line is equivalent of following two
+       int (*fun_ptr)(int);
+       fun_ptr = &fun; 
+    */
+ 
+     printf("new value %d\n", (*fun_ptr) (10));
+    return 0;
+}
+—output - 
+Value of a is 10
+new value 20
+
+
+
+—————————————— How to return string from a function ———————— 
+#include <stdio.h>
+char* displayString(char str[]){
+    str = "now this is new statement";
+    return(str);
+}
+int main()
+{ 
+    printf("new value %s\n", displayString("this is  statement"));  
+    return 0;
+}
+————— output ————— 
+new value  : now this is new statement
+——————————————————— How to use malloc on simple characteristics and on structure 
+#include <stdio.h>
+#include <stdlib.h>
+
+int main () {
+    char *str;
+    
+    /* Initial memory allocation */
+    str = (char *) malloc(15);
+    strcpy(str, "tutorialspoint");
+    printf("String = %s,  Address = %u\n", str, str);
+    
+    /* Reallocating memory */
+    str = (char *) realloc(str, 25);
+    strcat(str, ".com");
+    printf("String = %s,  Address = %u\n", str, str);
+    
+    free(str);
+    
+    return(0);
+}
+————— 
+String = tutorialspoint,  Address = 7566976
+String = tutorialspoint.com,  Address = 7567600
+Program ended with exit code: 0 
+
+
+——————————————————— Depth first search 
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <unistd.h>
+
+#define MAX 5
+
+struct Vertex {
+    char label;
+    bool visited;
+};
+
+//stack variables
+int stack[MAX];
+int top = -1;
+
+//array of vertices
+struct Vertex*  firstVertices[MAX];
+
+//adjacency matrix
+int adjMatrix[MAX][MAX];
+
+//vertex count
+int vertexCount = 0;
+
+//stack functions
+void push(int item) {
+    stack[++top] = item;
+}
+
+int pop() {
+    return stack[top--];
+}
+
+int peek() {
+    return stack[top];
+}
+
+bool isStackEmpty() {
+    return top == -1;
+}
+
+//add vertex to the vertex list
+void addVertex(char label) {
+    struct Vertex* vertex = (struct Vertex*) malloc(sizeof(struct Vertex));
+    vertex->label = label;
+    vertex->visited = false;
+    firstVertices[vertexCount++] = vertex;
+}
+
+//add edge to edge array
+void addEdge(int start,int end) {
+    adjMatrix[start][end] = 1;
+    adjMatrix[end][start] = 1;
+}
+
+//display the vertex
+void displayVertex(int vertexIndex) {
+    printf("%c ",firstVertices[vertexIndex]->label);
+}
+
+//get the adjacent unvisited vertex
+int getAdjUnvisitedVertex(int vertexIndex) {
+    int i;
+    
+    for(i = 0; i < vertexCount; i++) {
+        if(adjMatrix[vertexIndex][i] == 1 && firstVertices[i]->visited == false) {
+            return i;
+        }
+    }
+    
+    return -1;
+}
+
+void depthFirstSearch() {
+    int i;
+    
+    //mark first node as visited
+    firstVertices[0]->visited = true;
+    
+    //display the vertex
+    displayVertex(0);
+    
+    //push vertex index in stack
+    push(0);
+    
+    while(!isStackEmpty()) {
+        //get the unvisited vertex of vertex which is at top of the stack
+        int unvisitedVertex = getAdjUnvisitedVertex(peek());
+        
+        //no adjacent vertex found
+        if(unvisitedVertex == -1) {
+            pop();
+        } else {
+            firstVertices[unvisitedVertex]->visited = true;
+            displayVertex(unvisitedVertex);
+            push(unvisitedVertex);
+        }
+    }
+    
+    //stack is empty, search is complete, reset the visited flag
+    for(i = 0;i < vertexCount;i++) {
+        firstVertices[i]->visited = false;
+    }
+}
+
+int main() {
+    int i, j;
+    
+    for(i = 0; i < MAX; i++)    // set adjacency {
+        for(j = 0; j < MAX; j++) // matrix to 0
+            adjMatrix[i][j] = 0;
+    
+    addVertex('S');   // 0
+    addVertex('A');   // 1
+    addVertex('B');   // 2
+    addVertex('C');   // 3
+    addVertex('D');   // 4
+    
+    addEdge(0, 1);    // S - A
+    addEdge(0, 2);    // S - B
+    addEdge(0, 3);    // S - C
+    addEdge(1, 4);    // A - D
+    addEdge(2, 4);    // B - D
+    addEdge(3, 4);    // C - D
+    
+    printf("Depth First Search: \n");
+    depthFirstSearch();
+    
+    return 0;
+}
+
+————————————————————— Returning structure from function - 
+#include <unistd.h>
+
+//structure
+struct familytree {
+    char name;
+    struct familytree *son;
+    struct familytree *daughter;
+};
+//instance of the structure
+struct familytree* detailedfun(char fullname){
+    struct familytree* myfamily = (struct familytree*) malloc(sizeof(struct familytree));
+    myfamily->name = fullname;
+    myfamily->son  = 'A';
+    myfamily->daughter = 'C';
+    return myfamily;
+}
+
+
+int main() {
+//main - fill structure and return structure
+    struct familytree *tree = detailedfun('M');
+    
+//print structure
+    printf("Full name %c-\n", tree->name );
+    printf("name of the son - %c\n", tree->son);
+    printf("name of the daughter - %c\n", tree->daughter);
+    
+}
+——output - 
+Full name M-
+name of the son - A
+name of the daughter - C
+————————————————————— Deep First search traversal 
+// C program for different tree traversals
+//Unlike linear data structures (Array, Linked List, Queues, Stacks, etc) which have only one logical way to
+// traverse them, trees can be traversed in different ways. Following are the generally used ways for traversing trees.
+
+// https://www.geeksforgeeks.org/tree-traversals-inorder-preorder-and-postorder/
+//    Depth First Traversals:
+//(a) Inorder (Left, Root, Right) : 4 2 5 1 3
+//(b) Preorder (Root, Left, Right) : 1 2 4 5 3
+//(c) Postorder (Left, Right, Root) : 4 5 2 3 1
+
+#include <stdio.h>
+#include <stdlib.h>
+
+/* A binary tree node has data, pointer to left child
+ and a pointer to right child */
+struct node
+{
+    int data;
+    struct node* left;
+    struct node* right;
+};
+
+/* Helper function that allocates a new node with the
+ given data and NULL left and right pointers. */
+struct node* newNode(int data)
+{
+    struct node* node = (struct node*) malloc(sizeof(struct node));
+    node->data = data;
+    node->left = NULL;
+    node->right = NULL;
+    
+    return(node);
+}
+
+/* Given a binary tree, print its nodes according to the
+ "bottom-up" postorder traversal. */
+void printPostorder(struct node* node)
+{
+    if (node == NULL)
+        return;
+    
+    // first recur on left subtree
+    printPostorder(node->left);
+    
+    // then recur on right subtree
+    printPostorder(node->right);
+    
+    // now deal with the node
+    printf("%d ", node->data);
+}
+
+/* Given a binary tree, print its nodes in inorder*/
+void printInorder(struct node* node)
+{
+    if (node == NULL)
+        return;
+    
+    /* first recur on left child */
+    printInorder(node->left);
+    
+    /* then print the data of node */
+    printf("%d ", node->data);
+    
+    /* now recur on right child */
+    printInorder(node->right);
+}
+
+/* Given a binary tree, print its nodes in preorder*/
+void printPreorder(struct node* node)
+{
+    if (node == NULL)
+        return;
+    
+    /* first print data of node */
+    printf("%d ", node->data);
+    
+    /* then recur on left sutree */
+    printPreorder(node->left);
+    
+    /* now recur on right subtree */
+    printPreorder(node->right);
+}
+
+/* Driver program to test above functions*/
+int main()
+{
+    struct node *root  = newNode(1);
+    
+    root->left             = newNode(2);
+    root->right           = newNode(3);
+    root->left->left     = newNode(4);
+    root->left->right   = newNode(5);
+    root->left->left->left   = newNode(6);
+    
+    printf("\nPreorder traversal of binary tree is \n");
+    printPreorder(root);
+    
+    printf("\nInorder traversal of binary tree is \n");
+    printInorder(root);
+    
+    printf("\nPostorder traversal of binary tree is \n");
+    printPostorder(root);
+    
+    getchar();
+    return 0;
+}
+———————— 
+
+Preorder traversal of binary tree is 
+1 2 4 6 5 3 
+Inorder traversal of binary tree is 
+6 4 2 5 1 3 
+Postorder traversal of binary tree is 
+6 4 5 2 3 1 
+————————————————————— ————————— Linked list and How to use malloc on structure 
+#include <stdio.h>
+#include <stdlib.h>
+//struct
+
+struct node {
+    int data;
+    struct node *next;
+};
+
+//print
+void printlist(struct node *getdata) {
+    while (getdata != NULL) {
+        printf("print the list %d\n ", getdata->data);
+        getdata = getdata->next;
+    }
+}
+//main
+int main() {
+    
+   struct node *head = ( struct node*) malloc(sizeof(struct node));
+    struct node *second = ( struct node*) malloc (sizeof(struct node));
+    struct node *third = (struct node *) malloc(sizeof(struct node));
+    
+    head->data = 1;
+    head->next = second;
+    
+    second->data = 2;
+    second->next = third;
+    
+    third->data = 3;
+    third->next = NULL;
+    
+    printlist(head);
+    
+}
+
+————————— 
+print the list 1
+ print the list 2
+ print the list 3
+————————————————————— —————————  
+What is structure padding in C - In order to align the data in memory, one or more empty bytes (addresses) are inserted (or left empty) between memory addresses which are allocated for other structure members while memory allocation. This concept is called structure padding.
+
+Read below post - https://fresh2refresh.com/c-programming/c-structure-padding/
+
+Every field in structure going to take some byte in 4 byte (32 bit processor) or 8 byte ( in 64 bit processor) so if we use Char data type in structure then it wil use only 1 byte out of 4 and , 3 byte remain empty which can remain unused. So we can use #pragma pack(1) directive as shown below to remove those empty spaces . If we remove pragma directive then it wil keep empty bytes (unusable) 
+
+#include <stdio.h>
+#include <string.h>
+ 
+/*  Below structure1 and structure2 are same. 
+    They differ only in member's allignment */
+#pragma pack(1) 
+struct structure1 
+{
+       int id1;
+       int id2;
+       char name;
+       char c;
+       float percentage;
+};
+ 
+struct structure2 
+{
+       int id1;
+       char name;
+       int id2;
+       char c;
+       float percentage;                      
+};
+ 
+int main() 
+{
+    struct structure1 a;
+    struct structure2 b;
+ 
+    printf("size of structure1 in bytes : %d\n", 
+            sizeof(a));
+    printf ( "\n   Address of id1        = %u", &a.id1 );
+    printf ( "\n   Address of id2        = %u", &a.id2 );
+    printf ( "\n   Address of name       = %u", &a.name );
+    printf ( "\n   Address of c          = %u", &a.c );
+    printf ( "\n   Address of percentage = %u",
+                   &a.percentage );
+ 
+    printf("   \n\nsize of structure2 in bytes : %d\n",
+                   sizeof(b));
+    printf ( "\n   Address of id1        = %u", &b.id1 );
+    printf ( "\n   Address of name       = %u", &b.name );
+    printf ( "\n   Address of id2        = %u", &b.id2 );
+    printf ( "\n   Address of c          = %u", &b.c );
+    printf ( "\n   Address of percentage = %u",
+                   &b.percentage );
+    getchar();
+    return 0;
+}
+
+——— ——— output ———— ————— 
+size of structure1 in bytes : 14
+
+   Address of id1        = 2455124416
+   Address of id2        = 2455124420
+   Address of name       = 2455124424
+   Address of c          = 2455124425
+   Address of percentage = 2455124426   
+
+size of structure2 in bytes : 14
+
+   Address of id1        = 2455124400
+   Address of name       = 2455124404
+   Address of id2        = 2455124405
+   Address of c          = 2455124409
+   Address of percentage = 2455124410
+
+——— ——— ———— ——qsort function————————  ———— ————— 
+
+#include <stdio.h>
+#include <stdlib.h>
+
+// A sample comparator function that is used
+// for sorting an integer array in ascending order.
+// To sort any array for any other data type and/or
+// criteria, all we need to do is write more compare
+// functions.  And we can use the same qsort()
+int compare (const void * a, const void * b)
+{
+    return ( *(int*)a - *(int*)b );
+}
+
+int main ()
+{
+    int arr[] = {10, 5, 15, 12, 90, 80};
+    int n = sizeof(arr)/sizeof(arr[0]), i;
+
+    qsort (arr, n, sizeof(int), compare);
+    
+    for (i=0; i<n; i++)
+        printf ("%d ", arr[i]);
+    return 0;
+}
+——output —— 
+5 10 12 15 80 90
+——————— ——— - — — CASTING AND POINTER - —— 
+int main() { 
+  float i = 300;
+  int*  p = (int*) &i;
+  printf("%p\n", p);
+  return 0;
+}
+
+&i : means to take the address of i (which is a char*)
+
+(int*)&i : casts that pointer to be a pointer to integer (which is bad/wrong to do, 
+but you told the compiler to do it so it won't even give a warning)
+
+int* p = (int*)&i; : a statement that says to store the pointer of i in p (and cast 
+it too: the compiler won't even complain)
+
+p* = 1234567892; : write this value, which is several bytes to the base location 
+pointed to by p (which although p thinks it points to an int, is to char!).
+
+—— — OUTPUT
+> 0x7ffc391eb594
+——————— ——— - — — Dangling pointers  - —— 
+A pointer pointing to a memory location that has been deleted (or freed) is called dangling pointer. 
+1. De-allocation of memory 
+2. Function call 
+3. Variable goes out of scope
+
+1. De-allocating of memory - 
+// Deallocating a memory pointed by ptr causes
+// dangling pointer
+#include <stdlib.h>
+#include <stdio.h>
+int main()
+{
+    int *ptr = (int *)malloc(sizeof(int));
+ 
+    // After below free call, ptr becomes a 
+    // dangling pointer
+    free(ptr); 
+    printf("printing memory address %p\n", ptr);
+    // No more a dangling pointer
+    ptr = NULL;
+    printf("printing memory address %p\n", ptr);
+}
+—— output —
+printing memory address 0xf34010
+printing memory address (nil)
+
+—— —2. Function call 
+#include <stdio.h>
+int *fun(int ad){ 
+ ad += 5;
+  return &ad;
+}
+
+
+int main(){  
+  int *p = fun(30);
+//  fflush(stdin);  //this will make pointer dangling ...
+  printf("new value %d\n", *p);
+  return 0;
+}
+
+—Output — 
+new value  35 , if we use fflush then new value will be 0
+
+
+—— ———3. Variable goes out of scope
+#include<stdlib.h>
+ 
+int main()
+{
+    int x = 4;
+    float y = 5.5;
+    char c[5] = "allan";
+    
+    //A void pointer
+    void *ptr;
+    ptr = &x;
+ 
+    // (int*)ptr - does type casting of void 
+    // *((int*)ptr) dereferences the typecasted 
+    // void pointer variable.
+    //below after printing , we will dereference int type of ptr so that we
+    //can use it for float printing. if we dont then it will print some garbage
+    printf("Integer variable is = %d\n", *( (int*) ptr) );
+    // void pointer is now float
+    
+    ptr = &y;  
+    //below after printing , we will dereference float tile of ptr so that we
+    //can use it for char.
+    printf("\nFloat variable is= %f\n", *( (float*) ptr) ); 
+    
+    ptr = &c;
+    printf("\nCharacter variable is= %s\n", ( (char*) ptr));\
+    return 0;
+}
+—output — 
+Integer variable is = 4
+Float variable is= 5.500000
+Character variable is= allan
+
+————————— Using pointer in the function ——————— 
+#include <stdio.h>
+void salaryhike(int  *var, int b)
+{
+    *var = *var+b;  // here we are doing operation on only address which is void data type.
+}
+int main()
+{
+    int salary=0, bonus=0;
+    printf("Enter the employee current salary:"); 
+    scanf("%d", &salary);
+    printf("%d\n", &salary); //here we are passing address of salary to pointer
+    printf("%d\n", salary);
+    printf("Enter bonus:"); //here we are passing value to anthor int variable b
+    scanf("%d\n", &bonus);
+    salaryhike(&salary, bonus);   
+    printf("Final salary: %d\n", salary); //here we are picking what is newly updated at salary address
+    return 0;
+}
+
+-------output - 
+Enter your salary : 100
+734484343994
+100
+Enter bonus: 200 
+Final salary: 300
+
+—————————— simple pointer ————— 
+#include <stdio.h>
+int main() { 
+
+  int v = 100; 
+  int *a = &v; //we can only assign address to pointer not a value, so *a = v not possible
+  printf("address stored at pointer %d\n", a); //this is address of variable
+  printf("address of a variable %d\n", &v); //this is original variable address
+  printf("value of pointer %d\n", *a); //this stores the value of the variable
+  return 0;
+}
+—————output ————— 
+address stored at pointer -2137135004
+address of a variable -2137135004
+value of pointer 100
+—————————— using pointer in function ————— 
+#include <stdio.h>
+
+void fun1(int *x) {  //here definitio says x is pointer , pointed to address of f1. just a reference
+    *x = *x + 5; //here we are now dealing with actual value stored at f1 address. * means value now.
+    printf("what is x %d\n", x);  //here naked x means address. so * means value and naked variable means address
+}
+int main() { 
+  int f1 = 20;   
+  printf("original value func1 value %d\n", f1); 
+  fun1(&f1);
+  printf("value func1 value %d\n", f1); 
+  return 0;
+}
+———output ————— 
+original value func1 value 20
+what is x 1870475468
+value func1 value 25
+——————— ——— - — — extern ——————— ——— - —
+------main.c file where we have value of count is set. Variables of this storage class are “Global variables”
+    Global Variables are declared outside the function and are accessible to all functions in the program
+    Generally , External variables are declared again in the function using keyword extern
+    In order to Explicit declaration of variable use ‘extern’ keyword
+
+#include <stdio.h>
+int count ;
+extern void write_extern();
+ 
+main() {
+   count = 5;
+   write_extern();
+}
+
+
+----support.c file where we have declare count variable.
+#include <stdio.h>
+extern int count;
+ 
+void write_extern(void) {
+   printf("count is %d\n", count);
+}
+—output — 
+> gcc main.c support.c 
+>./a.out
+>count is 5
+
+——————— ——— - — — gets/EOF/feof  ——————— ——— - —
+#include <stdio.h>
+ 
+int main()
+{
+  FILE *fp = fopen("test.txt", "r");
+  int ch = getc(fp);
+  while (ch != EOF) 
+  {
+    /* display contents of file on screen */
+    putchar(ch); 
+ 
+    ch = getc(fp);
+  }
+   
+  if (feof(fp))
+     printf("\n End of file reached.");
+  else
+     printf("\n Something went wrong.");
+  fclose(fp);
+     
+  getchar();
+  return 0;
+}
+——output ——
+> this data came from file 
+> End of the file reached.
+
+——————————— Endian-ness – Little Vs Big ——————— ————— 
+#include <stdio.h>
+/* function to show bytes in memory, from location start to start+n*/
+void show_mem_rep(char *start, int n) 
+{
+    int i;
+    for (i = 0; i < n; i++)
+         printf(" %.2x", start[i]);
+    printf("\n");
+}
+/*Main function to call above function for 0x01234567*/
+int main()
+{
+   int i = 0x01234567;
+   show_mem_rep((char*)&i, sizeof(i));
+   return 0;
+}
+
+——————— output ————— 
+ 67 45 23 01
+——————— binary operations ————— 
+#include <stdio.h>
+main() {
+    unsigned int a = 60;    /* 60 = 0011 1100 */
+    unsigned int b = 13;    /* 13 = 0000 1101 */
+    int c = 0;
+    c = a & b;       /* 12 = 0000 1100 */
+    printf("Line 1 - Value of c is %d\n", c );
+    c = a | b;       /* 61 = 0011 1101 */
+    printf("Line 2 - Value of c is %d\n", c );
+    c = a ^ b;       /* 49 = 0011 0001 */
+    printf("Line 3 - Value of c is %d\n", c );
+    c = ~a;          /*-61 = 1100 0011 */
+    printf("Line 4 - Value of c is %d\n", c );
+    c = a << 2;     /* 240 = 1111 0000 */
+    printf("Line 5 - Value of c is %d\n", c );
+    c = a >> 2;     /* 15 = 0000 1111 */
+    printf("Line 6 - Value of c is %d\n", c );
+}
+——————— ——Bitfield ——— ————— 
+
+#include <stdio.h>
+#include <string.h>
+
+struct {
+    unsigned int age : 4; 
+    //here 4 means bits expressed in 2^4 = 16 so upto 0-15 values compiler will
+    //take. example below it will print all 4,8 but only 15.0 instead of 15.2 since bits 
+    //can store 16 values only(0-15) so .2 is ignored. Try int agt : 5 then it will print upto 0-31
+} Age;
+
+/* example in structure below - unnamed bit field can be used to push boundary to next slot example 2^4
+struct test2
+{
+   unsigned int x: 5;
+   unsigned int: 0;   //this will take it to 8 byte but combined of 5 and 8 bits can stay under 16 which is 4 byte ( 2^4) .
+   unsigned int y: 8;
+};
+*/
+int main( ) {
+
+   Age.age = 4;
+   printf( "Sizeof( Age ) : %d\n", sizeof(Age) );
+   printf( "Age.age : %d\n", Age.age );
+
+   Age.age = 8;
+   printf( "Age.age : %d\n", Age.age );
+      Age.age = 15.2;
+      printf( "Age.age : %.1f\n", (float) Age.age );
+
+   // below address of bitfield is not permitted. it will give error
+   printf("Address of test2.x is %p", &t.x);
+   return 0;
+}
+———Output ——— ————— 
+Sizeof( Age ) : 4
+Age.age : 4
+Age.age : 8
+Age.age : 15.0
+
+——————— ——Bitfield interesting example ——— ————— 
+
+#include <stdio.h>
+struct test
+{
+   unsigned int x;
+   long int y: 33;
+   unsigned int z;
+};
+int main()
+{
+   struct test t;
+   unsigned int *ptr1 = &t.x;
+   unsigned int *ptr2 = &t.z;
+   printf("%d", ptr2 - ptr1);
+   return 0;
+}
+———Output ——— ————— 
+4 
+——————— —gets() and fgets() — gets() is more dangerous can result in buffer overflow, use only fgets() ———  
+
+———————— Format specifier ——————— -   —— - - 
+The % specifiers that you can use in ANSI C are:
+Usual variable type Display
+%c char single character
+%d (%i) int signed integer
+%e (%E) float or double exponential format
+%f float or double signed decimal
+%g (%G) float or double use %f or %e as required
+%o int unsigned octal value
+%p pointer address stored in pointer
+%s array of char sequence of characters
+%u int unsigned decimal
+%x (%X) int unsigned hex value
+ ——— ————— ——— ————— ——— ————— 
+Direct Access Memory - https://en.wikipedia.org/wiki/Direct_memory_access
+
+
+
