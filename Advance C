@@ -269,7 +269,7 @@ int main(void)
     fptr(2,3); 
     return 0;
 }
-—— Passing structure as a return type in the Function Pointer  - 
+
 
 ————————————— 
 int main(void) 
@@ -371,7 +371,7 @@ int main()
  Percentage is: 200.000000 
  College Id is: 300 
 
-————— passing structure to function pointer —————— 
+————— passing structure to function pointer ( single character ) —————— 
 #include <stdio.h>
 
 struct pro { 
@@ -397,6 +397,71 @@ int main() {
 a
 300
 
+————— passing structure to function pointer ( with string ) —————— 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+struct pro {
+    char *name;
+    int id;
+};
+
+struct pro* dosomething(int j) {
+    struct pro *infostruct;
+    infostruct = (struct pro *) malloc(sizeof(struct pro));
+    infostruct->name = "alan gonsalves";
+    infostruct->id = j;
+    return infostruct;
+}
+
+
+int main() {
+    struct pro *mainfun;
+    struct pro* (*funpointer)(int i);
+    
+    funpointer  = dosomething;
+    mainfun = funpointer(30);
+    printf("print name %s\n", mainfun->name);
+    printf("print id %d\n", mainfun->id);
+    return 0;
+}
+————— output ———— 
+print name alan gonsalves
+print id 30
+——more such examples at below ———— 
+//http://www.cs.utsa.edu/~wagner/CS2213/structs/structs_pass.html
+—— Passing structure as a return type in the Function Pointer  - 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+struct pro {
+    char name;
+    int id;
+};
+
+struct pro* dosomething(int j) {
+    struct pro *infostruct;
+    infostruct = (struct pro *) malloc(sizeof(struct pro));
+    infostruct->name = 'a';
+    infostruct->id = j;
+    return infostruct;
+}
+
+int main() {
+    struct pro *mainfun;
+    struct pro* (*funpointer)(int i);
+    
+    funpointer  = dosomething;
+    mainfun = funpointer(30);
+    printf("print name %c\n", mainfun->name);
+    printf("print id %d\n", mainfun->id);
+    return 0;
+}
+————— output ————— 
+print name a
+print id 30
 ——————  —— Extern ————— - - 
 #include <stdio.h>
 int x = 10;
