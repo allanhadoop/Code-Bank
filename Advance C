@@ -1,6 +1,10 @@
 ———— Advance C programming - https://www.sanfoundry.com/advanced-c-programming-training/
 https://pebble.gitbooks.io/learning-c-with-pebble/content/chapter10.html
 
+Compile c program use - cc code.c -o c
+./c  —> to run program 
+Compile c++ program use g++ code.cpp
+> ./a.out  —> to run the program
 ————— POINTER — READ THIS — ——— 
 https://www.thegeekstuff.com/2011/12/c-pointers-fundamentals
 
@@ -187,7 +191,7 @@ https://www.thegeekstuff.com/2011/12/c-pointers-fundamentals
 
 ——————————— For constant pointer and pointer constant , try below rule to remember  ——————— 
 A C P ( Address cannot be changed - Constant - Pointer ) 
-P C V  ( Pointer - Constant - Value cannot be changed ) 
+       P C V  ( Pointer - Constant - Value cannot be changed ) 
 
 Remove P so now it becomes AC - CV 
 AC (P) - (P) CV 
@@ -1586,6 +1590,2276 @@ Usual variable type Display
 %x (%X) int unsigned hex value
  ——— ————— ——— ————— ——— ————— 
 Direct Access Memory - https://en.wikipedia.org/wiki/Direct_memory_access
+
+
+ ——— ————— ———Array ————— ——— ————— 
+
+————————— Scenario = Assigning structure as a array element ———— 
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+struct info { 
+  char typeofstorm;
+  int category;
+};
+
+int main() {
+  struct info structarray[2];
+  int i=0;
+
+  structarray[0].typeofstorm = 'h'; 
+  structarray[0].category = 5;
+
+  structarray[1].typeofstorm = 'T'; 
+  structarray[1].category = 4;
+
+  for (i=0 ; i< 2; i++) {
+    printf("storm name %c\n",structarray[i].typeofstorm);
+    printf("catgeory %d\n", structarray[i].category);
+  }
+  return 0;
+}
+
+———— output —— 
+storm name h
+catgeory 5
+storm name T
+catgeory 4
+
+
+—————————— scenario 2 - Array of Char Pointers —————————— 
+#include <stdio.h>
+
+int main() { 
+  char *p1 = "whats a day";
+  char *p2 = "holiday";
+  char *p3 = "Thursday";
+
+  char*  a[3];      // here * is next to char so this is array of 3 character pointer.
+  a[0] = p1;
+  a[1] = p2;
+  a[2] = p3;
+  int i=0;
+
+  for (i=0; i<3; i++) { 
+    printf("array values %s\n", a[i]);
+  }
+  return 0;
+}
+
+————— output 
+
+array values whats a day
+array values holiday
+array values Thursday
+
+————————————— Pointer to Arrays (we need to deference array before printing , first time in history :) ———————
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+
+int main() { 
+  char simplearray[3];
+  simplearray[0] = 'a';
+  simplearray[1] = 'b';
+  simplearray[2] = 'c';
+
+//pointer to simplearray
+  char (*pointertosimplearray)[3];
+
+  pointertosimplearray = &simplearray;
+  printf("array elements %c\n", (*pointertosimplearray)[0]); //before printing array needs to be dereferenced.
+  printf("array elements %c\n", (*pointertosimplearray)[1]);
+  printf("array elements %c\n", (*pointertosimplearray)[2]);
+  return 0;
+}
+
+———— output —— 
+array elements a
+array elements b
+array elements c
+
+—————————————Static vs Dynamic Array ——————————— 
+
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+int main() { 
+  int n=0;
+  printf("Enter number of elements for array : ");
+  scanf("%d", &n);
+
+  //Dynamic memory assignment in heap, if we speicy [3] then it goes on stack
+  char *ptr = (char*) malloc(n);
+  
+
+  int i=0;
+
+  for(i=0; i<n; i++) { 
+    ptr[i] = i;
+    printf("array elements %d\n", ptr[i]);  
+  }
+  free(ptr);
+  return 0;
+}
+
+———— output ——— 
+Enter number of elements for array : 4
+array elements 0
+array elements 1
+array elements 2
+array elements 3
+
+—————————————— Decomposing Array into Pointers ——————— 
+
+Internally, arrays aren’t treated specially, they are decomposed into pointers and operated there-on. For example an array like :
+char arr[10];
+When accessed like :
+arr[4] = 'e';
+is decomposed as :
+*(arr + 4) = 'e'
+
+——————————————— Character Arrays and Strings——————— 
+‘\0’ . If this is present after a series of characters in an array, then that array becomes a string.
+This is an array:  char arr[] = {'a', 'b', 'c'};
+This is a string:   char arr[] = {'a', 'b', 'c', '\0'};
+
+——————————————— Bi-dimensional and Multi-dimensional Arrays——————— 
+Example below - 5 rows for names ; 10 characters for each name and 50 characters for each address 
+char arr[5][10][50];
+
+————— —————— example Bi-dimensional ———————————— 
+#include <stdio.h>
+#include <string.h>
+
+int main() { 
+  char simplearr[3];
+  simplearr[0] = 'a';
+  simplearr[1] = 'b'; 
+  simplearr[2] = 'c';
+  int i=0;
+  for ( i=0 ; i<2; i++) {
+    printf("array elements %c\n", simplearr[i]);
+  }
+      printf("array as string %s\n", simplearr); //this will put ? mark at the end because it doesnot 
+//find \0 as last character. so technically it is not a string.
+  i= 0;
+  memset(simplearr, '\0', sizeof(simplearr));
+  simplearr[0] = 'a';
+  simplearr[1] = 'b';  
+  //simplearr[2] = '\0' this will be automatically filled up due to memset command.
+    printf("array elements %s\n", simplearr);  //printing array as string
+
+  return 0;
+}
+
+
+———— output — 
+array elements a
+array elements b
+array as string abcw?
+array elements ab
+
+———————————— Use of strncpy library ———————— 
+#include <stdio.h>
+#include <string.h>
+
+int main () {  
+  char simplearray[20];
+
+  memset(simplearray, '\0', sizeof(simplearray));
+  char *ptr = "Gonsalves"; 
+  strncpy(simplearray, ptr, 15);  //here 15 is sizeof
+  printf("array - %s\n", simplearray );
+  return 0;
+}
+
+———output ——— 
+array - Gonsalves
+
+—————————————————— Two dimensional array——————————— 
+
+Internally, arrays aren’t treated specially, they are decomposed into pointers and operated there-on. For example an array like :
+char arr[10];
+When accessed like :
+arr[4] = 'e';
+is decomposed as :
+*(arr + 4) = 'e'
+
+————————— example —— 
+#include <stdio.h>
+#include <string.h>
+
+int main() { 
+  int multiarray[3][4] = { 
+              { 4, 2, 5, 2},
+              { 6, 2, 4, 5},
+              { 8, 6, 3, 2}
+              };
+  int *pointertomultiarray = &multiarray[0][0];
+  int i=0;
+  for(i=0; i<12; i++) { 
+    printf("array shown - %d\n", *(pointertomultiarray + i));
+  }
+  return 0;
+}
+
+——— output ——— 
+array shown - 4
+array shown - 2
+array shown - 5
+array shown - 2
+array shown - 6
+array shown - 2
+array shown - 4
+array shown - 5
+array shown - 8
+array shown - 6
+array shown - 3
+array shown - 2
+
+——————————————————  y——————————— 
+
+
+
+
+
+
+
+
+
+————————————— C ++ ——————————————————
+
+———————— Simple data types printing —————————— 
+#include <iostream>
+using namespace std;
+ 
+extern int a, b;
+extern int c;
+extern float f;
+  
+int main () { 
+   int a = 20 , b = 20;
+   int c = a+ b;
+   float f;
+ 
+   cout << c << endl ;  //here endl is like \n new line and flush() 
+
+   f = 70.0/3.0;
+   cout << f << endl ;  //there is no %d like we used in C 
+   return 0;
+}
+———— output ——— 
+40
+23.3333
+———————————— Alternative way to use standard literary ———————— 
+
+#include <iostream>
+//using namespace std  - we can use std:: also as shown below
+
+static int c = 5;
+void fun(void);
+
+int main() { 
+  while(c--) { 
+    fun();
+  }
+  return 0;
+}
+
+void fun(void) { 
+  std::cout << "Value of c is : " << c << std::endl;
+}
+
+————— output —————— 
+Value of c is : 4
+Value of c is : 3
+Value of c is : 2
+Value of c is : 1
+Value of c is : 0
+
+—————————— Forever loop - —————————— 
+#include <iostream>
+using namespace std;
+ 
+int main () {
+   for( ; ; ) {
+      printf("This loop will run forever.\n");
+   }
+
+   return 0;
+}
+
+———————————— Few standard functions - ————— 
+#include <iostream>
+#include <cmath>
+using namespace std;
+ 
+int main () {
+   // number definition:
+   short  s = 10;
+   int    i = -1000;
+   long   l = 100000;
+   float  f = 230.47;
+   double d = 200.374;
+
+   // mathematical operations;
+   cout << "sin(d) :" << sin(d) << endl;
+   cout << "abs(i)  :" << abs(i) << endl;
+   cout << "floor(d) :" << floor(d) << endl;
+   cout << "sqrt(f) :" << sqrt(f) << endl;
+   cout << "pow( d, 2) :" << pow(d, 2) << endl;
+ 
+   return 0;
+}
+——output ——— 
+sin(d) :-0.634939
+abs(i)  :1000
+floor(d) :200
+sqrt(f) :15.1812
+pow( d, 2) :40149.7
+
+———————————————— Generate Random numbers ————————— 
+
+#include <iostream>
+#include <ctime>
+#include <cstdlib>
+using namespace std;
+int main () {
+   int i,j;
+   // set the seed
+   srand( (unsigned)time( NULL ) );
+   /* generate 5  random numbers. */
+   for( i = 0; i < 5; i++ ) {
+      // generate actual random number
+      j = rand();
+      cout <<" Random Number : " << j << endl;
+   }
+   return 0;
+}
+———— output —————— 
+ Random Number : 866241598
+ Random Number : 2091619569
+ Random Number : 1545570698
+ Random Number : 1782012089
+ Random Number : 931262115
+
+——————————— set base/setw/setfill functions — —————————— 
+
+// CPP Program to illustrate 
+// std::setbase manipulator 
+#include <iostream> 
+#include <iomanip> // std::setbase 
+using namespace std;
+
+
+int main() 
+{ 
+    // set base to hexadecimal 
+    cout << setbase(16); 
+
+    // displaying 255 in hexadecimal 
+    cout << 255 << endl; 
+  
+    // set base to Octal 
+    cout << setbase(8); 
+  
+    // displaying 255 in Octal 
+    cout << 255 << endl; 
+    string str = "what a day";
+    cout << str << endl;
+    cout << setw(20); 
+    cout << setfill('x');
+    cout << str << endl;
+    return 0; 
+} 
+————— output ————— 
+ff
+377
+what a day
+xxxxxxxxxxwhat a day
+
+————————————— String operations ——————————— 
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+int main() { 
+
+  char s1[10] = "First";
+  char s2[10] = "Second";
+  char s3[20] ;
+  char s4[20];
+  int len;
+  
+//strcpy . strcat . strlen
+  strcpy(s3, s1);
+  strcat(s1,s2);
+  len = strlen(s1);
+
+  cout << "Strcpy from s1 to s3 : " << s3 << endl ;
+  cout << "Strcat of s1 and s2 : " << s1 << endl ;
+  cout << "strlen(s1) : " << len << endl;
+  return 0;
+ }
+—————— output —————— 
+Strcpy from s1 to s3 : First
+Strcat of s1 and s2 : FirstSecond
+strlen(s1) : 11
+
+————————————— Reference vs Pointer  ——————————— 
+
+A reference variable is an alias, that is, another name for an already existing variable. Once a reference is initialized with a variable, 
+either the variable name or the reference name may be used to refer to the variable.
+
+#include <iostream>
+using namespace std;
+
+int main() { 
+
+  int i=20;
+  int& ref_of_i_variable = i;   //we use & for reference variable . It is not a pointer 
+
+  cout << "Value of i : " << i << endl;
+  cout << "Reference value of i : " << ref_of_i_variable << endl ;
+  return 0;
+}
+———— output ——— 
+Value of i : 20
+Reference value of i : 20
+
+——————————— Pointer ——————————— 
+#include <iostream>
+#include <cstring>
+using namespace std;
+int main()  { 
+  int *pointer; 
+  int var = 300;
+  pointer = &var;
+  cout << "Value of variables - " << *pointer << endl;
+  cout << "Address of pointer - " << pointer << endl;
+  return 0;
+}
+——————— output ——————
+Value of variables - 300
+Address of pointer - 0x7ffc829a8d44
+
+——————————— Ctime functions ——————————— 
+#include <iostream>
+#include <ctime>
+using namespace std ; 
+
+int main()  { 
+
+  time_t gettime = time(0) ;
+  char *stringtime = ctime(&gettime); //ctime it char type
+
+  cout << "String time is : " << stringtime << endl;
+
+  tm* structtime = localtime(&gettime); //localtime or gmtime are tm structure type, rest are char types
+  cout << "year " << 1970 + structtime->tm_year << endl ; //time elapsed since January 1, 1970
+
+  return 0;
+}
+
+———— output ———————— 
+year 2088
+——————————— Basic input/output ——————————— 
+
+<iostream > - This file defines the cin, cout, cerr and clog objects, which correspond to the standard input stream, the standard output stream, 
+the un-buffered standard error stream and the buffered standard error stream, respectively
+<fstream> - This file declares services for user-controlled file processing
+<iomainp> - This file declares services useful for performing formatted I/O with so-called parameterized stream manipulators, such as setw and setprecision.
+
+#include <iostream>
+using namespace std;
+ 
+int main() {
+   char name[50];
+   char str[25] = "this will be buffered";
+   cout << "Please enter your name: ";
+   cin >> name; 
+   cout << "Your name is: " << name << endl;
+   clog << "Error message : " << str << endl;   //this output will be buffered
+}
+
+—— output —— 
+Please enter your name: Alan
+Your name is: Alan
+Error message : this will be buffered
+————————————— *this pointer ————————————— 
+ this pointer is used to represent the address of an object inside a member function. For example, consider an object obj calling one of its member function say method() as obj.method(). Then, this pointer will hold the address of object obj inside the member function method(). 
+It should be noted that, friend function and static function cannot have this pointer. It's because friend function is not a member function of the class. 
+And static function can be invoked without initialization of an object, i.e, static functions are not associated with any object.  
+
+class ClassName {
+
+       private:   
+         int dataMember;
+ 
+       public:
+           method(int a) {
+
+   // this pointer stores the address of object obj and access dataMember
+               this->dataMember = a;
+               ... .. ...
+           } 
+}
+
+int main() {
+
+    ClassName obj;
+    obj.method(5);
+    ... .. ...
+————update simple object as follows - ———— 
+#include <iostream>
+using namespace  std;
+
+class testbike { 
+public : 
+  char* bikename;
+  int bikeid;
+
+  void getbikedata(char *pointer) {  
+    cout << "NAme of the biked passed in object : " << pointer << endl;
+    cout << "Original name of the bike : " << this->bikename << endl;
+    this->bikename = pointer;
+    cout << "New name got updated is this->bikename is : " << this->bikename << endl;
+  }
+
+};
+
+int main() { 
+  testbike mybike; 
+  mybike.getbikedata("Apache2-Suzuki");
+  return 0;
+}
+—————— output ———— 
+NAme of the biked passed in object : Apache2-Suzuki
+Original name of the bike : 
+New name got updated is this->bikename is : Apache2-Suzuki
+—————— ———— exercise 2 ——————————— 
+#include<iostream> 
+using namespace std; 
+  
+/* local variable is same as a member's name */
+class Test 
+{ 
+  private: 
+     int x; 
+  public: 
+     void setX (int x) 
+       { 
+           // The 'this' pointer is used to retrieve the object's x 
+           // hidden by the local variable 'x' 
+           cout << "before this :" << this->x << endl;
+           this->x = x; 
+           cout << "after this :" << this->x << endl;
+       } 
+     void print() { cout << "final x = " << x << endl; } 
+}; 
+  
+int main() 
+{ 
+   Test obj; 
+   int x = 20; 
+   obj.setX(x); 
+   obj.print(); 
+   return 0; 
+} 
+————output ———— 
+before this :1059436624
+after this :20
+final x = 20
+——————————— exercise 3 - this pointer ———— 
+#include<iostream> 
+using namespace std; 
+  
+class Test 
+{ 
+private: 
+  int x ; 
+  int y ; 
+public: 
+  Test(int x = 0, int y = 0) {   //this is constructor since there is no return type.
+    this->x = x; this->y = y; 
+  } 
+  Test setX(int a) {  //here return type of this setX menthod is class Test itself.
+      this->x = a; 
+      return *this; 
+  } 
+  Test setY(int b) {  
+    this->y = b; 
+    return *this; 
+  } 
+  void print() { 
+    cout << "x = " << x << " y = " << y << endl; 
+    cout << "this->x :" << this->x << endl;
+    cout << "this->y :" << this->y << endl;    
+  } 
+}; 
+  
+int main() 
+{ 
+  Test obj1(5, 5); 
+  // Chained function calls.  All calls modify the same object 
+  // as the same object is returned by reference 
+  obj1.setX(10).setY(20); 
+  
+  obj1.print(); 
+  return 0; 
+} 
+—————— output ———— 
+x = 10 y = 5
+this->x :10
+this->y :5
+——————————— exercise 4 - this pointer ———— 
+#include <iostream>
+using namespace std;
+
+class racer {
+char name[20];
+int score; 
+public: 
+  void getracerinfo() { 
+    cout << "Enter racer name :" << endl;
+    cin >> name ;
+    cout << "Enter score of the racer : " << endl;
+    cin >> score ;
+    }
+  racer findwinner(racer r2, racer r3) { 
+    if ( r2.score > r3.score && r2.score > this->score) 
+        return r2;
+    else if  ( r3.score > r2.score && r3.score > this->score) 
+        return r3;
+    else if  ( this->score > r3.score && this->score > r2.score) 
+        return *this;
+  }
+
+  void displaywinner() { 
+    cout << "Name of the racer : " << this->name << endl;
+    cout << "Final score :" << this->score  << endl;
+  }
+};
+
+int main() { 
+  racer final, r1, r2, r3;
+  r1.getracerinfo();
+  r2.getracerinfo();
+  r3.getracerinfo();
+  final = r1.findwinner(r2, r3);
+  final.displaywinner();
+  return 0;
+}
+
+———— output ———— 
+Enter racer name :
+Allan
+Enter score of the racer : 
+40
+Enter racer name :
+Rick 
+Enter score of the racer : 
+49
+Enter racer name :
+Orion
+Enter score of the racer : 
+65
+Name of the racer : Orion
+Final score :65
+
+———————————— Excercise 5 - this pointer with class and constructor ———— 
+#include<iostream> 
+using namespace std; 
+  
+class Test 
+{ 
+private: 
+  int x; 
+public: 
+  Test(int x) { this->x = x; }  //this is class constructor , there is no return type.
+  void change(Test *t) {  //this is function since it has return type
+  this->x = t->x; 
+  } 
+  void print() { cout << "x = " << x << endl; } 
+}; 
+  
+int main() 
+{ 
+  Test obj(30); 
+  Test *ptr = new Test (100); //new way to initialize pointer to class.
+  obj.change(ptr); 
+  obj.print(); 
+  return 0; 
+}
+———————output ———————
+x = 100
+————— ———————— Classes and objects ————————— —————— 
+————— Scenario 1 = Simple class ————— 
+#include <iostream>
+using namespace std;
+
+class myblueprint { 
+  public : 
+    char *name;
+    int id;
+};
+
+int main() { 
+  myblueprint A;
+  A.name = "Allan";
+  A.id = 2000;
+  cout << "First candidate name: "<< A.name << endl;
+  cout << "First candidate id : "<< A.id << endl;
+  return 0;
+}
+—————— output —————— 
+First candidate name: Allan
+First candidate id : 2000
+
+————— Scenario 2 = Base and Derived class ————— 
+class derived-class: access-specifier base-class
+
+Where access-specifier is one of public, protected, or private, and base-class is the name of a previously defined class. If the access-specifier is not used, then it is private by default.
+
+#include <iostream>
+using namespace std;
+
+class baseclass { 
+  public: 
+  //function 
+      void setname(char n){ 
+        publicname = n;
+        protectedname = n;
+        privatename = n;
+     }
+
+      void setid(int i) { 
+        publicid = i;
+        protectedid = i;
+        privateid = i;
+      }  
+    char publicname;
+    int  publicid;
+  protected:
+    char protectedname;
+    int  protectedid;
+  private:
+    char privatename;
+    int  privateid;
+
+};
+
+class derivedclass: public baseclass { 
+  public: 
+    char getname() { 
+//      return publicname; //this will print a
+//      return protectedname ; //this will print a
+        return privatename;  //this will error out since other classes cannot access private objects
+        
+    }
+    int getid() { 
+//      return publicid;  //this will print 10
+//      return protectedid; //this will print 10
+        return privateid;  //this will error out since other classes cannot access private objects
+    }
+
+};
+
+int main() { 
+  derivedclass myinfo;
+  myinfo.setname('a');
+  myinfo.setid(10);
+  
+  cout << "Name : " << myinfo.getname() << endl;
+  cout << "Id : "  << myinfo.getid() << endl;
+
+  return 0;
+}
+————————————— Scenario 3 — Multiple Inheritance—————————————— 
+
+#include <iostream> 
+using namespace std;
+
+ 
+//set parameters
+class areaclass {
+  public : 
+    float width;
+    float height;
+    void setdata(int w, int h) {  
+      width = w;
+      height = h;
+    }
+};
+
+//function
+class costclass { 
+public: 
+  double costnumber(double area) {  
+    return area * 90;
+  }
+};
+
+//get the value
+class derivedclass : public areaclass , public costclass { 
+public:
+  int getarea() {  
+    return (width * height); 
+  }
+};
+
+int main() { 
+  double finalcost;
+  double area;
+  derivedclass ref;
+  ref.setdata(200,100);
+  area = ref.getarea();
+  finalcost = ref.costnumber(area); 
+  cout << "Area : " <<  area << endl;
+  cout << "Cost : " << finalcost << endl;
+  return 0;
+}
+
+———— output ———— 
+Area : 20000
+Cost : 1.8e+06
+
+————————————— Scenario 4— Overloading —————————————— 
+
+You can have multiple definitions for the same function name in the same scope. The definition of the function must differ from each other by the types and/or the number of arguments in the argument list. You cannot overload function declarations that differ only by return type.
+
+#include <iostream>
+using namespace std;
+ 
+class printData {
+   public:
+      void print(int i) {
+        cout << "Printing int: " << i << endl;
+      }
+      void print(double  f) {
+        cout << "Printing float: " << f << endl;
+      }
+      void print(char* c) {
+        cout << "Printing character: " << c << endl;
+      }
+};
+
+int main(void) {
+  printData ptf;
+  ptf.print(4) ;
+  ptf.print("what a day");
+  ptf.print(43.993);
+
+  return 0;
+}
+————— output ————— 
+Printing int: 4
+Printing character: whats a day
+Printing float: 43.993
+
+————————————— Scenario  —  Overloading operator using without constructor and void return type —————————————— 
+
+#include <iostream>
+using namespace std;
+
+
+class printclass { 
+  private : 
+    int var1 = 100 ; 
+    int var2 = 300 ;
+
+  public : 
+  void printnow() { 
+    cout << "First variable value " << var1 << endl;
+    cout << "Second variable value " << var2 << endl;
+  }
+  
+  void operator - () { 
+    var1 = (5) * var1;
+    var2 = (4) * var2; 
+  }
+};
+
+
+int main() { 
+  printclass P;
+  -P;       //use operator for calculation here
+  P.printnow(); 
+  return 0;
+}
+
+———— output ——— 
+First variable value 500
+Second variable value 1200
+
+————————————— Scenario  —  Overloading operator using constructor and class as return type —————————————— 
+#include <iostream>
+using namespace std;
+
+class Distance { 
+  public : 
+    int length; 
+    int height;
+
+    Distance() {  					//this is empty constructor 
+      length = 0; 
+      height = 0;
+    }
+
+    Distance(int a , int b) { 			//this is constructor 
+      length = a; 
+      height = b;
+    }
+    void printall() { 
+      cout << "Length  : " << length << endl;
+      cout << "Height  : " << height << endl;
+    }
+
+  Distance operator * () { 					// here class is used as return type 
+      length = length * 2;    //here operator is - and actual operation is multipilcation , so doesnt matter
+      height = height * 2;
+      return Distance( length, height);
+  }
+
+}; 
+int main() {
+  Distance obj(30, 40);
+  *obj;   
+  obj.printall() ;
+  return 0;
+}
+
+———— output —— 
+Length  : 60
+Height  : 80
+
+————————————— Scenario  —  Overloading operator Assignment operator  —————————————— 
+
+#include <iostream>
+using namespace std;
+
+class Distance {
+    
+    public :
+    int id ;
+    int age;
+    
+    Distance(){
+        id = 0 ; age = 0;
+    }
+    Distance(int a , int b) {
+        id = a; age = b;
+    }
+    void operator = ( const Distance &o) {
+        id = o.age;
+        age = o.id;
+    }
+    void printall() {
+        cout << "Id is - " << id << endl << "Age is : " << age << endl;
+    }
+};
+
+int main() {
+    
+    Distance o1;
+    Distance o2(30 , 40);
+    o2.printall();
+    o1 = o2;
+    cout << "swapping below" << endl;
+    o1.printall();
+    return 0;
+}
+
+
+——— output ———— 
+Id is - 30
+Age is : 40
+swapping below
+Id is - 40
+Age is : 30
+
+——————————  Scenario  —  Overloading operator Subscripting [] Operator —————————— 
+
+#include <iostream>
+using namespace std;
+const int SIZE = 10;
+
+class safearay {
+private:
+    int arr[SIZE];
+    
+public:
+    safearay() {
+        register int i;
+        for(i = 0; i < SIZE; i++) {
+            arr[i] = i;
+        }
+    }
+    
+    int &operator[](int i) {
+        if( i > SIZE ) {
+            cout << "Index out of bounds" <<endl;
+            // return first element.
+            return arr[0];
+        }
+        
+        return arr[i];
+    }
+};
+
+int main() {
+    safearay A;
+    
+    cout << "Value of A[2] : " << A[2] <<endl;
+    cout << "Value of A[5] : " << A[5]<<endl;
+    cout << "Value of A[12] : " << A[12]<<endl;
+    
+    return 0;
+}
+
+————— output ——— 
+Value of A[2] : 2
+Value of A[5] : 5
+Value of A[12] : Index out of bounds
+0
+
+————————————— Scenario  —  Class Member Access Operator (->) Overloading —————————— 
+
+The class member access operator (->) can be overloaded but it is bit trickier. It is defined to give a class type a "pointer-like" behavior. The operator -> must be a member function. If used, its return type must be a pointer or an object of a class to which you can apply. 
+The operator-> is used often in conjunction with the pointer-dereference operator * to implement "smart pointers." These pointers are objects that behave like normal pointers except they perform other tasks when you access an object through them, such as automatic object deletion either when the pointer is destroyed, or the pointer is used to point to another object.
+
+
+
+
+————————————— Scenario  —  Overloading operator Function call operator  —————————————— 
+
+#include <iostream>
+using namespace std;
+
+class Distance {
+    public :
+    int id;
+    int age;
+    int km;
+    
+    Distance() {
+        id = 0 ; age = 0 ;  km = 0;
+    }
+    Distance(int a, int b, int n) {
+        id = a ; age = b ; km = n;
+        
+    }
+    void printall() {
+        cout << "Id " << id << " Age " << age << " Km " << km << endl;
+    }
+    
+    Distance operator () ( int aa, int bb, int nn) {
+        Distance D1;
+        D1.id = aa ; D1.age = bb ; D1.km = nn;
+        return D1;
+    }
+};
+
+int main() {
+    Distance f_in(10, 20 , 40);
+    Distance f_out;
+    f_out.printall();
+    f_out = f_in(99, 99 , 99); //Function operator passes values to object
+    f_out.printall();
+    return 0;
+}
+——— output ————— 
+
+Id 0 Age 0 Km 0
+Id 99 Age 99 Km 99
+
+
+
+————————————— Scenario  —  Overloading operator —————————————— 
+
+#include <iostream>
+using namespace std;
+
+class overloadnow { 
+public: 
+  int var;
+  overloadnow(int x) { 
+    this->var = x;
+    cout << "class constructor value " << this->var << endl;
+  } 
+  void printinfo(int y) { 
+      this->var = y;
+      cout << "first overload1 " << this->var << endl;
+  }
+
+  void printinfo(char *c) { 
+    cout << "second overload " << c << endl;
+  }
+
+  void printinfo(overloadnow *p) { 
+    this->var = p->var;
+    cout << "third pointer overload " << this->var << endl;
+  }
+
+};
+
+int main () { 
+  overloadnow myobj(5);
+  myobj.printinfo(50);
+  myobj.printinfo("nice");
+  overloadnow *ptr = new overloadnow(20);
+  ptr->var = 400;
+  myobj.printinfo(ptr);
+  return 0;
+}
+———output —— 
+class constructor value 5
+first overload1 50
+second overload nice
+class constructor value 20
+third pointer overload 400
+——————————————Scenario  7 - Simple Polymérisation —————— 
+In this example, we have two functions with same name but different number of arguments. Based on how many parameters we pass during function call determines which function is to be called, this is why it is considered as an example of polymorphism because in different conditions the output is different. Since, the call is determined during compile time thats why it is called compile time polymorphism
+
+#include <iostream>
+using namespace std;
+
+class Add {
+public:
+  int sum(int num1, int num2){
+     return num1+num2;
+  }
+  int sum(int num1, int num2, int num3){
+     return num1+num2+num3;
+  }
+};
+
+int main() {
+  Add obj;
+  //This will call the first function
+  cout<<"Output: "<<obj.sum(10, 20)<<endl;
+  //This will call the second function
+  cout<<"Output: "<<obj.sum(11, 22, 33);
+  return 0;
+}
+
+———— output ———— 
+Output: 30
+Output: 66
+——————————————Scenario  8 - Runtime Polymérisation —————— 
+Function overriding is an example of Runtime polymorphism.
+Function Overriding: When child class declares a method, which is already present in the parent class then this is called function overriding, here child class overrides the parent class. In case of function overriding we have two definitions of the same function, one is parent class and one in child class. The call to the function is determined at runtime to decide which definition of the function is to be called, thats the reason it is called runtime polymorphism
+
+#include <iostream>
+using namespace std;
+
+class dad { 
+public:
+  void printnow() { 
+    cout << "this is dad print "  << endl;
+  }
+};
+
+class son : public dad { 
+public: 
+  void printnow() { 
+    cout << "this is son print " << endl;
+  }
+};
+
+int main () { 
+  dad o1;
+  son o2;
+  o1.printnow();
+  o2.printnow();
+  return 0;
+}
+————output ———— 
+this is dad print
+this is son print 
+——————————————Scenario  9 - Simple Polymérisation —————— 
+The word polymorphism means having many forms. In simple words, we can define polymorphism as the ability of a message to be displayed in 
+more than one form.
+
+#include<iostream> 
+using namespace std; 
+  
+class Test 
+{ 
+private: 
+  int x; 
+public: 
+  Test(int x) { this->x = x; 
+  cout << "original value of x : " << x << endl; }  //this is class constructor , there is no return type.
+
+  void change(Test *t) {  //this is function since it has return type
+  this->x = 200; 
+  cout << "print updated value of x : " << this->x << endl;
+  } 
+ 
+}; 
+  
+int main() 
+{ 
+  Test obj(30); 
+  Test *ptr = new Test(100); //new way to initialize pointer to class.
+  obj.change(ptr);  
+  return 0; 
+}
+———— output ——— 
+original value of x : 30
+original value of x : 100
+print updated value 200
+————————————— Polymerization and plus operator ———————— 
+#include <iostream>
+using namespace std;
+
+class Complex { 
+  public : 
+  int rank; int image;
+  Complex (int x , int y) { this->rank = x ; this->image = y;};
+    
+  Complex operator + ( Complex const &obj) { 
+      Complex final(0,0);
+      rank = rank + obj.rank;
+      image = image + obj.image;
+      final.rank = rank;
+      final.image = image;
+      return final;
+  };
+  void printdata(Complex o3) { 
+      cout << "print final output "  <<o3.rank << endl ;
+      cout << "image is " << o3.image << endl;
+    }
+};
+
+int main() { 
+  Complex o1(10,3), o2(20,4);       //this is constructor
+  Complex o3 = o1 + o2;             //this is operator
+  o3.printdata(o3);
+  return 0;
+}
+
+——— output ——— 
+print final output 30
+image is 7
+——————————————— How to use virtual keyword - with pointer and address —————————————— 
+#include <iostream> 
+using namespace std;
+ 
+class Shape {
+   protected:
+      int width, height;
+      
+   public:
+      Shape( int a = 0, int b = 0){
+         width = a;
+         height = b;
+      }
+      virtual int area() {   //if we dont use virtual then compiler thinks user wants to run this function
+      //if we use virtual then compiler connects address of rectangle class to shape pointer and executes that function( Shape *shape; )
+         cout << "Parent class area :" <<endl;
+         return 0;
+      }
+};
+class Rectangle: public Shape {
+   public:
+      Rectangle( int a = 0, int b = 0):Shape(a, b) { }
+      
+      int area () { 
+         cout << "Rectangle class area :" <<endl;
+         return (width * height); 
+      }
+};
+
+class Triangle: public Shape {
+   public:
+      Triangle( int a = 0, int b = 0):Shape(a, b) { }
+      
+      int area () { 
+         cout << "Triangle class area :" <<endl;
+         return (width * height / 2); 
+      }
+};
+
+// Main function for the program
+int main() {
+   Shape *shape;
+   Rectangle rec(10,7);
+   Triangle  tri(10,5);
+
+   // store the address of Rectangle
+   shape = &rec;
+   
+   // call rectangle area.
+   shape->area();
+
+   // store the address of Triangle
+   shape = &tri;
+   
+   // call triangle area.
+   shape->area();
+   
+   return 0;
+}
+————— output ———— 
+Rectangle class area :
+Triangle class area :
+
+——————————————— How to use pure virtual keyword - without pointer and address —————————————— 
+#include <iostream>
+using namespace std;
+ 
+// Base class
+class Shape {
+   public:
+      // pure virtual function providing interface framework.
+      virtual int getArea() = 0;
+      void setWidth(int w) {
+         width = w;
+      }
+   
+      void setHeight(int h) {
+         height = h;
+      }
+   
+   protected:
+      int width;
+      int height;
+};
+ 
+// Derived classes
+class Rectangle: public Shape {
+   public:
+      int getArea() { 
+         return (width * height); 
+      }
+};
+
+class Triangle: public Shape {
+   public:
+      int getArea() { 
+         return (width * height)/2; 
+      }
+};
+ 
+int main(void) {
+   Rectangle Rect;
+   Triangle  Tri;
+ 
+   Rect.setWidth(5);
+   Rect.setHeight(7);
+   
+   // Print the area of the object.
+   cout << "Total Rectangle area: " << Rect.getArea() << endl;
+
+   Tri.setWidth(5);
+   Tri.setHeight(7);
+   
+   // Print the area of the object.
+   cout << "Total Triangle area: " << Tri.getArea() << endl; 
+
+   return 0;
+}
+—————— output —— 
+Total Rectangle area: 35
+Total Triangle area: 17
+———————————————— Abstraction and Encapsulation ————————— 
+Data abstraction refers to providing only essential information to the outside world and hiding their background details, i.e., to represent the needed information in program without presenting the details. Below class adds numbers together, and returns the sum. The public members - addNum and getTotal are the interfaces to the outside world and a user needs to know them to use the class. The private member total is something that the user doesn't need to know about, but is needed for the class to operate properly.
+
+Data encapsulation is a mechanism of bundling the data, and the functions that use them and data abstraction is a mechanism of exposing only the interfaces and hiding the implementation details from the user.
+
+#include <iostream>
+using namespace std;
+
+class Adder {
+   public:
+      // constructor
+      Adder(int i = 0) {
+         total = i;
+      }
+      
+      // interface to outside world
+      void addNum(int number) {
+         total += number;
+      }
+      
+      // interface to outside world
+      int getTotal() {
+         return total;
+      };
+      
+   private:
+      // hidden data from outside world
+      int total;
+};
+
+int main() {
+   Adder a;
+   
+   a.addNum(100);
+   a.addNum(200);
+   a.addNum(300);
+
+   cout << "Total " << a.getTotal() <<endl;
+   return 0;
+}
+——— output ——— 
+Total 600 
+—————————————— another example but this time using constructor and all in one class. No child class ————————— 
+#include <iostream>
+using namespace std;
+
+class multiplyallnow { 
+  private : 
+    double onlytothisclasstotal ;
+  public : 
+    //constructor
+    multiplyallnow(int x) { onlytothisclasstotal = x; }
+
+    //multiply method
+    double mul(int a) { 
+      return ( onlytothisclasstotal * a) ;
+    }
+}; 
+
+int main() { 
+  multiplyallnow A(10);
+  
+  cout << "Final value " << A.mul(20) << endl;
+  
+  return 0;
+}
+————— output ———— 
+Final value 200
+
+—————————— Interfaces ( Abstract class)  ——————————— 
+The purpose of an abstract class (often referred to as an ABC) is to provide an appropriate base class from which other classes can inherit. Abstract classes cannot be used to instantiate objects and serves only as an interface. Attempting to instantiate an object of an abstract class causes a compilation error.
+
+Thus, if a subclass of an ABC needs to be instantiated, it has to implement each of the virtual functions, which means that it supports the interface declared by the ABC. Failure to override a pure virtual function in a derived class, then attempting to instantiate objects of that class, is a compilation error.
+
+Classes that can be used to instantiate objects are called concrete classes.
+
+
+#include <iostream>
+using namespace std;
+
+
+class outingteam { 
+  public : 
+  int boys; int gals; 
+  virtual void gettotalsize() = 0; 
+  void setboys(int a) {
+    boys = a; 
+  }
+  void setgals(int b) { 
+    gals = b;
+  }  
+  protected:
+    int strenth;
+}; 
+
+class firstteam : public outingteam { 
+  public: 
+    void gettotalsize() { 
+        cout << "Total : " << boys * gals << endl;     //accessing base class variables
+        cout << "Strenth : " << boys + gals << endl;
+    }  
+}; 
+ 
+
+int main() {
+  firstteam f1;
+  f1.setboys(300);   //calling base class method 
+  f1.setgals(400);   //calling base class method here 
+  f1.gettotalsize();  //calling derived class method
+  return 0;
+}
+————— output ——— 
+Total : 120000
+Strenth : 700
+
+
+- —————————————— Files ——————————— 
+
+Data types - 
+ofstream = This data type represents the output file stream and is used to create files and to write information to files.
+Ifstream = This data type represents the input file stream and is used to read information from files.
+fstream = This data type represents the file stream generally, and has the capabilities of both ofstream and ifstream which means it can create files, write information to files, and read information from files.
+
+COUT is to write to screen or output 
+CIN  is to read from screen or scan user input 
+
+#include <iostream>
+#include <fstream> 
+using namespace std;
+
+
+int main() { 
+  char data[100];
+  ofstream writetothisfile;
+  writetothisfile.open("100test.txt");
+  cout << "Enter your data that you wish to update to file " << endl;
+
+  cin.getline(data, 100);
+  writetothisfile << data << endl;
+  writetothisfile.close();
+  
+  
+  ifstream readfromthisfile;
+  readfromthisfile.open("100test.txt");
+  readfromthisfile >> data ;
+  cout << data << endl;
+
+  readfromthisfile.close();
+  return 0;
+}
+———— output ——— 
+Enter your data that you wish to update to file 
+allan gonsalves
+allan
+
+——————————— Exception handling ————————————— 
+try {
+   // protected code
+} catch( ExceptionName e1 ) {
+   // catch block
+} catch( ExceptionName e2 ) {
+   // catch block
+} catch( ExceptionName eN ) {
+   // catch block
+}
+
+The exception handler is declared with the catch keyword immediately after the closing brace of the try block. The syntax for catch is similar to a regular function with one parameter. The type of this parameter is very important, since the type of the argument passed by the throw expression is checked against it, and only in the case they match, the exception is caught by that handler. Multiple handlers (i.e., catch expressions) can be chained; each one with a different parameter type. Only the handler whose argument type matches the type of the exception specified in the throw statement is executed.
+
+If an ellipsis (...) is used as the parameter of catch, that handler will catch any exception no matter what the type of the exception thrown.
+
+—————————— Simple try catch with msg ————————— 
+#include <iostream>
+using namespace std;
+
+double division(int a , int b) { 
+  return a /b ;
+
+}; 
+
+int main() {
+  double result;
+try { 
+  result = division(30,0);
+  cout << "result : " << result << endl ;
+} catch (const char* msg ) { 
+  cerr << msg << endl;
+}  
+  return 0;
+}
+————— output ————— 
+Floating point exception: 8
+
+—————————— try catch with msg with catch with same parameter type  ————————— 
+
+#include <iostream>
+#include <fstream>
+using namespace std;
+
+
+int main () { 
+  int num;
+  cout << "Enter any number" << endl;
+  cin >> num ;
+
+  try { 
+    if (num < 0) 
+      throw num;
+  } catch  ( int n1){  //use same parameter type passed by throw command
+//or you use below 
+//   Catch ( …)  { 
+      cout << "Donot enter less than zero " << n1 << endl;
+  }
+  return 0;
+}
+—————output ————— 
+Enter any number
+-2
+Donot enter less than zero -2
+———————————————try catch using NULL parameter in function call —————————— 
+
+
+#include <iostream> 
+using namespace std; 
+  
+// This function signature is fine by the compiler, but not recommended. 
+// Ideally, the function should specify all uncaught exceptions and function 
+// signature should be "void fun(int *ptr, int x) throw (int *, int)" 
+void fun(int *ptr, int x) 
+{ 
+    if (ptr == NULL) 
+        throw ptr; 
+    if (x == 0) 
+        throw x; 
+    /* Some functionality */
+} 
+  
+int main() 
+{ 
+    try { 
+       fun(NULL, 0); 
+    } 
+    catch(...) { 
+        cout << "Caught exception from fun()"; 
+    } 
+    return 0; 
+}
+—————— output ————— 
+Caught exception from fun()
+
+————————— Class in try -catch block - —————————————— 
+
+When an exception is thrown, all objects created inside the enclosing try block are destructed before the control is transferred to catch block.
+#include <iostream> 
+using namespace std; 
+  
+class Test { 
+public: 
+   Test() { cout << "Constructor of Test " << endl; } 
+  ~Test() { cout << "Destructor of Test "  << endl; } 
+}; 
+  
+int main() { 
+  try { 
+    Test t1; 
+    throw 10; 
+  } catch(int i) { 
+    cout << "Caught " << i << endl; 
+  } 
+} 
+
+————— output ————————— 
+Constructor of Test 
+Destructor of Test 
+Caught 10
+
+———————————————— Dynamic Memory ———————————— 
+The stack − All variables declared inside the function will take up memory from the stack.
+The heap − This is unused memory of the program and can be used to allocate the memory dynamically when program runs.
+
+You can allocate memory at run time within the heap for the variable of a given type using a special operator in C++ which returns the address of the space allocated. This operator is called new operator. If you are not in need of dynamically allocated memory anymore, you can use delete operator, which de-allocates memory that was previously allocated by new operator.
+
+#include <iostream>
+using namespace std;
+
+int main () {
+   double* pvalue  = NULL; // Pointer initialized with null
+   pvalue  = new double;   // Request memory for the variable
+ 
+   *pvalue = 29494.99;     // Store value at allocated address
+   cout << "Value of pvalue : " << *pvalue << endl;
+
+   delete pvalue;         // free up the memory.
+
+   return 0;
+}
+
+———— output —————— 
+Value of pvalue : 29495
+
+—————— new cases of Dynamic memory allocation ————— 
+char* pvalue  = NULL;         // Pointer initialized with null
+pvalue  = new char[20];       // Request memory for the variable
+
+—————— new cases of Dynamic memory allocation ————— 
+
+double** pvalue  = NULL;      // Pointer initialized with null 
+pvalue  = new double [3][4];  // Allocate memory for a 3x4 array 
+
+delete [] pvalue;            // Delete array pointed to by pvalue
+
+
+——————— simple C++ character pointer ————— 
+
+#include <iostream>
+using namespace std;
+
+int main() { 
+  char str[13] = "What a day” ;
+
+  char *pointer = str;
+ 
+    cout << "print 1 " << pointer << endl;
+  return 0 ;
+}
+
+——— output ————— 
+print 1 What a day
+
+——————————— Void pointers ———————————— 
+This is a special type of pointer available in C++ which represents absence of type. void pointers are pointers that point to a value that has no type (and thus also an undetermined length and undetermined dereferencing properties).
+This means that void pointers have great flexibility as it can point to any data type. There is payoff for this flexibility. These pointers cannot be directly dereferenced. They have to be first transformed into some other pointer type that points to a concrete data type before being dereferenced.
+
+See below how we took value of &c and &I into a void point just to pass address and then used pointer with concrete data type for proper assignment 
+
+#include <iostream>
+using namespace std;
+
+//*vp below is called void pointer , it just pass address of incoming parameter to real pointer 
+//actualcharpoint and actualintpointer
+void decrease (void *vp, int size) { 
+  if ( size == sizeof(char)) { 
+    char *actualcharpoint = (char*) vp;
+    (*actualcharpoint)--;
+    cout << "Previoud value of char : " << *actualcharpoint << endl;
+  } 
+  else if ( size == sizeof(int)) { 
+    int *actualintpointer = (int*) vp;
+    (*actualintpointer)--;
+    cout << "Previous value of int :" << *actualintpointer << endl;
+  }
+  
+}
+int main() { 
+  char c = 'x';
+  int i = 10;
+  cout << "Original value of char : " << c << endl;
+  decrease(&c, sizeof(char)) ;
+  cout << "Orginal value of int : " << i << endl;
+  decrease(&i, sizeof(int));
+  return 0;
+}
+————— output ——— 
+Original value of char : x
+Previoud value of char : w
+Orginal value of int : 10
+Previous value of int :9
+
+——————————————— String operations ————————————— 
+
+#include <iostream>
+using namespace std;
+
+
+//insert(pos, string) 
+//find a target string in s1 = find(target)
+//replace(pos, length_of_portion, string_to_replace) 
+
+int main() { 
+  string s1 = "What a day"; 
+  string s2 = "nice day indeed";
+  string sfinal ;
+
+ cout << "size of s1 " << sizeof(s1) << endl;
+ sfinal = s1.append(" sunday");
+ cout << "Appended string : " << sfinal << endl;
+
+ if ( s1.compare(s2) == 0) { 
+    cout << "String compare match " << endl;
+ } 
+ else { 
+    cout << "String compare mismatch " << endl;
+ }
+
+  cout << "Inserted new stuff into s1 " << s1.insert(3, "----wow----") << endl;
+  cout << "Find day into string position - " << s1.find("day") << endl;
+  cout << "Replacement of s2 - " << s2.replace(5,4," ___station___") << endl;
+  return 0;
+}
+——————— output ————— 
+size of s1 24
+Appended string : What a day sunday
+String compare mismatch 
+Inserted new stuff into s1 Wha----wow----t a day sunday
+Find day into string position - 18
+Replacement of s2 - nice  ___station___indeed
+
+———————————————— string operations 2 ———————— 
+
+#include <iostream> 
+#include <cstring> 
+using namespace std; 
+  
+int main() 
+{ 
+    char s1[10] = "Hello"; 
+  
+    // return length of s1 
+    cout << strlen(s1) << endl; 
+  
+    char s2[50]; 
+  
+    // copies s1 into s2 
+    strcpy(s2, s1); 
+    cout << s2 << endl; 
+  
+    char s3[10] = "World"; 
+  
+    // concatenates s3 into s2 
+    strcat(s2, s3); 
+    cout << s2 << endl; 
+  
+    char s4[50] = "HelloWorld"; 
+  
+    // return 0 if s2 and s4 are equal. 
+    if (strcmp(s2, s4) == 0) 
+        cout << "true" << endl; 
+    else
+        cout << "false" << endl; 
+  
+    char s5[30]; 
+  
+    // copies first 5 chars of s2 into s1 
+    strncpy(s5, s4, 5); 
+    cout << s5 << endl; 
+  
+    char target[10] = "Hello"; 
+  
+    // search for target string in s4 
+    if (strstr(s4, target) != NULL) 
+        cout << "true" << endl; 
+    else
+        cout << "false" << endl; 
+  
+    return 0; 
+} 
+———— output ———— 
+5
+Hello
+HelloWorld
+true
+Hello? ?8?q??
+true
+
+————————————————— STL - Standard Template Library ————————— 
+The C++ STL (Standard Template Library) is a powerful set of C++ template classes to provide general-purpose classes and functions with templates that implement many popular and commonly used algorithms and data structures like vectors, lists, queues, and stacks. It has following well structured components - 
+1. Container - ontainers are used to manage collections of objects of a certain kind. There are several different types of containers like deque, list, vector, map etc.
+2. Algorithm - Algorithms act on containers. They provide the means by which you will perform initialization, sorting, searching, and transforming of the contents of containers.
+3. Iterators - Iterators are used to step through the elements of collections of objects. These collections may be containers or subsets of containers.
+
+————— 1) Vector —————— 
+//https://www.codeguru.com/cpp/cpp/cpp_mfc/stl/article.php/c4027/C-Tutorial-A-Beginners-Guide-to-stdvector-Part-1.htm
+
+
+Vector is a template class that is a perfect replacement for the good old C-style arrays. It is defined as follows 
+#include <vector> using namespace std;
+vector<T> v;  
+
+It is a template class that will wrap an array of Ts. In this widely used notation, 'T' stands for any data type, built-in, or user-defined class. The vector will store the Ts in a contiguous memory area that it will handle for you, and let you access the individual Ts simply by writing v[0], v[1], and so on, exactly like you would do for a C-style array.
+
+
+#include <vector>
+#include <iostream> 
+using namespace std;
+int main() { 
+  vector<float> values;    // we can also use values(5) and no reserve required as shown in next line below.
+  values.reserve(5);      //use () to allocate memory
+  int i;
+  
+  for(i=0; i< 5; i++ ) { 
+    values[i] = i;
+    cout << "Value of vector : " << values[i] << endl;  //use [] to access member of vector
+  }
+  return 0;
+}
+—————— output ———— 
+Value of vector : 0
+Value of vector : 1
+Value of vector : 2
+Value of vector : 3
+Value of vector : 4
+
+——————— Vector memory : RESERVE ———— 
+Vector dynamically allocates, reallocates memory depending on elements get added and grows into it. We can also reserve memory by following syntax
+  values.reserve(5); 
+
+————— Difference between below syntax - ——— 
+// snip 1:
+std::vector<int> v(10);
+// snip 2:
+std::vector<int> v;
+v.reserve(10);
+— The first snippet defines a vector containing 10 integers, and initializes them with their default value (0). If we hadn't integers but some user-defined class, vector would call the default ctor 10 times and contain 10 readily constructed objects. The second snippet defines an empty vector, and then tells it to make room for 10 integers. The vector will allocate enough memory to hold at least 10 integers, but will not initialize this memory. If we had no integers, but some user-defined class, the second snippet wouldn't construct any instance of that class.
+
+——————— Vector memory : CAPACITY and SIZE  ———— 
+To find out how many elements would fit in the currently allocated storage of a vector, use the capacity() member function. To find out how many elements are currently contained by the vector, use the size() member function.  
+
+#include <vector>
+#include <iostream>
+using namespace std;
+
+
+int main() { 
+  vector<int> vec; 
+  cout << "Vector capacity : " << vec.capacity() << endl;  //Vector capacity : 3
+  cout << "Vector size : " <<  vec.size() << endl;        //Vector size : 0
+
+  vec.push_back(10);    //append an element
+  vec.push_back(20);    //append an element
+  vec.push_back(30);    //append an element
+  vec.push_back(40);    //append an element
+  cout << "Vector capacity : " << vec.capacity() << endl;  //Vector capacity : 3
+  cout << "Vector size : " <<  vec.size() << endl;        //Vector size : 1
+
+  vec.push_back(50);      //here 
+  cout << "Vector capacity : " << vec.capacity() << endl;  //Vector capacity :  
+  cout << "Vector size : " <<  vec.size() << endl;        //Vector size :  
+  return 0;
+}
+
+ ——— output ———— 
+Vector capacity : 0
+Vector size : 0
+Vector capacity : 4
+Vector size : 4
+Vector capacity : 8
+Vector size : 5
+
+See how capacity changes , it happens based on the datatype of vector, as here in this case vector in of type int, as we know size of int is 4 bytes so compiler will allocate 4 block of memory ..and when we try to add 5th element , vector::capacity() is doubled what we have currently.
+
+————————— Using class as a data type for Vector —————— 
+#include <vector>
+#include <iostream>
+using namespace std;
+
+class X { 
+  public : 
+    void setup(int i) { 
+      cout << "From class " << i << endl;
+    }
+
+}; 
+
+int main() {
+  vector<X> myvec(2);     //here vector data type is a class. X is the class data type. 
+  myvec[1].setup(20) ;    //this is creating instance of class
+  myvec[2].setup(40) ;     //this is creating instance of class
+  return 0;
+}
+
+—————— output ———— 
+From class 20
+From class 40
+
+———— ————— Simple array passing as function parameter ——————— 
+#include <iostream>
+using namespace std;
+
+double getmean(int *array, size_t S) { 
+    double result;
+    int i;
+    for ( i = 0 ; i< S; i++) { 
+      result += array[I];
+    }
+    return result/S;
+}
+
+
+int main() { 
+
+  int nums[] = { 3, 5, 2 , 6, 7, 8};
+  int final;
+  final = getmean(nums, 6);
+  cout << " Mean value is : " << final << endl;
+  return 0;
+}
+————— output ————— 
+
+ Mean value is : 5
+———— ————— Simple Vector passing as function parameter , replacement of array in example above ——————— 
+
+#include <iostream>
+#include <vector>
+
+double mean(double *array, size_t n)
+{
+    double m=0;
+    for(size_t i=0; i<n; ++i){
+        m += array[i];
+    }
+    return m/n;
+}
+
+int main()
+{
+    std::vector<double> a;
+    a.push_back(3);
+    a.push_back(5);
+    a.push_back(2);
+    a.push_back(6);
+    a.push_back(7);
+    a.push_back(8);
+    std::cout<< "Mean result using vector : " << mean(&a[0], 5)<<std::endl;    // will print 3
+    return 0;
+}
+————— output —————— 
+Mean result using vector : 4.6
+
+——————————— Iterator —————————— 
+Iterators are the way the Standard Library models a common interface for all containers—vector, list, set, deque, and so on. The reason is that operations that are "natural" for one container (like subscripting for vector) do not make sense for other containers. The Standard Library needs a common way of applying algorithms like iterating, finding, sorting to all containers—thus the concept of iterators. An iterator is a handle to a contained element. 
+
+
+Understanding the second point is crucial when working with vectors or any other standard containers. The controlled sequence is always expressed in terms of [first, one-past-last)—not only for vectors, but also for every function that operates on a range of elements.
+
+————————————— Sample program using Iterator , Pointer and normal loop counter ——————
+#include <vector>
+#include <iostream> 
+using namespace std;
+
+int main()
+{
+    vector<double> a1;
+    vector<double>::const_iterator i;
+    a1.push_back(1);
+    a1.push_back(2);
+    a1.push_back(3);
+    a1.push_back(4);
+    a1.push_back(5);
+    for(i=a1.begin(); i!=a1.end(); ++i){          //begin() = returns an iterator that "points" to the first element in the sequence and end() returns an iterator that "points" to one-past-the-last-element in the sequence
+         cout<< "Using Iterator : " << (*i)<< endl;
+    } 
+    vector<double> a2;
+    const double *p;
+    a2.push_back(1);
+    a2.push_back(2);
+    a2.push_back(3);
+    a2.push_back(4);
+    a2.push_back(5);
+    for(p=&a2[0]; p!=&a2[0]+5; ++p){
+        cout<< "Using pointer : "<< (*p)<<endl;
+    } 
+   vector<double> a3;
+    int i1;
+    a3.push_back(1);
+    a3.push_back(2);
+    a3.push_back(3);
+    a3.push_back(4);
+    a3.push_back(5);
+    for(i1=0; i1< a3.size(); ++i1){
+        cout<< "Using simple counter : " << a3[i1]<<endl;
+    }
+    return 0; 
+}
+————— output —————— 
+Using Iterator : 1
+Using Iterator : 2
+Using Iterator : 3
+Using Iterator : 4
+Using Iterator : 5
+Using pointer : 1
+Using pointer : 2
+Using pointer : 3
+Using pointer : 4
+Using pointer : 5
+Using simple counter : 1
+Using simple counter : 2
+Using simple counter : 3
+Using simple counter : 4
+Using simple counter : 5
+
+
+——————————————— How to use List ——————————— 
+front() – Returns the value of the first element in the list
+back() – Returns the value of the last element in the list
+push_front(g) – Adds a new element ‘g’ at the beginning of the list
+push_back(g) – Adds a new element ‘g’ at the end of the list
+pop_front() – Removes the first element of the list, and reduces size of the list by 1
+pop_back() – Removes the last element of the list, and reduces size of the list by 1
+begin() – Returns an iterator pointing to the first element of the list
+end() – Returns an iterator pointing to the theoretical last element which follows the last element
+empty() – Returns whether the list is empty(1) or not(0)
+insert() – Inserts new elements in the list before the element at a specified position
+erase() – Removes a single element or a range of elements from the list
+assign() – Assigns new elements to list by replacing current elements and resizes the list
+remove() – Removes all the elements from the list, which are equal to given element
+reverse() – Reverses the list
+size() – Returns the number of elements in the list
+sort() – Sorts the list in increasing order
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+——————— ———— Web programming —————————— 
+To understand the concept of CGI, let's see what happens when we click a hyperlink to browse a particular web page or URL.Your browser contacts the HTTP web server and demand for the URL ie. filename.
+
+Web Server will parse the URL and will look for the filename. If it finds requested file then web server sends that file back to the browser otherwise sends an error message indicating that you have requested a wrong file.Web browser takes response from web server and displays either the received file or error message based on the received response.However, it is possible to set up the HTTP server in such a way that whenever a file in a certain directory is requested, that file is not sent back; instead it is executed as a program, and produced output from the program is sent back to your browser to display.
+
+The Common Gateway Interface (CGI) is a standard protocol for enabling applications (called CGI programs or CGI scripts) to interact with Web servers and with clients. These CGI programs can be a written in Python, PERL, Shell, C or C++ etc.
+
+Web client <—> web server —> server side scripting —> database
+
+//https://franklingu.github.io/programming/2015/12/21/C++-CGI-setup-on-CentOS/
+
+There are basically 2 choices for setting up web server to serve CGI scripts. Apache and httpd support execution of CGI scripts by default and you can just simply enable “+ExecCGI” option. Or you can try Nginx, which does not support CGI execution but supports FastCGI. So in this tutorial we will be exploring the easier option and we will be install htttpd to server CGI scripts.
+
+——————— Install httpd and then navigate to /var/www/cgi-bin and place below code there in a .cpp file 
+#include <iostream>
+using namespace std;
+
+int main () {
+   cout << "Content-type:text/html\r\n\r\n";
+   cout << "<html>\n";
+   cout << "<head>\n";
+   cout << "<title>Hello World - First CGI Program</title>\n";
+   cout << "</head>\n";
+   cout << "<body>\n";
+   cout << "<h2>Hello World! This is my first CGI program</h2>\n";
+   cout << "</body>\n";
+   cout << "</html>\n";
+   
+   return 0;
+}
+———— To execute above code , use  g++ -o < name of the file>.cgi <name of the file>.cpp 
+Example g++ -o start.cgi start.cpp 
+————— curl localhost/cgi-bin/start.cgi
+
+The line Content-type:text/html\r\n\r\n is a part of HTTP header, which is sent to the browser to understand the content type to be displayed on the browser. 
+—————— Headers————————— 
+Content-type:  = A MIME string defining the format of the file being returned. Example is Content-type:text/html
+Expires: Date = The date the information becomes invalid. This should be used by the browser to decide when a page needs to be refreshed
+Location: URL = The URL that should be returned instead of the URL requested. You can use this filed to redirect a request to any file.
+Content-length: N  = The length, in bytes, of the data being returned. The browser uses this value to report the estimated download time for a file.
+Set-Cookie: String = Set the cookie passed through the string.
+
+ —————— Cgi Environmental variables - 
+
+All the CGI program will have access to the following environment variables. 
+CONTENT_TYPE
+CONTENT_LENGTH = The length of the query information that is available only for POST requests.
+HTTP_COOKIE = Returns the set cookies in the form of key & value pair.
+HTTP_USER_AGENT = The User-Agent request-header field contains information about the user agent originating the request. It is a name of the web browser.
+PATH_INFO = The path for the CGI script.
+QUERY_STRING = The URL-encoded information that is sent with GET method request.
+REMOTE_ADDR = The IP address of the remote host making the request. This can be useful for logging or for authentication purpose
+REMOTE_HOST = The fully qualified name of the host making the request. If this information is not available then REMOTE_ADDR can be used to get IR address.
+REQUEST_METHOD = The method used to make the request. The most common methods are GET and POST.
+SCRIPT_FILENAME = The full path to the CGI script.
+SCRIPT_NAME = The name of the CGI script.
+SERVER_NAME = The server's hostname or IP Address.
+SERVER_SOFTWARE = The name and version of the software the server is running.
+
+———— List all CGI variables /// https://andres.jaimes.net/811/how-to-install-a-fcgi-nginx-in-centos-6/— —— 
+#include <iostream>
+#include <stdlib.h>
+using namespace std;
+
+const string ENV[ 24 ] = {
+   "COMSPEC", "DOCUMENT_ROOT", "GATEWAY_INTERFACE",   
+   "HTTP_ACCEPT", "HTTP_ACCEPT_ENCODING",             
+   "HTTP_ACCEPT_LANGUAGE", "HTTP_CONNECTION",         
+   "HTTP_HOST", "HTTP_USER_AGENT", "PATH",            
+   "QUERY_STRING", "REMOTE_ADDR", "REMOTE_PORT",      
+   "REQUEST_METHOD", "REQUEST_URI", "SCRIPT_FILENAME",
+   "SCRIPT_NAME", "SERVER_ADDR", "SERVER_ADMIN",      
+   "SERVER_NAME","SERVER_PORT","SERVER_PROTOCOL",     
+   "SERVER_SIGNATURE","SERVER_SOFTWARE" };   
+
+int main () {
+   cout << "Content-type:text/html\r\n\r\n";
+   cout << "<html>\n";
+   cout << "<head>\n";
+   cout << "<title>CGI Environment Variables</title>\n";
+   cout << "</head>\n";
+   cout << "<body>\n";
+   cout << "<table border = \"0\" cellspacing = \"2\">";
+
+   for ( int i = 0; i < 24; i++ ) {
+      cout << "<tr><td>" << ENV[ i ] << "</td><td>";
+      
+      // attempt to retrieve value of environment variable
+      char *value = getenv( ENV[ i ].c_str() );  
+      if ( value != 0 ) {
+         cout << value;                                 
+      } else {
+         cout << "Environment variable does not exist.";
+      }
+      cout << "</td></tr>\n";
+   }
+   
+   cout << "</table><\n";
+   cout << "</body>\n";
+   cout << "</html>\n";
+   
+   return 0;
+}
+
+———— output ——— 
+<html>
+<head>
+<title>CGI Environment Variables</title>
+</head>
+<body>
+<table border = "0" cellspacing = "2"><tr><td>COMSPEC</td><td>Environment variable does not exist.</td></tr>
+<tr><td>DOCUMENT_ROOT</td><td>/var/www/html</td></tr>
+<tr><td>GATEWAY_INTERFACE</td><td>CGI/1.1</td></tr>
+<tr><td>HTTP_ACCEPT</td><td>*/*</td></tr>
+<tr><td>HTTP_ACCEPT_ENCODING</td><td>Environment variable does not exist.</td></tr>
+<tr><td>HTTP_ACCEPT_LANGUAGE</td><td>Environment variable does not exist.</td></tr>
+<tr><td>HTTP_CONNECTION</td><td>Environment variable does not exist.</td></tr>
+<tr><td>HTTP_HOST</td><td>localhost</td></tr>
+<tr><td>HTTP_USER_AGENT</td><td>curl/7.56.0</td></tr>
+<tr><td>PATH</td><td>/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin</td></tr>
+<tr><td>QUERY_STRING</td><td></td></tr>
+<tr><td>REMOTE_ADDR</td><td>::1</td></tr>
+<tr><td>REMOTE_PORT</td><td>46688</td></tr>
+<tr><td>REQUEST_METHOD</td><td>GET</td></tr>
+<tr><td>REQUEST_URI</td><td>/cgi-bin/cgisample.cgi</td></tr>
+<tr><td>SCRIPT_FILENAME</td><td>/var/www/cgi-bin/cgisample.cgi</td></tr>
+<tr><td>SCRIPT_NAME</td><td>/cgi-bin/cgisample.cgi</td></tr>
+<tr><td>SERVER_ADDR</td><td>::1</td></tr>
+<tr><td>SERVER_ADMIN</td><td>root@localhost</td></tr>
+<tr><td>SERVER_NAME</td><td>localhost</td></tr>
+<tr><td>SERVER_PORT</td><td>80</td></tr>
+<tr><td>SERVER_PROTOCOL</td><td>HTTP/1.1</td></tr>
+<tr><td>SERVER_SIGNATURE</td><td></td></tr>
+<tr><td>SERVER_SOFTWARE</td><td>Apache/2.4.6 (CentOS)</td></tr>
+</table><
+</body>
+</html>
+
+—————————— GET /POST Method ————————— 
+You must have come across many situations when you need to pass some information from your browser to web server and ultimately to your CGI Program. Most frequently browser uses two methods to pass this information to web server. The GET method is the default method to pass information from browser to web server and it produces a long string that appears in your browser's Location.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
